@@ -70,7 +70,7 @@ const LoginPage = () => {
         </button>
       </form>
       <p className="text-sm text-neutral-600">
-        Шинэ шинжээч үү?{' '}
+        Шинэ скрининг хийгч үү?{' '}
         <Link href="/register" className="font-medium text-neutral-900 underline">
           Бүртгүүлэх
         </Link>

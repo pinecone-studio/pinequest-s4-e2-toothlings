@@ -33,6 +33,7 @@ model User {
   followUpUpdates   FollowUp[]       @relation("FollowUpUpdatedBy")
   contentVersions   ContentVersion[]
   auditEntries      AuditLog[]
+  reviews           ScreeningReview[]
 }
 
 // ---------------------------------------------------------------------------
@@ -127,10 +128,25 @@ model Screening {
   findings      ToothFinding[]
   images        ScreeningImage[]
   questionnaire Questionnaire?
+  review        ScreeningReview?
 
   @@index([childKey])
   @@index([childKey, seasonId])
   @@index([schoolId, seasonId])
+}
+
+// Dentist confirm/override of a screening's triage. The screening stays
+// immutable; this is the audited human judgement layered on top (one per screening).
+model ScreeningReview {
+  id             String    @id @default(uuid())
+  screeningId    String    @unique
+  screening      Screening @relation(fields: [screeningId], references: [id])
+  reviewedById   String
+  reviewedBy     User      @relation(fields: [reviewedById], references: [id])
+  confirmedLevel String // dentist's triage: 'green' | 'yellow' | 'red'
+  note           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model ScreeningImage {

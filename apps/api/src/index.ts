@@ -1,9 +1,11 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
+import multipart from '@fastify/multipart'
 import { prismaPlugin } from './plugins/prisma.js'
 import { authPlugin } from './plugins/auth.js'
 import { healthRoutes } from './routes/health.js'
 import { authRoutes } from './routes/auth.js'
+import { analyzeRoutes } from './routes/analyze.js'
 import { screeningRoutes } from './routes/screenings.js'
 import { schoolRoutes } from './routes/schools.js'
 import { classRoutes } from './routes/classes.js'
@@ -16,14 +18,18 @@ const start = async (): Promise<void> => {
   await server.register(cors, {
     origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
   })
+  // Multipart must be registered before any route that calls req.parts().
+  await server.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
 
   // Decorators first (fastify-plugin propagates them to every route context).
   await server.register(prismaPlugin)
   await server.register(authPlugin)
 
-  // Routes declare full explicit paths, so they register without a prefix.
+  // analyzeRoutes registered before screeningRoutes so POST /analyze isn't
+  // shadowed by the /:id parameterised route in a future Fastify version.
   await server.register(healthRoutes)
   await server.register(authRoutes)
+  await server.register(analyzeRoutes)
   await server.register(screeningRoutes)
   await server.register(schoolRoutes)
   await server.register(classRoutes)

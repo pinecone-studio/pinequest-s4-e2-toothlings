@@ -47,7 +47,12 @@ const RegisterPage = () => {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Screener — Шинжээч бүртгүүлэх</h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Скрининг хийгчээр бүртгүүлэх</h1>
+        <p className="text-sm text-neutral-500">
+          Багш, сургууль/цэцэрлэгийн эмч зэрэг шүдний бус ажилтнуудад зориулсан.
+        </p>
+      </div>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <input
           value={name}
