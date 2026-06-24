@@ -33,7 +33,7 @@ export const analyzeRoutes = async (app: FastifyInstance): Promise<void> => {
     }
 
     const form = new FormData()
-    form.append('file', new Blob([imageBuffer], { type: 'image/jpeg' }), 'capture.jpg')
+    form.append('image', new Blob([imageBuffer], { type: 'image/jpeg' }), 'capture.jpg')
 
     const inferRes = await fetch(inferenceUrl, { method: 'POST', body: form })
     if (!inferRes.ok) return reply.code(502).send({ success: false, message: 'inference_failed' })
