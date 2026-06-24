@@ -1,16 +1,32 @@
-import type { Metadata } from 'next'
-import type { ReactNode } from 'react'
-import './globals.css'
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: 'PineQuest — Шүдний зөвөлгөө',
-  description: 'Шүдний эрүүл мэндийн зөвөлгөө, чиглүүлэл авах платформ',
-}
+  title: "Шүдний Screener",
+  description: "Шүдний зураг дээр эмгэг илрүүлэх screening систем",
+};
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="mn">
-      <body>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
+      </body>
     </html>
-  )
+  );
 }
