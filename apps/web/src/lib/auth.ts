@@ -19,8 +19,11 @@ export const clearToken = (): void => {
 type JwtPayload = { sub: string; role: UserRole; schoolId?: string; exp?: number }
 
 /** Landing route for a role after login/registration. */
-export const homeForRole = (role: UserRole | string | null): string =>
-  role === 'admin' ? '/admin' : '/screener'
+export const homeForRole = (role: UserRole | string | null): string => {
+  if (role === 'admin') return '/admin'
+  if (role === 'follow_up') return '/follow-up'
+  return '/screener'
+}
 
 /** Decode the (unverified) JWT payload for client-side UX gating only.
  *  The API re-verifies every request — this is not a security boundary. */

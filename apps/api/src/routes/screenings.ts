@@ -51,6 +51,22 @@ export const screeningRoutes = async (app: FastifyInstance): Promise<void> => {
       include: { findings: true, images: true, questionnaire: true },
     })
 
+    // Flag for follow-up on the first non-green screening. One running follow-up
+    // per child; an existing record is left untouched (status is worker-owned).
+    if (result.level !== 'green') {
+      await app.prisma.followUp.upsert({
+        where: { childKey: body.childKey },
+        update: {},
+        create: {
+          childKey: body.childKey,
+          schoolId: body.schoolId,
+          status: 'flagged',
+          updatedById: req.user.sub,
+          version: 1,
+        },
+      })
+    }
+
     return reply.code(201).send({ success: true, data: screening })
   })
 
