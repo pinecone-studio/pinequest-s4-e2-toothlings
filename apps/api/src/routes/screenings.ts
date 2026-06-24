@@ -54,6 +54,24 @@ export const screeningRoutes = async (app: FastifyInstance): Promise<void> => {
     return reply.code(201).send({ success: true, data: screening })
   })
 
+  // List screenings (immutable events) filtered by child / class / school / season.
+  app.get<{
+    Querystring: { childKey?: string; classId?: string; schoolId?: string; seasonId?: string }
+  }>('/api/screenings', { preHandler: [app.authenticate] }, async (req) => {
+    const { childKey, classId, schoolId, seasonId } = req.query
+    const screenings = await app.prisma.screening.findMany({
+      where: {
+        childKey: childKey || undefined,
+        classId: classId || undefined,
+        schoolId: schoolId || undefined,
+        seasonId: seasonId || undefined,
+      },
+      orderBy: { capturedAt: 'desc' },
+      include: { findings: true },
+    })
+    return { success: true, data: screenings }
+  })
+
   app.get<{ Params: { id: string } }>(
     '/api/screenings/:id',
     { preHandler: [app.authenticate] },

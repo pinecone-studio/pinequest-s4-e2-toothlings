@@ -71,6 +71,16 @@ export const childRoutes = async (app: FastifyInstance): Promise<void> => {
     },
   )
 
+  app.get<{ Params: { id: string } }>(
+    '/api/children/:id',
+    { preHandler: [app.authenticate] },
+    async (req, reply) => {
+      const child = await app.prisma.child.findUnique({ where: { id: req.params.id } })
+      if (!child) return reply.code(404).send({ success: false, data: null })
+      return { success: true, data: child }
+    },
+  )
+
   // Edit ROSTER PII only. Identity fields (rosterSlot, birthYear, class) feed
   // childKey and are intentionally immutable here — a correction is a new entry.
   app.put<{
