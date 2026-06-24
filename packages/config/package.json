@@ -1,0 +1,13 @@
+{
+  "name": "@pinequest/config",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./tsconfig": "./tsconfig",
+    "./prettier": "./prettier.json"
+  },
+  "files": [
+    "tsconfig",
+    "prettier.json"
+  ]
+}
