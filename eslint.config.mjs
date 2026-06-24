@@ -13,6 +13,7 @@ export default tseslint.config(
       '**/.expo/**',
       '**/.turbo/**',
       '**/*.config.{js,mjs,cjs}',
+      '**/next-env.d.ts',
       'apps/inference/**',
     ],
   },
