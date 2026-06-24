@@ -16,10 +16,11 @@ const ScreenerHomePage = () => {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Тавтай морил, шинжээч</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Тавтай морил, скрининг хийгч</h1>
       <p className="text-neutral-600">
-        Скрининг авах ажиллагаа гар утасны аппликейшнээр хийгдэнэ. Энэ вэб нь бүртгэл болон
-        удирдлагад зориулагдсан.
+        Та (багш, сургууль/цэцэрлэгийн эмч гэх мэт шүдний бус ажилтан) хүүхдийн шүдийг гар утасны
+        аппаар скрининг хийнэ. Энэ нь онош биш — хүүхдийг эмчид хурдан чиглүүлэх зорилготой. Энэ вэб
+        нь бүртгэл, удирдлагад зориулагдсан.
       </p>
       <button
         onClick={logout}

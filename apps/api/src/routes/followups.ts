@@ -13,7 +13,20 @@ export const followUpRoutes = async (app: FastifyInstance): Promise<void> => {
         where: { status: status || undefined, schoolId: schoolId || undefined },
         orderBy: { updatedAt: 'desc' },
       })
-      return { success: true, data: followUps }
+      // Resolve childKey → roster for contact info (follow-up workers need it).
+      const children = await app.prisma.child.findMany({
+        where: { childKey: { in: followUps.map((f) => f.childKey) } },
+      })
+      const byKey = new Map(children.map((c) => [c.childKey, c]))
+      const data = followUps.map((f) => {
+        const child = byKey.get(f.childKey)
+        return {
+          ...f,
+          childName: child ? `${child.lastName} ${child.firstName}` : null,
+          guardianPhone: child?.guardianPhone ?? null,
+        }
+      })
+      return { success: true, data }
     },
   )
 

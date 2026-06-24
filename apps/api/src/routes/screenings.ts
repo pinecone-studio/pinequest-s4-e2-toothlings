@@ -1,70 +1,34 @@
 import type { FastifyInstance } from 'fastify'
 import { screeningCreateSchema, triage } from '@pinequest/core'
+import { writeAudit } from '../lib/audit.js'
+import { persistScreening } from '../lib/persistScreening.js'
 
 export const screeningRoutes = async (app: FastifyInstance): Promise<void> => {
-  /**
-   * Persist a screening as an IMMUTABLE event. Idempotent on the client-generated
-   * `id` (upsert with empty update), so a retried sync is a no-op. Triage is
-   * recomputed server-side from findings + symptoms — the client value is advisory.
-   */
+  // Idempotent on client-generated UUID — retried device sync is a no-op.
   app.post('/api/screenings', { preHandler: [app.authenticate] }, async (req, reply) => {
     const body = screeningCreateSchema.parse(req.body)
     const result = triage(body.findings, body.symptoms)
-
-    const screening = await app.prisma.screening.upsert({
-      where: { id: body.id },
-      update: {}, // immutable — never edited once stored
-      create: {
-        id: body.id,
-        childKey: body.childKey,
-        classId: body.classId,
-        schoolId: body.schoolId,
-        seasonId: body.seasonId,
-        screenedById: req.user.sub,
-        triageLevel: result.level,
-        triageScore: result.score,
-        triageConfidentWording: result.confidentWording,
-        triageReason: result.reason ?? null,
-        modelName: body.modelName,
-        modelVersion: body.modelVersion ?? null,
-        contentVersionId: body.contentVersionId,
-        capturedAt: new Date(body.capturedAt),
-        deviceId: body.deviceId ?? null,
-        syncedAt: new Date(),
-        findings: {
-          create: body.findings.map((f) => ({
-            id: f.id,
-            fdi: f.fdi ?? null,
-            className: f.className,
-            classId: f.classId,
-            confidence: f.confidence,
-            boxX1: f.box.x1,
-            boxY1: f.box.y1,
-            boxX2: f.box.x2,
-            boxY2: f.box.y2,
-            longitudinal: f.longitudinal ?? null,
-          })),
-        },
-        images: { create: body.imageRefs.map((ref, order) => ({ ref, order })) },
-        questionnaire: { create: { ...body.symptoms } },
-      },
-      include: { findings: true, images: true, questionnaire: true },
-    })
-
+    const screening = await persistScreening(app, body, result, req.user.sub)
     return reply.code(201).send({ success: true, data: screening })
   })
 
-  // List screenings (immutable events) filtered by child / class / school / season.
   app.get<{
-    Querystring: { childKey?: string; classId?: string; schoolId?: string; seasonId?: string }
+    Querystring: {
+      childKey?: string
+      classId?: string
+      schoolId?: string
+      seasonId?: string
+      screenedById?: string
+    }
   }>('/api/screenings', { preHandler: [app.authenticate] }, async (req) => {
-    const { childKey, classId, schoolId, seasonId } = req.query
+    const { childKey, classId, schoolId, seasonId, screenedById } = req.query
     const screenings = await app.prisma.screening.findMany({
       where: {
         childKey: childKey || undefined,
         classId: classId || undefined,
         schoolId: schoolId || undefined,
         seasonId: seasonId || undefined,
+        screenedById: screenedById || undefined,
       },
       orderBy: { capturedAt: 'desc' },
       include: { findings: true },
@@ -78,10 +42,47 @@ export const screeningRoutes = async (app: FastifyInstance): Promise<void> => {
     async (req, reply) => {
       const screening = await app.prisma.screening.findUnique({
         where: { id: req.params.id },
-        include: { findings: true, images: true, questionnaire: true },
+        include: { findings: true, images: true, questionnaire: true, review: true },
       })
       if (!screening) return reply.code(404).send({ success: false, data: null })
       return { success: true, data: screening }
+    },
+  )
+
+  app.put<{ Params: { id: string }; Body: { confirmedLevel: string; note?: string } }>(
+    '/api/screenings/:id/review',
+    { preHandler: [app.authorize('dentist', 'admin')] },
+    async (req, reply) => {
+      const { confirmedLevel, note } = req.body
+      if (!['green', 'yellow', 'red'].includes(confirmedLevel)) {
+        return reply.code(400).send({ success: false, data: null, message: 'invalid_level' })
+      }
+      const screening = await app.prisma.screening.findUnique({ where: { id: req.params.id } })
+      if (!screening) return reply.code(404).send({ success: false, data: null })
+
+      const existing = await app.prisma.screeningReview.findUnique({
+        where: { screeningId: req.params.id },
+      })
+      const review = await app.prisma.screeningReview.upsert({
+        where: { screeningId: req.params.id },
+        update: { confirmedLevel, note: note ?? null, reviewedById: req.user.sub },
+        create: {
+          screeningId: req.params.id,
+          confirmedLevel,
+          note: note ?? null,
+          reviewedById: req.user.sub,
+        },
+      })
+      await writeAudit(
+        app,
+        req.user.sub,
+        'ScreeningReview',
+        review.id,
+        existing ? 'override_update' : 'review',
+        existing,
+        review,
+      )
+      return { success: true, data: review }
     },
   )
 }
