@@ -44,6 +44,7 @@ def health() -> dict[str, str]:
     return {"status": "ok", "model": str(MODEL_PATH.name)}
 
 
+@app.post("/")
 @app.post("/analyze")
 async def analyze(image: UploadFile = File(...)) -> dict:
     raw = await image.read()

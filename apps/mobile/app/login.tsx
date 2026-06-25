@@ -15,9 +15,8 @@ const LoginScreen = () => {
   const { colors } = useTheme()
   const [mode, setMode] = useState<Mode>('login')
 
-  const subtitle = mode === 'login'
-    ? 'Хүүхдийн шүдний эрүүл мэндийн\nанхан шатны шүүлт'
-    : 'Шинэ бүртгэл үүсгэх'
+  const subtitle =
+    mode === 'login' ? 'Хүүхдийн шүдний эрүүл мэндийн\nанхан шатны хяналт' : 'Шинэ бүртгэл үүсгэх'
 
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
@@ -29,19 +28,13 @@ const LoginScreen = () => {
         <AuthBrand subtitle={subtitle} />
 
         <View style={[s.card, { backgroundColor: colors.surface }]}>
-          {mode === 'login'
-            ? <LoginForm />
-            : <RegisterForm onBack={() => setMode('login')} />
-          }
+          {mode === 'login' ? <LoginForm /> : <RegisterForm onBack={() => setMode('login')} />}
         </View>
 
         {mode === 'login' && (
           <>
             <OrDivider />
-            <OutlineButton
-              label="Шинээр бүртгүүлэх"
-              onPress={() => setMode('register')}
-            />
+            <OutlineButton label="Шинээр бүртгүүлэх" onPress={() => setMode('register')} />
             <RoleChips />
           </>
         )}

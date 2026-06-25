@@ -39,7 +39,7 @@ export type AnalyzeResult = {
   detections: unknown[]
 }
 
-export const analyzeImage = async (imageUri: string, meta: AnalyzeMeta): Promise<AnalyzeResult> => {
+const analyzeImage = async (imageUri: string, meta: AnalyzeMeta): Promise<AnalyzeResult> => {
   const token = await getToken()
   const form = new FormData()
   form.append('image', { uri: imageUri, type: 'image/jpeg', name: 'capture.jpg' } as unknown as Blob)
@@ -49,9 +49,40 @@ export const analyzeImage = async (imageUri: string, meta: AnalyzeMeta): Promise
   const res = await fetch(`${BASE}/api/screenings/analyze`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token ?? ''}` },
-    body: form,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    body: form as any,
   })
   const json = (await res.json()) as { success: boolean; data: AnalyzeResult; message?: string }
   if (!res.ok) throw new Error(json.message ?? String(res.status))
   return json.data
+}
+
+const LEVEL_RANK: Record<AnalyzeResult['triageLevel'], number> = { green: 0, yellow: 1, red: 2 }
+
+export const analyzeImages = async (
+  upperUri: string,
+  lowerUri: string,
+  meta: AnalyzeMeta,
+): Promise<AnalyzeResult> => {
+  const [upper, lower] = await Promise.allSettled([
+    analyzeImage(upperUri, meta),
+    analyzeImage(lowerUri, meta),
+  ])
+
+  const results: AnalyzeResult[] = [
+    ...(upper.status === 'fulfilled' ? [upper.value] : []),
+    ...(lower.status === 'fulfilled' ? [lower.value] : []),
+  ]
+  if (!results.length) {
+    const err = upper.status === 'rejected' ? upper.reason : (lower as PromiseRejectedResult).reason
+    throw new Error(err instanceof Error ? err.message : String(err))
+  }
+
+  const worst = results.reduce((a, b) => LEVEL_RANK[a.triageLevel] >= LEVEL_RANK[b.triageLevel] ? a : b)
+  return {
+    screeningId: worst.screeningId,
+    triageLevel: worst.triageLevel,
+    triageScore: Math.max(...results.map(r => r.triageScore)),
+    detections: results.flatMap(r => r.detections),
+  }
 }
