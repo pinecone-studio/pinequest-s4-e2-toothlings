@@ -36,8 +36,12 @@
       "expo-secure-store",
       [
         "expo-camera",
-        { "cameraPermission": "Хүүхдийн шүдийг скрининг хийхэд камер ашиглана." }
-      ]
+        {
+          "cameraPermission": "Хүүхдийн шүдийг скрининг хийхэд камер ашиглана."
+        }
+      ],
+      "expo-font",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true

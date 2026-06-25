@@ -1,24 +1,25 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { Text, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useState } from 'react'
 import { useTheme } from '@/lib/ThemeContext'
+import GuideTabs, { GuideTab } from '@/components/guide/GuideTabs'
+import BrushingGuide from '@/components/guide/BrushingGuide'
+import ComingSoon from '@/components/guide/ComingSoon'
 
-const GuideScreen = () => {
+export default function GuideScreen() {
   const { colors } = useTheme()
+  const [tab, setTab] = useState<GuideTab>('guide')
+
   return (
     <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
-      <View style={s.center}>
-        <Text style={[s.title, { color: colors.textBase }]}>Заавар</Text>
-        <Text style={[s.sub, { color: colors.textMuted }]}>Удахгүй нэмэгдэнэ</Text>
-      </View>
+      <Text style={[s.pageTitle, { color: colors.textBase }]}>Заавар</Text>
+      <GuideTabs active={tab} onChange={setTab} />
+      {tab === 'guide' ? <BrushingGuide /> : <ComingSoon />}
     </SafeAreaView>
   )
 }
 
 const s = StyleSheet.create({
   root: { flex: 1 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
-  title: { fontSize: 20, fontFamily: 'Inter_700Bold' },
-  sub: { fontSize: 14, fontFamily: 'Inter_400Regular' },
+  pageTitle: { fontSize: 24, fontFamily: 'Inter_700Bold', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12 },
 })
-
-export default GuideScreen
