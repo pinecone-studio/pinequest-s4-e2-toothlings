@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { useSession } from '@/components/providers'
 import AppShell from '@/components/shell/AppShell'
 
-const DentistLayout = ({ children }: LayoutProps<'/dashboard/dentist'>) => {
+const DentistLayout = ({ children }: { children: React.ReactNode }) => {
   const { token, role, ready } = useSession()
   const router = useRouter()
   const allowed = role === 'dentist' || role === 'admin'

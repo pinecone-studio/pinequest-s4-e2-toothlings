@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { useSession } from '@/components/providers'
 import AppShell from '@/components/shell/AppShell'
 
-const FollowUpLayout = ({ children }: LayoutProps<'/dashboard/follow-up'>) => {
+const FollowUpLayout = ({ children }: { children: React.ReactNode }) => {
   const { token, role, ready } = useSession()
   const router = useRouter()
   const allowed = role === 'follow_up' || role === 'admin'
