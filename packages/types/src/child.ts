@@ -23,6 +23,8 @@ export interface Child {
   rosterSlot: number
   gender?: 'M' | 'F'
   guardianPhone?: string
+  /** Guardian email for the parent screening summary (PII — roster only). */
+  guardianEmail?: string
   consentObtained: boolean
   consentAt?: string
   isActive: boolean

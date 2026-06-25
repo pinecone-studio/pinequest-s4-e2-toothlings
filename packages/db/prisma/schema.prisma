@@ -34,6 +34,39 @@ model User {
   contentVersions   ContentVersion[]
   auditEntries      AuditLog[]
   reviews           ScreeningReview[]
+  scopes            UserScope[]
+  parentLinks       ParentChildLink[]
+}
+
+// Capability × Coverage split: roles = capability; UserScope = what they can see.
+// A teacher gets (class, classId); school doctor gets (school, schoolId);
+// a parent gets (child, childKey). One user can hold multiple grants.
+model UserScope {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  scopeKind String   // 'child' | 'class' | 'school' | 'district'
+  scopeId   String
+  grantedAt DateTime @default(now())
+  grantedBy String?
+
+  @@unique([userId, scopeKind, scopeId])
+  @@index([userId])
+  @@index([scopeKind, scopeId])
+}
+
+// Links a parent User to their child's anonymous childKey.
+// PII stays here (same boundary as Child). Never flows into Screening payload.
+model ParentChildLink {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  childKey  String   // anonymous hash — no name stored here
+  schoolId  String
+  consentAt DateTime
+
+  @@unique([userId, childKey])
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------
@@ -63,6 +96,9 @@ model SchoolClass {
   sourceClassId String?
   sourceClass   SchoolClass?  @relation("CarryForward", fields: [sourceClassId], references: [id])
   carriedTo     SchoolClass[] @relation("CarryForward")
+  // Screener-set schedule for the next-season screening visit + optional reminder phone.
+  scheduledAt   DateTime?
+  reminderPhone String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 
@@ -84,6 +120,7 @@ model Child {
   rosterSlot      Int
   gender          String? // 'M' | 'F'
   guardianPhone   String? // PII
+  guardianEmail   String? // PII — parent summary delivery
   consentObtained Boolean   @default(false)
   consentAt       DateTime?
   isActive        Boolean   @default(true)
@@ -176,11 +213,18 @@ model Questionnaire {
   id                          String    @id @default(uuid())
   screeningId                 String    @unique
   screening                   Screening @relation(fields: [screeningId], references: [id])
+  isAdult                     Boolean   @default(false)
+  // Shared danger signs — both age groups (children: all 5; adults: Q1–Q2 only)
   swelling                    Boolean?
   painDisturbingSleepOrEating Boolean?
+  // Child-only danger signs (age < 18)
   fever                       Boolean?
   gumPimpleOrFistula          Boolean?
   trauma                      Boolean?
+  // Adult-specific context (age >= 18)
+  bleedingGums                Boolean?
+  smoker                      Boolean?
+  lastCheckupAdult            String?   // 'never' | 'lt_1y' | 'gt_1y'
 }
 
 // ---------------------------------------------------------------------------

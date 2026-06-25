@@ -1,0 +1,163 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+
+  /* brand raw — same in light and dark */
+  --color-brand-primary: #48A9B2;
+  --color-brand-sidebar: #3B5B58;
+  --color-brand-accent: #57BDC1;
+  --color-brand-muted: #B8DEDE;
+
+  /* semantic surfaces — light defaults (Apple system colors) */
+  --color-bg: #F2F2F7;
+  --color-surface: #FFFFFF;
+  --color-surface-raised: #F9F9F9;
+  --color-sidebar-bg: #FFFFFF;
+
+  /* borders (Apple separator) */
+  --color-border: #D1D1D6;
+  --color-border-muted: #E5E5EA;
+
+  /* text (Apple label hierarchy) */
+  --color-text-base: #1D1D1F;
+  --color-text-muted: #6E6E73;
+  --color-text-on-primary: #FFFFFF;
+  --color-text-on-sidebar: #1D1D1F;
+
+  /* interactive */
+  --color-primary: #48A9B2;
+  --color-primary-hover: #6FC7C8;
+  --color-primary-subtle: #EAF5F6;
+
+  /* accent — lime/chartreuse for positive indicators (coverage, resolved, growth) */
+  --color-accent: #C5F135;
+  --color-accent-fg: #3A5C00;
+
+  /* chart neutrals — calm 3-tone palette for generic volume charts (NOT triage).
+     Triage green/yellow/red stay reserved for clinical-signal surfaces only. */
+  --color-chart-1: #C5F135; /* lime highlight */
+  --color-chart-2: #8FB9BC; /* muted teal */
+  --color-chart-3: #C2CAD2; /* neutral gray */
+
+  /* triage — neutral clinical signal (muted, not alarm-bright) */
+  --color-triage-green: #2A7D4F;
+  --color-triage-green-bg: #EEF8F3;
+  --color-triage-yellow: #8A6500;
+  --color-triage-yellow-bg: #FAF6E4;
+  --color-triage-red: #B83838;
+  --color-triage-red-bg: #FAF0F0;
+
+  /* Apple-style card elevation (light = subtle shadow) */
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card-lg: 0 4px 16px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-float: 0 8px 32px rgba(0,0,0,0.11), 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.dark {
+  /* Apple dark mode system colors */
+  --color-bg: #000000;
+  --color-surface: #1C1C1E;
+  --color-surface-raised: #2C2C2E;
+  --color-sidebar-bg: #1C1C1E;
+  --color-border: #38383A;
+  --color-border-muted: #2C2C2E;
+  --color-text-base: #F5F5F7;
+  --color-text-muted: #8E8E93;
+  --color-text-on-sidebar: #F5F5F7;
+  --color-primary: #57BDC1;
+  --color-primary-hover: #7DD4D5;
+  --color-primary-subtle: #152727;
+
+  /* triage dark — soft, not eye-searing */
+  --color-triage-green: #5DC98B;
+  --color-triage-green-bg: #0C2818;
+  --color-triage-yellow: #E2AF3C;
+  --color-triage-yellow-bg: #251A00;
+  --color-triage-red: #E07070;
+  --color-triage-red-bg: #270D0D;
+
+  /* accent dark */
+  --color-accent: #B5E020;
+  --color-accent-fg: #4A7800;
+
+  /* chart neutrals — dark (calm, distinguishable on near-black) */
+  --color-chart-1: #B5E020; /* lime highlight */
+  --color-chart-2: #4E8487; /* muted teal */
+  --color-chart-3: #5A5A5E; /* neutral gray */
+
+  /* dark mode = elevation via color, not shadow */
+  --shadow-card: none;
+  --shadow-card-lg: none;
+  --shadow-float: none;
+}
+
+body {
+  @apply bg-bg text-text-base antialiased font-sans;
+}
+
+/* ── Invisible scrollbar (functional, no visible track) ── */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Page content fade-in ── */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+main {
+  animation: page-in 0.18s ease-out both;
+}
+
+/* ── Skeleton pulse ── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.skeleton {
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+  background-color: var(--color-surface-raised);
+  border-radius: 8px;
+}
+
+/* ── Micro-interaction: press scale ── */
+.btn {
+  transition: all 0.15s ease;
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Notification dot pulse ── */
+@keyframes notif-ping {
+  0%   { transform: scale(1); opacity: 1; }
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+.notif-ping {
+  animation: notif-ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ── Modal: backdrop fade + dialog spring-in ── */
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.backdrop-in { animation: backdrop-in 0.18s ease-out both; }
+.dialog-in   { animation: dialog-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }

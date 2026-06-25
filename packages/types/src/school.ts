@@ -20,8 +20,20 @@ export interface SchoolClass {
   gradeLevel?: number
   /** Carry-forward pointer to the prior season's class this was promoted from. */
   sourceClassId?: string
+  /** Screener-set date/time for the next-season screening visit (ISO). */
+  scheduledAt?: string | null
+  /** Optional phone for the visit reminder. */
+  reminderPhone?: string | null
   isActive: boolean
   createdAt: string
+}
+
+/** Class list row enriched with roster + coverage counts for the board. */
+export interface SchoolClassRow extends SchoolClass {
+  /** Active roster size (children enrolled). */
+  enrolled: number
+  /** Distinct children with at least one screening this season. */
+  screened: number
 }
 
 /** Promote a class into a new season (carry the roster forward). */
@@ -30,4 +42,8 @@ export interface CarryForwardInput {
   newSeasonId: SeasonId
   /** Defaults to the source class name. */
   newName?: string
+  /** Optional scheduled date/time for the new season's visit (ISO). */
+  scheduledAt?: string | null
+  /** Optional reminder phone. */
+  reminderPhone?: string | null
 }

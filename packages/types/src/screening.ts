@@ -80,3 +80,44 @@ export interface Screening {
 
 /** Payload a device sends to persist a screening (no PII — childKey only). */
 export type ScreeningCreate = Omit<Screening, 'syncedAt'>
+
+/** Expected dentition stage, derived from age (educational — NOT a per-tooth claim). */
+export type DentitionStage = 'primary' | 'mixed' | 'permanent'
+
+/**
+ * Plain-language, dentist-safe screening summary for one child — built in
+ * @pinequest/core. SCREENING signals only, never a diagnosis: counts are
+ * "areas flagged for a dentist to check", copy is hedged + pinned to a content
+ * version. No banned clinical words (decay/caries/cavity) reach this object.
+ */
+export interface ChildScreeningSummary {
+  screeningId: string
+  seasonId: SeasonId
+  capturedAt: string
+  /** AI triage level. */
+  aiLevel: TriageLevel
+  /** Dentist-confirmed level, if a review exists. */
+  reviewedLevel?: TriageLevel
+  /** What the UI should color by: reviewedLevel ?? aiLevel. */
+  effectiveLevel: TriageLevel
+  /** Definite vs hedged wording allowed (high model confidence). */
+  confidentWording: boolean
+  /** Count of image areas a dentist should check (NOT a decay count). */
+  flaggedAreas: number
+  /** Split of flagged areas by model confidence. */
+  flaggedByConfidence: { high: number; moderate: number; low: number }
+  /** FDI codes of localized findings (empty until localization exists). */
+  loci: number[]
+  /** Reported danger-sign symptom keys present (from the questionnaire). */
+  symptoms: string[]
+  /** Age in years at capture (from birth year). */
+  ageYears: number
+  /** Expected dentition stage for that age. */
+  dentitionStage: DentitionStage
+  /** Hedged, compliant one-line result statement. */
+  headline: string
+  /** Versioned, age-aware "what to do at home" steps. */
+  homeSteps: string[]
+  /** Pinned content version backing headline + homeSteps. */
+  contentVersion: string
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@pinequest/server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.2",
+    "@pinequest/core": "workspace:*",
+    "@pinequest/db": "workspace:*",
+    "@pinequest/types": "workspace:*",
+    "bcryptjs": "^2.4.3",
+    "hono": "^4.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@pinequest/config": "workspace:*",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.7.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

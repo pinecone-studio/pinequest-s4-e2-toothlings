@@ -15,7 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "clean": "turbo clean",
-    "dev:inference": "cd apps/inference && python3 server.py"
+    "dev:model": "cd apps/model && python3 server.py"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
