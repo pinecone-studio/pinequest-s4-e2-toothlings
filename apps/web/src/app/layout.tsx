@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const initThemeScript = `(function(){try{if(localStorage.getItem('screener.theme')==='dark')document.documentElement.classList.add('dark')}catch(_){}})()`
 
-const RootLayout = ({ children }: LayoutProps<'/'>) => (
+const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="mn" suppressHydrationWarning>
     <head>
       <script dangerouslySetInnerHTML={{ __html: initThemeScript }} />

@@ -13,9 +13,6 @@ const ROLE_INITIAL: Record<string, string> = {
   admin: 'А', dentist: 'Э', follow_up: 'Д', screener: 'Ш',
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  admin: 'Админ', dentist: 'Эмч', follow_up: 'Дагалт', screener: 'Шинжээч',
-}
 
 const iconBtn = 'btn flex size-9 items-center justify-center rounded-full text-text-muted transition-all duration-150 hover:bg-surface-raised hover:text-text-base'
 

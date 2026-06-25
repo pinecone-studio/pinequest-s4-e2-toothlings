@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowTopRightOnSquareIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
+import { ChevronDownIcon } from '@heroicons/react/24/outline'
 import type { ScreeningRow } from '@/hooks/useScreenings'
 import { SkeletonTable } from '@/components/ui/Skeleton'
 

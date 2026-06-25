@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { useSession } from '@/components/providers'
 import AppShell from '@/components/shell/AppShell'
 
-const AdminLayout = ({ children }: LayoutProps<'/dashboard/admin'>) => {
+const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const { token, role, ready } = useSession()
   const router = useRouter()
 
