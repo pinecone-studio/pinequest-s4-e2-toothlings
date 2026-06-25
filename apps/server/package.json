@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "dev": "pnpm exec wrangler dev",
+    "deploy": "pnpm exec wrangler deploy",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts"
   },

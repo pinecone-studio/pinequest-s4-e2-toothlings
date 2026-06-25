@@ -1,12 +1,20 @@
 import type { NextConfig } from 'next'
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
+
+const API_URL =
+  process.env.API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'https://screener-api.ariunzul.workers.dev'
 
 const nextConfig: NextConfig = {
-  // Shared workspace packages ship TS source and must be transpiled by Next.
   transpilePackages: ['@pinequest/types', '@pinequest/core'],
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${API_URL}/api/:path*`,
+      },
+    ]
+  },
 }
-
-// Lets `next dev` see Cloudflare bindings; no-op outside local dev.
-void initOpenNextCloudflareForDev()
 
 export default nextConfig

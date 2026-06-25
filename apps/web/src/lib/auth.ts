@@ -3,13 +3,18 @@ import type { UserRole } from '@pinequest/types'
 const TOKEN_KEY = 'screener_token'
 
 export const setToken = (token: string): void => {
-  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=43200; samesite=lax`
+  document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=43200; samesite=lax`
 }
 
 export const getToken = (): string | null => {
   if (typeof document === 'undefined') return null
   const match = document.cookie.match(new RegExp(`${TOKEN_KEY}=([^;]+)`))
-  return match ? match[1] : null
+  if (!match) return null
+  try {
+    return decodeURIComponent(match[1])
+  } catch {
+    return match[1]
+  }
 }
 
 export const clearToken = (): void => {
@@ -23,7 +28,7 @@ export const homeForRole = (role: UserRole | string | null): string => {
   if (role === 'admin') return '/dashboard/admin'
   if (role === 'dentist') return '/dashboard/dentist'
   if (role === 'follow_up') return '/dashboard/follow-up'
-  return '/dashboard/screener'
+  return '/home'
 }
 
 /** Decode the (unverified) JWT payload for client-side UX gating only.
