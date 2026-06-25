@@ -37,6 +37,12 @@
   --color-accent: #C5F135;
   --color-accent-fg: #3A5C00;
 
+  /* chart neutrals — calm 3-tone palette for generic volume charts (NOT triage).
+     Triage green/yellow/red stay reserved for clinical-signal surfaces only. */
+  --color-chart-1: #C5F135; /* lime highlight */
+  --color-chart-2: #8FB9BC; /* muted teal */
+  --color-chart-3: #C2CAD2; /* neutral gray */
+
   /* triage — neutral clinical signal (muted, not alarm-bright) */
   --color-triage-green: #2A7D4F;
   --color-triage-green-bg: #EEF8F3;
@@ -77,6 +83,11 @@
   /* accent dark */
   --color-accent: #B5E020;
   --color-accent-fg: #4A7800;
+
+  /* chart neutrals — dark (calm, distinguishable on near-black) */
+  --color-chart-1: #B5E020; /* lime highlight */
+  --color-chart-2: #4E8487; /* muted teal */
+  --color-chart-3: #5A5A5E; /* neutral gray */
 
   /* dark mode = elevation via color, not shadow */
   --shadow-card: none;
