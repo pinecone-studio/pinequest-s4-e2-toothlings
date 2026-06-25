@@ -9,7 +9,7 @@ import { useTheme } from '@/lib/ThemeContext'
 export default function CameraScreen() {
   const router = useRouter()
   const { colors } = useTheme()
-  const params = useLocalSearchParams<{ childKey: string; classId: string; schoolId: string; seasonId: string }>()
+  const params = useLocalSearchParams<{ childKey: string; classId: string; schoolId: string; seasonId: string; questionnaire: string; guardianPhone: string }>()
   const [permission, requestPermission] = useCameraPermissions()
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -36,8 +36,8 @@ export default function CameraScreen() {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.85 })
       if (!photo) throw new Error('Зураг авах амжилтгүй')
       const compressed = await manipulateAsync(photo.uri, [{ resize: { width: 640 } }], { compress: 0.8, format: SaveFormat.JPEG })
-      const result = await analyzeImage(compressed.uri, { childKey: params.childKey, classId: params.classId, schoolId: params.schoolId, seasonId: params.seasonId })
-      router.replace({ pathname: '/scan/result', params: { screeningId: result.screeningId, triageLevel: result.triageLevel, triageScore: String(result.triageScore), detectionsCount: String(result.detections.length) } })
+      const result = await analyzeImage(compressed.uri, { childKey: params.childKey, classId: params.classId, schoolId: params.schoolId, seasonId: params.seasonId, questionnaire: params.questionnaire })
+      router.replace({ pathname: '/scan/result', params: { screeningId: result.screeningId, triageLevel: result.triageLevel, triageScore: String(result.triageScore), detectionsCount: String(result.detections.length), guardianPhone: params.guardianPhone ?? '' } })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Алдаа гарлаа')
       setAnalyzing(false)

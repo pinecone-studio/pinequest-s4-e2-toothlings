@@ -1,49 +1,39 @@
-import Fastify from 'fastify'
-import cors from '@fastify/cors'
-import multipart from '@fastify/multipart'
-import { prismaPlugin } from './plugins/prisma.js'
-import { authPlugin } from './plugins/auth.js'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { serve } from '@hono/node-server'
+import type { AppEnv } from './types.js'
 import { healthRoutes } from './routes/health.js'
 import { authRoutes } from './routes/auth.js'
-import { analyzeRoutes } from './routes/analyze.js'
-import { screeningRoutes } from './routes/screenings.js'
 import { schoolRoutes } from './routes/schools.js'
 import { classRoutes } from './routes/classes.js'
 import { childRoutes } from './routes/children.js'
+import { analyzeRoutes } from './routes/analyze.js'
+import { screeningRoutes } from './routes/screenings.js'
 import { followUpRoutes } from './routes/followups.js'
+import { userRoutes } from './routes/users.js'
+import { statsRoutes } from './routes/stats.js'
 
-const start = async (): Promise<void> => {
-  const server = Fastify({ logger: true })
+const app = new Hono<AppEnv>()
 
-  await server.register(cors, {
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
-  })
-  // Multipart must be registered before any route that calls req.parts().
-  await server.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
+app.use('*', cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000', credentials: true }))
 
-  // Decorators first (fastify-plugin propagates them to every route context).
-  await server.register(prismaPlugin)
-  await server.register(authPlugin)
+app.route('/', healthRoutes)
+app.route('/api/auth', authRoutes)
+app.route('/api/schools', schoolRoutes)
+app.route('/api', classRoutes)
+app.route('/api', childRoutes)
+app.route('/api/screenings', analyzeRoutes) // /analyze literal before /:id param
+app.route('/api/screenings', screeningRoutes)
+app.route('/api/followups', followUpRoutes)
+app.route('/api/users', userRoutes)
+app.route('/api/stats', statsRoutes)
 
-  // analyzeRoutes registered before screeningRoutes so POST /analyze isn't
-  // shadowed by the /:id parameterised route in a future Fastify version.
-  await server.register(healthRoutes)
-  await server.register(authRoutes)
-  await server.register(analyzeRoutes)
-  await server.register(screeningRoutes)
-  await server.register(schoolRoutes)
-  await server.register(classRoutes)
-  await server.register(childRoutes)
-  await server.register(followUpRoutes)
+app.onError((err, c) => {
+  console.error(err)
+  return c.json({ success: false, data: null, message: (err as Error).message ?? 'internal_error' }, 500)
+})
 
-  const port = Number(process.env.PORT) || 4000
-  try {
-    await server.listen({ port, host: '0.0.0.0' })
-    console.log(`API server running at http://localhost:${port}`)
-  } catch (err) {
-    server.log.error(err)
-    process.exit(1)
-  }
-}
-
-void start()
+const port = Number(process.env.PORT) || 4000
+serve({ fetch: app.fetch, port }, () => {
+  console.log(`API server running at http://localhost:${port}`)
+})

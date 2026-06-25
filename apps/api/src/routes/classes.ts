@@ -1,77 +1,51 @@
-import type { FastifyInstance } from 'fastify'
+import { Hono } from 'hono'
 import { childKey } from '@pinequest/core'
+import { prisma } from '@pinequest/db'
+import { authenticate, authorize } from '../middleware/auth.js'
+import type { AppEnv } from '../types.js'
 
-export const classRoutes = async (app: FastifyInstance): Promise<void> => {
-  app.get<{ Params: { schoolId: string } }>(
-    '/api/schools/:schoolId/classes',
-    { preHandler: [app.authenticate] },
-    async (req) => {
-      const classes = await app.prisma.schoolClass.findMany({
-        where: { schoolId: req.params.schoolId },
-        orderBy: [{ seasonId: 'desc' }, { name: 'asc' }],
-      })
-      return { success: true, data: classes }
-    },
-  )
+export const classRoutes = new Hono<AppEnv>()
 
-  app.post<{ Params: { schoolId: string }; Body: { name: string; seasonId: string; gradeLevel?: number } }>(
-    '/api/schools/:schoolId/classes',
-    { preHandler: [app.authorize('admin')] },
-    async (req, reply) => {
-      const { name, seasonId, gradeLevel } = req.body
-      const klass = await app.prisma.schoolClass.create({
-        data: { schoolId: req.params.schoolId, name, seasonId, gradeLevel: gradeLevel ?? null },
-      })
-      return reply.code(201).send({ success: true, data: klass })
-    },
-  )
+classRoutes.get('/schools/:schoolId/classes', authenticate, async (c) => {
+  const classes = await prisma.schoolClass.findMany({
+    where: { schoolId: c.req.param('schoolId') },
+    orderBy: [{ seasonId: 'desc' }, { name: 'asc' }],
+  })
+  return c.json({ success: true, data: classes })
+})
 
-  // Carry a class forward into a new season: new class + copied roster, linked
-  // via sourceClassId. Old class/screenings are untouched.
-  app.post<{ Params: { classId: string }; Body: { newSeasonId: string; newName?: string } }>(
-    '/api/classes/:classId/carry-forward',
-    { preHandler: [app.authorize('admin')] },
-    async (req, reply) => {
-      const source = await app.prisma.schoolClass.findUnique({
-        where: { id: req.params.classId },
-        include: { children: { where: { isActive: true } } },
-      })
-      if (!source) return reply.code(404).send({ success: false, data: null })
-      const { newSeasonId, newName } = req.body
+classRoutes.post('/schools/:schoolId/classes', authorize('admin'), async (c) => {
+  const { name, seasonId, gradeLevel } = await c.req.json<{ name: string; seasonId: string; gradeLevel?: number }>()
+  const klass = await prisma.schoolClass.create({
+    data: { schoolId: c.req.param('schoolId'), name, seasonId, gradeLevel: gradeLevel ?? null },
+  })
+  return c.json({ success: true, data: klass }, 201)
+})
 
-      const newClass = await app.prisma.$transaction(async (tx) => {
-        const created = await tx.schoolClass.create({
-          data: {
-            schoolId: source.schoolId,
-            name: newName ?? source.name,
-            seasonId: newSeasonId,
-            gradeLevel: source.gradeLevel,
-            sourceClassId: source.id,
-          },
-        })
-        if (source.children.length) {
-          await tx.child.createMany({
-            data: source.children.map((c) => ({
-              classId: created.id,
-              schoolId: source.schoolId,
-              childKey: childKey({
-                schoolId: source.schoolId,
-                className: created.name,
-                rosterSlot: c.rosterSlot,
-                birthYear: c.birthYear,
-              }),
-              firstName: c.firstName,
-              lastName: c.lastName,
-              birthYear: c.birthYear,
-              rosterSlot: c.rosterSlot,
-              gender: c.gender,
-              guardianPhone: c.guardianPhone,
-            })),
-          })
-        }
-        return created
+classRoutes.post('/classes/:classId/carry-forward', authorize('admin'), async (c) => {
+  const source = await prisma.schoolClass.findUnique({
+    where: { id: c.req.param('classId') },
+    include: { children: { where: { isActive: true } } },
+  })
+  if (!source) return c.json({ success: false, data: null }, 404)
+  const { newSeasonId, newName } = await c.req.json<{ newSeasonId: string; newName?: string }>()
+
+  const newClass = await prisma.$transaction(async (tx) => {
+    const created = await tx.schoolClass.create({
+      data: { schoolId: source.schoolId, name: newName ?? source.name, seasonId: newSeasonId, gradeLevel: source.gradeLevel, sourceClassId: source.id },
+    })
+    if (source.children.length) {
+      await tx.child.createMany({
+        data: source.children.map((ch) => ({
+          classId: created.id,
+          schoolId: source.schoolId,
+          childKey: childKey({ schoolId: source.schoolId, className: created.name, rosterSlot: ch.rosterSlot, birthYear: ch.birthYear }),
+          firstName: ch.firstName, lastName: ch.lastName, birthYear: ch.birthYear,
+          rosterSlot: ch.rosterSlot, gender: ch.gender, guardianPhone: ch.guardianPhone,
+        })),
       })
-      return reply.code(201).send({ success: true, data: newClass })
-    },
-  )
-}
+    }
+    return created
+  })
+  return c.json({ success: true, data: newClass }, 201)
+})

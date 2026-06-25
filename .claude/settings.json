@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(/usr/local/lib/node_modules/corepack/shims/pnpm lint *)"
+    ]
+  }
+}

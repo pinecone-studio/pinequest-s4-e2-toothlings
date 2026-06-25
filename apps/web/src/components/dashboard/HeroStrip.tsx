@@ -1,22 +1,19 @@
 'use client'
 
 import { useSession } from '@/components/providers'
-import { useReviewQueue } from '@/hooks/useScreening'
-import { useFollowUps } from '@/hooks/useFollowUps'
+import { useStats } from '@/hooks/useStats'
 import StatChip from './StatChip'
 
 const HeroStrip = () => {
   const { role } = useSession()
-  const { data: queue } = useReviewQueue()
-  const { data: followUps } = useFollowUps()
+  const { data: stats } = useStats()
 
-  const totalQueue = queue?.length ?? 0
-  const redQueue = queue?.filter(q => q.triageLevel === 'red').length ?? 0
-  const flaggedCount = followUps?.filter(f => f.status === 'flagged').length ?? 0
-  const uncontactedCount = followUps?.filter(f => f.status === 'flagged').length ?? 0
+  const pendingReview = stats?.pendingReview ?? 0
+  const redCount = stats?.triage.red ?? 0
+  const flagged = stats?.flaggedFollowUps ?? 0
 
   return (
-    <div className="mb-6 rounded-2xl bg-surface border border-border p-6">
+    <div className="mb-6 rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
       <p className="mb-4 text-lg font-semibold text-text-base">
         {role === 'admin' && 'Самбар'}
         {role === 'dentist' && 'Хяналтын дараалал'}
@@ -26,35 +23,29 @@ const HeroStrip = () => {
       <div className="flex flex-wrap gap-3">
         {(role === 'admin' || role === 'dentist') && (
           <>
-            <StatChip
-              label="Хянах скрининг"
-              value={totalQueue}
-              href="/dentist"
-            />
+            <StatChip label="Хянах скрининг" value={pendingReview} href="/dentist" />
             <StatChip
               label="Улаан (яаралтай)"
-              value={redQueue}
-              tone={redQueue > 0 ? 'red' : 'neutral'}
+              value={redCount}
+              tone={redCount > 0 ? 'red' : 'neutral'}
               href="/dentist"
             />
           </>
         )}
         {(role === 'admin' || role === 'follow_up') && (
-          <>
-            <StatChip
-              label="Дагах хүлээж буй"
-              value={flaggedCount}
-              tone={flaggedCount > 0 ? 'yellow' : 'neutral'}
-              href="/follow-up"
-            />
-            {role === 'follow_up' && (
-              <StatChip
-                label="Холбогдоогүй"
-                value={uncontactedCount}
-                tone={uncontactedCount > 0 ? 'red' : 'neutral'}
-              />
-            )}
-          </>
+          <StatChip
+            label="Дагах хүлээж буй"
+            value={flagged}
+            tone={flagged > 0 ? 'yellow' : 'neutral'}
+            href="/follow-up"
+          />
+        )}
+        {role === 'admin' && stats && (
+          <StatChip
+            label={`Хамрагдалт ${stats.coverage.total > 0 ? Math.round((stats.coverage.screened / stats.coverage.total) * 100) : 0}%`}
+            value={`${stats.coverage.screened}/${stats.coverage.total}`}
+            tone="neutral"
+          />
         )}
       </div>
     </div>

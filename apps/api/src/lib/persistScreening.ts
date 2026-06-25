@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify'
+import { prisma } from '@pinequest/db'
 import type { SymptomSet, ToothFinding, TriageResult } from '@pinequest/types'
 
 export type PersistInput = {
@@ -18,12 +18,11 @@ export type PersistInput = {
 }
 
 export const persistScreening = async (
-  app: FastifyInstance,
   body: PersistInput,
   result: TriageResult,
   screenedById: string,
 ) => {
-  const screening = await app.prisma.screening.upsert({
+  const screening = await prisma.screening.upsert({
     where: { id: body.id },
     update: {},
     create: {
@@ -64,16 +63,10 @@ export const persistScreening = async (
   })
 
   if (result.level !== 'green') {
-    await app.prisma.followUp.upsert({
+    await prisma.followUp.upsert({
       where: { childKey: body.childKey },
       update: {},
-      create: {
-        childKey: body.childKey,
-        schoolId: body.schoolId,
-        status: 'flagged',
-        updatedById: screenedById,
-        version: 1,
-      },
+      create: { childKey: body.childKey, schoolId: body.schoolId, status: 'flagged', updatedById: screenedById, version: 1 },
     })
   }
 

@@ -29,6 +29,7 @@ export type AnalyzeMeta = {
   seasonId: string
   contentVersionId?: string
   deviceId?: string
+  questionnaire?: string // JSON-serialized questionnaire answers
 }
 
 export type AnalyzeResult = {

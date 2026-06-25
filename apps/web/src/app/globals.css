@@ -33,13 +33,18 @@
   --color-primary-hover: #6FC7C8;
   --color-primary-subtle: #EAF5F6;
 
-  /* triage — clinical signal, distinct from brand teal */
-  --color-triage-green: #16A34A;
-  --color-triage-green-bg: #DCFCE7;
-  --color-triage-yellow: #D97706;
-  --color-triage-yellow-bg: #FEF3C7;
-  --color-triage-red: #DC2626;
-  --color-triage-red-bg: #FEE2E2;
+  /* triage — neutral clinical signal (muted, not alarm-bright) */
+  --color-triage-green: #2A7D4F;
+  --color-triage-green-bg: #EEF8F3;
+  --color-triage-yellow: #8A6500;
+  --color-triage-yellow-bg: #FAF6E4;
+  --color-triage-red: #B83838;
+  --color-triage-red-bg: #FAF0F0;
+
+  /* Apple-style card elevation (light = subtle shadow) */
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card-lg: 0 4px 16px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-float: 0 8px 32px rgba(0,0,0,0.11), 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .dark {
@@ -57,12 +62,18 @@
   --color-primary-hover: #7DD4D5;
   --color-primary-subtle: #152727;
 
-  --color-triage-green: #4ADE80;
-  --color-triage-green-bg: #14532D;
-  --color-triage-yellow: #FCD34D;
-  --color-triage-yellow-bg: #451A03;
-  --color-triage-red: #F87171;
-  --color-triage-red-bg: #450A0A;
+  /* triage dark — soft, not eye-searing */
+  --color-triage-green: #5DC98B;
+  --color-triage-green-bg: #0C2818;
+  --color-triage-yellow: #E2AF3C;
+  --color-triage-yellow-bg: #251A00;
+  --color-triage-red: #E07070;
+  --color-triage-red-bg: #270D0D;
+
+  /* dark mode = elevation via color, not shadow */
+  --shadow-card: none;
+  --shadow-card-lg: none;
+  --shadow-float: none;
 }
 
 body {

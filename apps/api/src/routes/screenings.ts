@@ -1,88 +1,62 @@
-import type { FastifyInstance } from 'fastify'
+import { Hono } from 'hono'
 import { screeningCreateSchema, triage } from '@pinequest/core'
+import { prisma } from '@pinequest/db'
+import { authenticate, authorize } from '../middleware/auth.js'
 import { writeAudit } from '../lib/audit.js'
 import { persistScreening } from '../lib/persistScreening.js'
+import { schoolScope } from '../lib/scopeFilter.js'
+import type { AppEnv } from '../types.js'
 
-export const screeningRoutes = async (app: FastifyInstance): Promise<void> => {
-  // Idempotent on client-generated UUID — retried device sync is a no-op.
-  app.post('/api/screenings', { preHandler: [app.authenticate] }, async (req, reply) => {
-    const body = screeningCreateSchema.parse(req.body)
-    const result = triage(body.findings, body.symptoms)
-    const screening = await persistScreening(app, body, result, req.user.sub)
-    return reply.code(201).send({ success: true, data: screening })
-  })
+export const screeningRoutes = new Hono<AppEnv>()
 
-  app.get<{
-    Querystring: {
-      childKey?: string
-      classId?: string
-      schoolId?: string
-      seasonId?: string
-      screenedById?: string
-    }
-  }>('/api/screenings', { preHandler: [app.authenticate] }, async (req) => {
-    const { childKey, classId, schoolId, seasonId, screenedById } = req.query
-    const screenings = await app.prisma.screening.findMany({
-      where: {
-        childKey: childKey || undefined,
-        classId: classId || undefined,
-        schoolId: schoolId || undefined,
-        seasonId: seasonId || undefined,
-        screenedById: screenedById || undefined,
-      },
-      orderBy: { capturedAt: 'desc' },
-      include: { findings: true },
-    })
-    return { success: true, data: screenings }
-  })
+screeningRoutes.post('/', authenticate, async (c) => {
+  const body = screeningCreateSchema.parse(await c.req.json())
+  const result = triage(body.findings, body.symptoms)
+  const screening = await persistScreening(body, result, c.get('jwtPayload').sub)
+  return c.json({ success: true, data: screening }, 201)
+})
 
-  app.get<{ Params: { id: string } }>(
-    '/api/screenings/:id',
-    { preHandler: [app.authenticate] },
-    async (req, reply) => {
-      const screening = await app.prisma.screening.findUnique({
-        where: { id: req.params.id },
-        include: { findings: true, images: true, questionnaire: true, review: true },
-      })
-      if (!screening) return reply.code(404).send({ success: false, data: null })
-      return { success: true, data: screening }
+screeningRoutes.get('/', authenticate, async (c) => {
+  const { childKey, classId, schoolId, seasonId, screenedById } = c.req.query()
+  const scope = schoolScope(c.get('jwtPayload'))
+  const screenings = await prisma.screening.findMany({
+    where: {
+      childKey: childKey || undefined,
+      classId: classId || undefined,
+      schoolId: scope ?? (schoolId || undefined),
+      seasonId: seasonId || undefined,
+      screenedById: screenedById || undefined,
     },
-  )
+    orderBy: { capturedAt: 'desc' },
+    include: { findings: true },
+  })
+  return c.json({ success: true, data: screenings })
+})
 
-  app.put<{ Params: { id: string }; Body: { confirmedLevel: string; note?: string } }>(
-    '/api/screenings/:id/review',
-    { preHandler: [app.authorize('dentist', 'admin')] },
-    async (req, reply) => {
-      const { confirmedLevel, note } = req.body
-      if (!['green', 'yellow', 'red'].includes(confirmedLevel)) {
-        return reply.code(400).send({ success: false, data: null, message: 'invalid_level' })
-      }
-      const screening = await app.prisma.screening.findUnique({ where: { id: req.params.id } })
-      if (!screening) return reply.code(404).send({ success: false, data: null })
+screeningRoutes.get('/:id', authenticate, async (c) => {
+  const screening = await prisma.screening.findUnique({
+    where: { id: c.req.param('id') },
+    include: { findings: true, images: true, questionnaire: true, review: true },
+  })
+  if (!screening) return c.json({ success: false, data: null }, 404)
+  return c.json({ success: true, data: screening })
+})
 
-      const existing = await app.prisma.screeningReview.findUnique({
-        where: { screeningId: req.params.id },
-      })
-      const review = await app.prisma.screeningReview.upsert({
-        where: { screeningId: req.params.id },
-        update: { confirmedLevel, note: note ?? null, reviewedById: req.user.sub },
-        create: {
-          screeningId: req.params.id,
-          confirmedLevel,
-          note: note ?? null,
-          reviewedById: req.user.sub,
-        },
-      })
-      await writeAudit(
-        app,
-        req.user.sub,
-        'ScreeningReview',
-        review.id,
-        existing ? 'override_update' : 'review',
-        existing,
-        review,
-      )
-      return { success: true, data: review }
-    },
-  )
-}
+screeningRoutes.put('/:id/review', authorize('dentist', 'admin'), async (c) => {
+  const { confirmedLevel, note } = await c.req.json<{ confirmedLevel: string; note?: string }>()
+  if (!['green', 'yellow', 'red'].includes(confirmedLevel)) {
+    return c.json({ success: false, data: null, message: 'invalid_level' }, 400)
+  }
+  const id = c.req.param('id')
+  const screening = await prisma.screening.findUnique({ where: { id } })
+  if (!screening) return c.json({ success: false, data: null }, 404)
+
+  const existing = await prisma.screeningReview.findUnique({ where: { screeningId: id } })
+  const review = await prisma.screeningReview.upsert({
+    where: { screeningId: id },
+    update: { confirmedLevel, note: note ?? null, reviewedById: c.get('jwtPayload').sub },
+    create: { screeningId: id, confirmedLevel, note: note ?? null, reviewedById: c.get('jwtPayload').sub },
+  })
+  await writeAudit(c.get('jwtPayload').sub, 'ScreeningReview', review.id, existing ? 'override_update' : 'review', existing, review)
+  return c.json({ success: true, data: review })
+})

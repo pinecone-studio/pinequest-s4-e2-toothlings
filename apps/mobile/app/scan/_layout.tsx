@@ -5,7 +5,11 @@ export default function ScanLayout() {
     <Stack>
       <Stack.Screen
         name="index"
-        options={{ title: 'Хүүхдийн мэдээлэл', headerBackTitle: 'Буцах' }}
+        options={{ title: 'Шалгуулагчийн мэдээлэл', headerBackTitle: 'Буцах' }}
+      />
+      <Stack.Screen
+        name="questionnaire"
+        options={{ title: 'Урьдчилсан асуулга', headerBackTitle: 'Буцах' }}
       />
       <Stack.Screen
         name="camera"

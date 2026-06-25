@@ -8,14 +8,14 @@ export type ColorTokens = {
   textMuted: string
   textDisabled: string
   border: string
-  // triage — clinical signal, never teal
+  // triage — clinical signal, neutral palette (not alarm-bright)
   triageGreenBg: string
   triageGreenText: string
   triageYellowBg: string
   triageYellowText: string
   triageRedBg: string
   triageRedText: string
-  // solid triage badges in lists
+  // solid badge dots in lists
   badgeGreen: string
   badgeYellow: string
   badgeRed: string
@@ -23,42 +23,42 @@ export type ColorTokens = {
 
 export const lightColors: ColorTokens = {
   primary: '#48A9B2',
-  sidebar: '#3B5B58',
-  bg: '#f8fafc',
-  surface: '#ffffff',
-  textBase: '#3B5B58',
-  textSecondary: '#334155',
-  textMuted: '#64748b',
-  textDisabled: '#94a3b8',
-  border: '#e2e8f0',
-  triageGreenBg: '#dcfce7',
-  triageGreenText: '#166534',
-  triageYellowBg: '#fef9c3',
-  triageYellowText: '#854d0e',
-  triageRedBg: '#fee2e2',
-  triageRedText: '#991b1b',
-  badgeGreen: '#22c55e',
-  badgeYellow: '#eab308',
-  badgeRed: '#ef4444',
+  sidebar: '#48A9B2',
+  bg: '#F2F2F7',        // Apple primary background
+  surface: '#FFFFFF',
+  textBase: '#1D1D1F',  // Apple primary label
+  textSecondary: '#3C3C43',
+  textMuted: '#6E6E73', // Apple tertiary label
+  textDisabled: '#ADADB2',
+  border: '#D1D1D6',    // Apple separator
+  triageGreenBg: '#EEF8F3',
+  triageGreenText: '#2A7D4F',
+  triageYellowBg: '#FAF6E4',
+  triageYellowText: '#8A6500',
+  triageRedBg: '#FAF0F0',
+  triageRedText: '#B83838',
+  badgeGreen: '#2A7D4F',
+  badgeYellow: '#8A6500',
+  badgeRed: '#B83838',
 }
 
 export const darkColors: ColorTokens = {
   primary: '#57BDC1',
-  sidebar: '#3B5B58',
-  bg: '#0D1E1D',
-  surface: '#162726',
-  textBase: '#E8F4F4',
-  textSecondary: '#7AADAC',
-  textMuted: '#7AADAC',
-  textDisabled: '#4A6362',
-  border: '#2A4241',
-  triageGreenBg: '#14532D',
-  triageGreenText: '#86efac',
-  triageYellowBg: '#713f12',
-  triageYellowText: '#fde047',
-  triageRedBg: '#7f1d1d',
-  triageRedText: '#fca5a5',
-  badgeGreen: '#22c55e',
-  badgeYellow: '#eab308',
-  badgeRed: '#ef4444',
+  sidebar: '#57BDC1',
+  bg: '#000000',        // Apple true black
+  surface: '#1C1C1E',   // Apple dark secondary background
+  textBase: '#F5F5F7',  // Apple light primary label
+  textSecondary: '#ADADB8',
+  textMuted: '#8E8E93', // Apple light tertiary label
+  textDisabled: '#48484A',
+  border: '#38383A',    // Apple dark separator
+  triageGreenBg: '#0C2818',
+  triageGreenText: '#5DC98B',
+  triageYellowBg: '#251A00',
+  triageYellowText: '#E2AF3C',
+  triageRedBg: '#270D0D',
+  triageRedText: '#E07070',
+  badgeGreen: '#5DC98B',
+  badgeYellow: '#E2AF3C',
+  badgeRed: '#E07070',
 }
