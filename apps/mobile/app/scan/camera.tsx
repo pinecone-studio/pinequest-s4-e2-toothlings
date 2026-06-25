@@ -5,6 +5,7 @@ import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { analyzeImage } from '@/lib/api'
 import { useTheme } from '@/lib/ThemeContext'
+import { toMongolian } from '@/lib/errorMessages'
 
 export default function CameraScreen() {
   const router = useRouter()
@@ -39,7 +40,7 @@ export default function CameraScreen() {
       const result = await analyzeImage(compressed.uri, { childKey: params.childKey, classId: params.classId, schoolId: params.schoolId, seasonId: params.seasonId, questionnaire: params.questionnaire })
       router.replace({ pathname: '/scan/result', params: { screeningId: result.screeningId, triageLevel: result.triageLevel, triageScore: String(result.triageScore), detectionsCount: String(result.detections.length), guardianPhone: params.guardianPhone ?? '' } })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Алдаа гарлаа')
+      setError(toMongolian(err))
       setAnalyzing(false)
     }
   }

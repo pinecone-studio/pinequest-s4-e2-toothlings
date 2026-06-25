@@ -20,7 +20,6 @@ const app = new Hono<AppEnv>()
 
 app.use('*', cors({
   origin: (_origin, c) => c.env.CORS_ORIGIN ?? 'http://localhost:3000',
-  credentials: true,
 }))
 app.use('*', withDb) // attach the per-request D1-backed Drizzle client
 

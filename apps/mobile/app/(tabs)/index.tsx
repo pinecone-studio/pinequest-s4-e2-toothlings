@@ -1,55 +1,78 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter, useFocusEffect } from 'expo-router'
-import { useCallback } from 'react'
-import { Ionicons } from '@expo/vector-icons'
-import { useOutboxSync } from '@/lib/useOutboxSync'
+import { useCallback, useEffect, useState } from 'react'
 import { useTheme } from '@/lib/ThemeContext'
+import { getUser, type AuthUser } from '@/lib/auth'
+import { useOutboxSync } from '@/lib/useOutboxSync'
+import GreetingHeader from '@/components/home/GreetingHeader'
+import RoleSelector from '@/components/home/RoleSelector'
+import ChildrenTabRow from '@/components/home/ChildrenTabRow'
+import ScanHeroCard from '@/components/home/ScanHeroCard'
+import LastScreeningCard from '@/components/home/LastScreeningCard'
+import QuickActionGrid from '@/components/home/QuickActionGrid'
 
-export default function ScanHomeScreen() {
-  const router = useRouter()
-  const { syncing, lastResult, sync } = useOutboxSync()
+const MOCK_CHILDREN = [
+  { id: '1', name: 'Болд' },
+  { id: '2', name: 'Сарнай' },
+  { id: '3', name: 'Энхбаяр' },
+]
+
+const QUICK_ACTIONS = [
+  { id: 'history', icon: 'list-outline' as const,    label: 'Шалгалтын\nтүүх' },
+  { id: 'guide',   icon: 'book-outline' as const,    label: 'Заавар' },
+  { id: 'map',     icon: 'location-outline' as const, label: 'Ойрын\nэмнэлэг' },
+  { id: 'share',   icon: 'share-outline' as const,   label: 'Хуваалцах' },
+]
+
+const HomeScreen = () => {
   const { colors } = useTheme()
+  const router = useRouter()
+  const { sync } = useOutboxSync()
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [activeChild, setActiveChild] = useState(MOCK_CHILDREN[0].id)
+  const [online, setOnline] = useState(true)
 
+  useEffect(() => { getUser().then(setUser) }, [])
   useFocusEffect(useCallback(() => { void sync() }, [sync]))
 
+  const handleScan = () => router.push('/scan')
+
+  const actions = QUICK_ACTIONS.map((a) => ({
+    ...a,
+    onPress: () => {
+      if (a.id === 'history') router.push('/(tabs)/history')
+      else if (a.id === 'guide') router.push('/(tabs)/guide')
+      else if (a.id === 'map') router.push('/(tabs)/hospital')
+    },
+  }))
+
   return (
-    <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
-      <View style={s.hero}>
-        <Text style={[s.title, { color: colors.sidebar }]}>Screener</Text>
-        <Text style={[s.sub, { color: colors.textSecondary }]}>Хүүхдийн шүдний скрининг</Text>
-        <Text style={[s.desc, { color: colors.textMuted }]}>
-          Та (багш, эмч, цэцэрлэгийн ажилтан) гар утасны камераар хүүхдийн шүдийг скрининг хийнэ.
-          Энэ нь оношилгоо биш — эмчид чиглүүлэх хэрэгсэл юм.
-        </Text>
-        {syncing ? <Text style={[s.sync, { color: colors.textMuted }]}>Синк хийж байна…</Text> : null}
-        {lastResult && !syncing ? <Text style={[s.sync, { color: colors.textMuted }]}>{lastResult}</Text> : null}
-      </View>
-      <View style={s.actions}>
-        <TouchableOpacity style={[s.scanBtn, { backgroundColor: colors.primary }]} onPress={() => router.push('/scan')}>
-          <Ionicons name="camera" size={26} color="#fff" />
-          <Text style={s.scanBtnText}>Шинэ скрининг эхлүүлэх</Text>
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
+      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+        <GreetingHeader name={user?.name ?? '...'} online={online} />
+        <RoleSelector role={user?.role ?? 'screener'} />
+        <ChildrenTabRow
+          children={MOCK_CHILDREN}
+          activeId={activeChild}
+          onSelect={setActiveChild}
+        />
+        <ScanHeroCard onScan={handleScan} />
+        <LastScreeningCard
+          date="2026-06-20"
+          triageLevel="green"
+          summary="Аюулын шинж тэмдэг олдсонгүй — шүдний эмчид хянуулахыг зөвлөж байна"
+          onPress={() => router.push('/(tabs)/history')}
+        />
+        <QuickActionGrid actions={actions} />
+      </ScrollView>
     </SafeAreaView>
   )
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1 },
-  hero: { flex: 1, justifyContent: 'center', padding: 28 },
-  title: { fontSize: 32, fontWeight: '800', marginBottom: 4 },
-  sub: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  desc: { fontSize: 15, lineHeight: 22 },
-  sync: { marginTop: 12, fontSize: 13 },
-  actions: { padding: 24 },
-  scanBtn: {
-    borderRadius: 14,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  scanBtnText: { color: '#fff', fontWeight: '700', fontSize: 17 },
+  safe: { flex: 1 },
+  scroll: { padding: 20, gap: 18, paddingBottom: 32 },
 })
+
+export default HomeScreen

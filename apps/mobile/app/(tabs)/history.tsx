@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState, useEffect } from 'react'
 import { apiFetch } from '@/lib/api'
 import { useTheme } from '@/lib/ThemeContext'
+import { toMongolian } from '@/lib/errorMessages'
 
 type Screening = { id: string; triageLevel: string; capturedAt: string; childKey: string }
 
@@ -21,7 +22,7 @@ export default function HistoryScreen() {
   useEffect(() => {
     apiFetch<Screening[]>('/api/screenings')
       .then(setScreenings)
-      .catch((e: Error) => setError(e.message))
+      .catch((e: unknown) => setError(toMongolian(e)))
       .finally(() => setLoading(false))
   }, [])
 

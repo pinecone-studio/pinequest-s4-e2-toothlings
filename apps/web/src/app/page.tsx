@@ -10,8 +10,6 @@ import {
 } from '@heroicons/react/24/outline'
 import { useSession } from '@/components/providers'
 import { homeForRole } from '@/lib/auth'
-import App from '@/components/Test'
-import TestLanding from '@/components/Test'
 
 const BOARDS = [
   {

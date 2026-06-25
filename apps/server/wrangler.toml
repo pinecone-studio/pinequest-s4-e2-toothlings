@@ -15,4 +15,4 @@ migrations_dir = "../../packages/db/drizzle"
 
 # Secrets (set with `npx wrangler secret put JWT_SECRET`) — NOT committed.
 [vars]
-CORS_ORIGIN = "http://localhost:3000"
+CORS_ORIGIN = "*"

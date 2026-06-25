@@ -1,6 +1,6 @@
 import { getToken } from './auth'
 
-const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000'
+const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'https://screener-api.ariunzul.workers.dev'
 
 const authHeader = async (): Promise<Record<string, string>> => {
   const token = await getToken()

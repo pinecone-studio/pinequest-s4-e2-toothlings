@@ -1,0 +1,22 @@
+const SERVER_ERRORS: Record<string, string> = {
+  invalid_credentials: 'Нэвтрэх мэдээлэл буруу байна',
+  invalid_input:       'Оруулсан мэдээлэл дутуу эсвэл буруу байна',
+  email_taken:         'Энэ и-мэйл хаяг бүртгэлтэй байна',
+  unauthorized:        'Нэвтрэх эрх байхгүй байна',
+  forbidden:           'Энэ үйлдлийг хийх зөвшөөрөл байхгүй',
+  not_found:           'Хайсан мэдээлэл олдсонгүй',
+  server_error:        'Серверт алдаа гарлаа, дахин оролдоно уу',
+  network_error:       'Сүлжээний алдаа гарлаа',
+  '400':               'Хүсэлт буруу байна',
+  '401':               'Нэвтрэх эрх байхгүй байна',
+  '403':               'Энэ үйлдлийг хийх зөвшөөрөл байхгүй',
+  '404':               'Хайсан мэдээлэл олдсонгүй',
+  '409':               'Энэ мэдээлэл давхардаж байна',
+  '422':               'Оруулсан мэдээлэл буруу байна',
+  '500':               'Серверт алдаа гарлаа, дахин оролдоно уу',
+}
+
+export const toMongolian = (err: unknown): string => {
+  const msg = err instanceof Error ? err.message : String(err)
+  return SERVER_ERRORS[msg] ?? SERVER_ERRORS[msg.toLowerCase()] ?? 'Алдаа гарлаа, дахин оролдоно уу'
+}

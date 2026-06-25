@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { sign } from 'hono/jwt'
-import { eq } from 'drizzle-orm'
+import { eq, or } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import type { UserRole } from '@pinequest/types'
 import { users } from '@pinequest/db/d1'
@@ -15,7 +15,11 @@ const secretOf = (env: AppEnv['Bindings']) => env.JWT_SECRET ?? 'dev-secret-chan
 authRoutes.post('/login', async (c) => {
   const db = c.get('db')
   const { email, password } = await c.req.json<{ email: string; password: string }>()
-  const user = await db.query.users.findFirst({ where: eq(users.email, email) })
+  // Accept phone (8 digits → +976XXXXXXXX) or email as the login identifier
+  const normalised = /^\d{8}$/.test(email.trim()) ? `+976${email.trim()}` : email.trim()
+  const user = await db.query.users.findFirst({
+    where: or(eq(users.email, normalised), eq(users.phone, normalised)),
+  })
   if (!user || !user.passwordHash || !user.isActive) {
     return c.json({ success: false, data: null, message: 'invalid_credentials' }, 401)
   }

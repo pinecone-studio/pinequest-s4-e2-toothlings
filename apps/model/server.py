@@ -103,5 +103,5 @@ async def analyze(image: UploadFile = File(...)) -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    print(f"Starting inference server on http://127.0.0.1:{PORT}")
-    uvicorn.run("server:app", host="127.0.0.1", port=PORT, reload=False)
+    print(f"Starting inference server on port {PORT}")
+    uvicorn.run("server:app", host="0.0.0.0", port=PORT, reload=False)
