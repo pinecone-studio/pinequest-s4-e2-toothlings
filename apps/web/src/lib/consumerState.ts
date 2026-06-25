@@ -40,6 +40,9 @@ export type BrushSession = {
   startedAt: string
   zones: Record<BrushZone, number>
   pressure: 'low' | 'ok' | 'high'
+  /** Per-tooth ML coverage 0–100 (FDI-style ids from brushMl). */
+  teeth?: Record<string, number>
+  overallCoverage?: number
 }
 
 export type BrushDayLog = {
@@ -93,7 +96,8 @@ export const saveBrushSession = (session: BrushSession): void => {
 
 const appendBrushLog = (session: BrushSession) => {
   const total = Object.values(session.zones).reduce((a, b) => a + b, 0)
-  const score = Math.min(100, Math.round((total / 120) * 100))
+  const score =
+    session.overallCoverage ?? Math.min(100, Math.round((total / 120) * 100))
   const date = new Date().toISOString().slice(0, 10)
   const logs = getBrushLogs().filter((l) => l.date !== date)
   logs.push({ date, score })

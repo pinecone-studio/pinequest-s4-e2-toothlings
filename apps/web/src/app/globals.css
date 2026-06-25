@@ -216,6 +216,11 @@ main {
   animation: page-in 0.22s ease-out both;
 }
 
+.leaflet-container {
+  font-family: inherit;
+  background: #e8eef4;
+}
+
 .consumer-card {
   border-radius: 1.5rem;
   background: #ffffff;

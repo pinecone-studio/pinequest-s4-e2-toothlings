@@ -35,7 +35,7 @@ const DoctorListPage = () => (
       </div>
 
       <div className="space-y-4">
-        <FlowCard href={ROUTES.doctor.map} emoji="🗺️" title="Map / Байршил" desc="Google Maps, маршрут" accent="gold" />
+        <FlowCard href={ROUTES.doctor.map} emoji="🗺️" title="Map / Байршил" desc="OpenStreetMap, маршрут" accent="gold" />
         <FlowCard href={ROUTES.doctor.chat} emoji="💬" title="Эмчийн чат" desc="Scan үр дүн илгээх" accent="dark" />
       </div>
     </div>

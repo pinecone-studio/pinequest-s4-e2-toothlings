@@ -1,11 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Camera, Upload, Sparkles, Eraser, AlertTriangle, Stethoscope } from '@/lib/icons'
+import { Camera, Upload, Sparkles, Eraser, Stethoscope } from '@/lib/icons'
 import Link from 'next/link'
 import { DetectedRow, FilterPill, FlatCard, PillButton } from '@/components/consumer/warm/WarmUI'
+import { TriageHeroCard } from '@/components/consumer/MobilePatterns'
 import {
-  DEMO_SCAN_RESULT,
   getLastScanResult,
   getQuestionnaire,
   getScanHistory,
@@ -13,6 +13,7 @@ import {
   type ScanDetection,
   type ScanResult,
 } from '@/lib/consumerState'
+import { analyzeScanImage, scanErrorText } from '@/lib/scanApi'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/utils'
 
@@ -51,35 +52,26 @@ const IntraoralImageView = ({ imageUrl, detections }: { imageUrl: string; detect
 
 const ResultsPanel = ({ result }: { result: ScanResult }) => {
   const urgent = result.urgent || result.triage === 'red' || (result.needsDoctor && result.triage === 'yellow')
+  const triageLevel = result.triage === 'red' ? 'red' : result.triage === 'yellow' ? 'yellow' : 'green'
+  const triageLabel =
+    triageLevel === 'red'
+      ? 'Яаралтай — эмчид үзүүлэх'
+      : triageLevel === 'yellow'
+        ? 'Анхаарал хэрэгтэй'
+        : 'Хэвийн — хяналт хангалттай'
+  const triageSummary =
+    urgent
+      ? 'AI screening-ийн дагуу ойрын хугацаанд мэргэжилтэн эмчид үзүүлэхийг зөвлөж байна.'
+      : result.advice
 
   return (
     <div className="flex flex-col gap-5">
       <div>
         <h2 className="text-[22px] font-bold tracking-tight text-slate-900">Үр дүн</h2>
-        <p className="mt-1 text-[13px] text-slate-500">YOLOv8 AI screening</p>
+        <p className="mt-1 text-[13px] text-slate-500">Загвар: YOLOv8 intraoral caries detector (research/demo)</p>
       </div>
 
-      {urgent ? (
-        <div className="rounded-2xl border border-red-100 bg-red-50 p-5">
-          <div className="flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
-              <AlertTriangle className="size-5" strokeWidth={2} />
-            </span>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-red-500">Triage</p>
-              <p className="mt-1 text-[17px] font-bold text-red-700">Яаралтай — эмчид үзүүлэх</p>
-              <p className="mt-2 text-[13px] leading-relaxed text-red-600/90">
-                AI screening-ийн дагуу ойрын хугацаанд мэргэжилтэн эмчид үзүүлэхийг зөвлөж байна.
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-600">Triage</p>
-          <p className="mt-1 text-[17px] font-bold text-emerald-800">Хэвийн — хяналт хангалттай</p>
-        </div>
-      )}
+      <TriageHeroCard level={triageLevel} label={triageLabel} summary={triageSummary} />
 
       <FlatCard className="p-6">
         <p className="text-[12px] font-bold uppercase tracking-wide text-slate-400">Зөвлөмж</p>
@@ -87,7 +79,9 @@ const ResultsPanel = ({ result }: { result: ScanResult }) => {
       </FlatCard>
 
       <div>
-        <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-slate-400">Илрүүлсэн зүйлс</p>
+        <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-slate-400">
+          Илрүүлсэн зүйлс ({result.detections.length})
+        </p>
         <div className="space-y-2">
           {result.detections.map((d) => (
             <DetectedRow
@@ -121,6 +115,7 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
   const [analyzing, setAnalyzing] = useState(false)
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
+  const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState('')
 
   const filterOptions = useMemo(() => {
@@ -179,6 +174,7 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
     setFile(f)
     setPreview(URL.createObjectURL(f))
     setResult(null)
+    setAnalysisError(null)
   }
 
   const capturePhoto = () => {
@@ -199,20 +195,27 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
   }
 
   const runAnalysis = async () => {
-    if (!preview) return
+    if (!preview || !file) return
     setAnalyzing(true)
-    await new Promise((r) => setTimeout(r, 900))
-    const scanResult = DEMO_SCAN_RESULT(preview)
-    saveScanResult(scanResult)
-    sessionStorage.setItem('screener.lastCapture', preview)
-    setResult(scanResult)
-    setAnalyzing(false)
+    setAnalysisError(null)
+    try {
+      const scanResult = await analyzeScanImage(file, preview)
+      saveScanResult(scanResult)
+      sessionStorage.setItem('screener.lastCapture', preview)
+      setResult(scanResult)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'inference_failed'
+      setAnalysisError(scanErrorText(message))
+    } finally {
+      setAnalyzing(false)
+    }
   }
 
   const clearAll = () => {
     setPreview(null)
     setFile(null)
     setResult(null)
+    setAnalysisError(null)
     stopCamera()
     if (fileRef.current) fileRef.current.value = ''
   }
@@ -279,13 +282,14 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
             ) : null}
 
             {cameraError ? <p className="mt-4 text-[13px] text-red-600">{cameraError}</p> : null}
+            {analysisError ? <p className="mt-4 text-[13px] text-red-600">{analysisError}</p> : null}
 
             {displayImage ? <div className="mt-6">{displayImage && <IntraoralImageView imageUrl={displayImage} detections={displayDetections} />}</div> : null}
 
             <canvas ref={canvasRef} className="hidden" />
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <PillButton variant="primary" disabled={!preview || analyzing} onClick={runAnalysis}>
+              <PillButton variant="primary" disabled={!file || !preview || analyzing} onClick={runAnalysis}>
                 <Sparkles className={cn('size-4', analyzing && 'animate-pulse')} strokeWidth={2} />
                 {analyzing ? 'Шинжилж байна…' : 'AI шинжилгээ хийх'}
               </PillButton>
