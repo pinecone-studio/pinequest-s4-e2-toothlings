@@ -10,7 +10,8 @@ export type ScreeningRow = {
   triageLevel: TriageLevel
   triageReason: string | null
   capturedAt: string
-  findings: { id: string }[]
+  syncedAt: string | null            // server-side sync receipt → pending/synced
+  findings: { id: string; confidence: number }[] // model detection confidence
 }
 
 type Filters = { childKey?: string; classId?: string; schoolId?: string; seasonId?: string; limit?: number }

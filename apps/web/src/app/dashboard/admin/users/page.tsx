@@ -4,6 +4,8 @@ import { useState, type FormEvent } from 'react'
 import type { UserRole } from '@pinequest/types'
 import { useUsers, useCreateUser, usePatchUser } from '@/hooks/useUsers'
 import { useSchools } from '@/hooks/useSchools'
+import { useClasses } from '@/hooks/useClasses'
+import UserClassCell from '@/components/dashboard/UserClassCell'
 
 const ROLES: UserRole[] = ['screener', 'dentist', 'follow_up', 'admin']
 const ROLE_LABEL: Record<UserRole, string> = {
@@ -26,13 +28,16 @@ const AdminUsersPage = () => {
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<UserRole>('screener')
   const [schoolId, setSchoolId] = useState('')
+  const [classId, setClassId] = useState('')
+  const { data: createClasses } = useClasses(schoolId)
 
   const onAdd = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!name || !email || !password) return
-    createUser.mutate({ name, email, password, role, schoolId: schoolId || undefined }, {
-      onSuccess: () => { setName(''); setEmail(''); setPassword(''); setSchoolId('') },
-    })
+    createUser.mutate(
+      { name, email, password, role, schoolId: schoolId || undefined, classId: classId || undefined },
+      { onSuccess: () => { setName(''); setEmail(''); setPassword(''); setSchoolId(''); setClassId('') } },
+    )
   }
 
   return (
@@ -48,10 +53,16 @@ const AdminUsersPage = () => {
           <select value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={inp}>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
           </select>
-          <select value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className={inp}>
+          <select value={schoolId} onChange={(e) => { setSchoolId(e.target.value); setClassId('') }} className={inp}>
             <option value="">— Бүх сургууль —</option>
             {schools?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
+          {role === 'screener' && schoolId && (
+            <select value={classId} onChange={(e) => setClassId(e.target.value)} className={`${inp} col-span-2`}>
+              <option value="">— Бүлэг (багшийг бүлэгт хуваарилах) —</option>
+              {createClasses?.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.seasonId}</option>)}
+            </select>
+          )}
           <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-on-primary hover:bg-primary-hover transition-colors">
             Нэмэх
           </button>
@@ -68,6 +79,7 @@ const AdminUsersPage = () => {
                 <th className="px-4 py-3 font-medium text-text-muted">Нэр</th>
                 <th className="px-4 py-3 font-medium text-text-muted">И-мэйл</th>
                 <th className="px-4 py-3 font-medium text-text-muted">Үүрэг</th>
+                <th className="px-4 py-3 font-medium text-text-muted">Бүлэг</th>
                 <th className="px-4 py-3 font-medium text-text-muted">Идэвхтэй</th>
               </tr>
             </thead>
@@ -85,6 +97,7 @@ const AdminUsersPage = () => {
                       {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
                     </select>
                   </td>
+                  <td className="px-4 py-3"><UserClassCell user={u} /></td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => patchUser.mutate({ id: u.id, isActive: !u.isActive })}

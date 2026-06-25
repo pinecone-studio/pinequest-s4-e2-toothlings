@@ -6,32 +6,32 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
 
-  /* brand raw — same in light and dark */
-  --color-brand-primary: #48A9B2;
-  --color-brand-sidebar: #3B5B58;
-  --color-brand-accent: #57BDC1;
-  --color-brand-muted: #B8DEDE;
+  /* brand raw — Honey Gold (same hue in light and dark) */
+  --color-brand-primary: #F2B705;
+  --color-brand-sidebar: #2A2418;
+  --color-brand-accent: #FFD24D;
+  --color-brand-muted: #FFF0BF;
 
-  /* semantic surfaces — light defaults (Apple system colors) */
-  --color-bg: #F2F2F7;
+  /* semantic surfaces — warm cream canvas, clean white cards (mockup) */
+  --color-bg: #F3F1EA;
   --color-surface: #FFFFFF;
-  --color-surface-raised: #F9F9F9;
+  --color-surface-raised: #F7F5EE;
   --color-sidebar-bg: #FFFFFF;
 
-  /* borders (Apple separator) */
-  --color-border: #D1D1D6;
-  --color-border-muted: #E5E5EA;
+  /* borders — warm-tinted separators */
+  --color-border: #E8E4DA;
+  --color-border-muted: #EFECE3;
 
   /* text (Apple label hierarchy) */
   --color-text-base: #1D1D1F;
   --color-text-muted: #6E6E73;
-  --color-text-on-primary: #FFFFFF;
+  --color-text-on-primary: #1A1407;
   --color-text-on-sidebar: #1D1D1F;
 
-  /* interactive */
-  --color-primary: #48A9B2;
-  --color-primary-hover: #6FC7C8;
-  --color-primary-subtle: #EAF5F6;
+  /* interactive — Honey Gold (carries near-black text, never white) */
+  --color-primary: #F2B705;
+  --color-primary-hover: #D99E00;
+  --color-primary-subtle: #FFF6DC;
 
   /* accent — lime/chartreuse for positive indicators (coverage, resolved, growth) */
   --color-accent: #C5F135;
@@ -39,15 +39,16 @@
 
   /* chart neutrals — calm 3-tone palette for generic volume charts (NOT triage).
      Triage green/yellow/red stay reserved for clinical-signal surfaces only. */
-  --color-chart-1: #C5F135; /* lime highlight */
-  --color-chart-2: #8FB9BC; /* muted teal */
+  --color-chart-1: #F2B705; /* honey gold highlight (brand) */
+  --color-chart-2: #C9B98A; /* muted gold-gray */
   --color-chart-3: #C2CAD2; /* neutral gray */
 
-  /* triage — neutral clinical signal (muted, not alarm-bright) */
+  /* triage — neutral clinical signal. "Check" pushed to ORANGE so it never
+     collides with the Honey Gold brand (brand = identity, orange = check). */
   --color-triage-green: #2A7D4F;
   --color-triage-green-bg: #EEF8F3;
-  --color-triage-yellow: #8A6500;
-  --color-triage-yellow-bg: #FAF6E4;
+  --color-triage-yellow: #B5560B;
+  --color-triage-yellow-bg: #FDEFE4;
   --color-triage-red: #B83838;
   --color-triage-red-bg: #FAF0F0;
 
@@ -68,15 +69,15 @@
   --color-text-base: #F5F5F7;
   --color-text-muted: #8E8E93;
   --color-text-on-sidebar: #F5F5F7;
-  --color-primary: #57BDC1;
-  --color-primary-hover: #7DD4D5;
-  --color-primary-subtle: #152727;
+  --color-primary: #FFC93C;
+  --color-primary-hover: #FFD45E;
+  --color-primary-subtle: #2A2310;
 
-  /* triage dark — soft, not eye-searing */
+  /* triage dark — soft, not eye-searing. "Check" = orange, distinct from gold. */
   --color-triage-green: #5DC98B;
   --color-triage-green-bg: #0C2818;
-  --color-triage-yellow: #E2AF3C;
-  --color-triage-yellow-bg: #251A00;
+  --color-triage-yellow: #FF9D4D;
+  --color-triage-yellow-bg: #2A1B0E;
   --color-triage-red: #E07070;
   --color-triage-red-bg: #270D0D;
 
@@ -85,8 +86,8 @@
   --color-accent-fg: #4A7800;
 
   /* chart neutrals — dark (calm, distinguishable on near-black) */
-  --color-chart-1: #B5E020; /* lime highlight */
-  --color-chart-2: #4E8487; /* muted teal */
+  --color-chart-1: #FFC93C; /* honey gold highlight (brand) */
+  --color-chart-2: #8A7C52; /* muted gold-gray */
   --color-chart-3: #5A5A5E; /* neutral gray */
 
   /* dark mode = elevation via color, not shadow */

@@ -39,7 +39,7 @@ const ChildSummaryCard = ({ childName, guardianEmail, summary: s }: Props) => {
         </div>
         <button
           onClick={() => openParentEmail(childName, guardianEmail, s)}
-          className="btn flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-[12px] font-semibold text-white transition-all duration-150 hover:bg-primary-hover"
+          className="btn flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-[12px] font-semibold text-text-on-primary transition-all duration-150 hover:bg-primary-hover"
         >
           <EnvelopeIcon className="size-4" /> Эцэг эхэд илгээх
         </button>

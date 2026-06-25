@@ -23,13 +23,15 @@ export type QueueRow = {
   seasonId: string
   triageLevel: TriageLevel
   capturedAt: string
+  review: { confirmedLevel: string } | null // null = still awaiting dentist confirm
 }
 
-export const useReviewQueue = () => {
+export const useReviewQueue = (seasonId?: string) => {
   const { token } = useSession()
+  const qs = seasonId ? `?seasonId=${seasonId}` : ''
   return useQuery({
-    queryKey: ['review-queue'],
-    queryFn: () => apiFetch<QueueRow[]>('/api/screenings', { token }),
+    queryKey: ['review-queue', seasonId ?? 'all'],
+    queryFn: () => apiFetch<QueueRow[]>(`/api/screenings${qs}`, { token }),
     enabled: !!token,
   })
 }

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useSession } from '@/components/providers'
+import { SeasonProvider } from '@/components/SeasonProvider'
 import AppShell from '@/components/shell/AppShell'
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
@@ -15,7 +16,11 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
   if (!ready || !token || role !== 'admin') return null
 
-  return <AppShell>{children}</AppShell>
+  return (
+    <AppShell>
+      <SeasonProvider>{children}</SeasonProvider>
+    </AppShell>
+  )
 }
 
 export default AdminLayout

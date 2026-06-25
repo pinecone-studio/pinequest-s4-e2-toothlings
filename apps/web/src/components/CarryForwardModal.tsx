@@ -76,7 +76,7 @@ const CarryForwardModal = ({ open, onClose, source, schoolName, submitting, onSu
           <button
             onClick={handleSubmit}
             disabled={submitting || !seasonId.trim()}
-            className="btn flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-[13px] font-semibold text-white transition-all duration-150 hover:bg-primary-hover disabled:opacity-50"
+            className="btn flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-[13px] font-semibold text-text-on-primary transition-all duration-150 hover:bg-primary-hover disabled:opacity-50"
           >
             {submitting && <span className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
             {submitting ? 'Төлөвлөж байна…' : 'Төлөвлөх'}
@@ -127,7 +127,7 @@ const CarryForwardModal = ({ open, onClose, source, schoolName, submitting, onSu
           onClick={() => setWantReminder((v) => !v)}
           className="btn flex items-center gap-2.5 rounded-xl border border-border p-3 text-left transition-all duration-150 hover:border-primary"
         >
-          <span className={`flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors ${wantReminder ? 'border-primary bg-primary text-white' : 'border-border bg-surface'}`}>
+          <span className={`flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors ${wantReminder ? 'border-primary bg-primary text-text-on-primary' : 'border-border bg-surface'}`}>
             {wantReminder && <BellAlertIcon className="size-3.5" />}
           </span>
           <span className="flex flex-col">

@@ -11,6 +11,9 @@ export type DashStats = {
   resolvedFollowUps: number
 }
 
+export type TsBucket = { ts: string; screened: number; flagged: number }
+export type Timeseries = { range: string; buckets: TsBucket[] }
+
 export const useStats = (opts: { seasonId?: string; schoolId?: string } = {}) => {
   const { token } = useSession()
   const qs = new URLSearchParams(
@@ -19,6 +22,17 @@ export const useStats = (opts: { seasonId?: string; schoolId?: string } = {}) =>
   return useQuery({
     queryKey: ['stats', opts],
     queryFn: () => apiStatFetch<DashStats>(`/api/stats${qs ? `?${qs}` : ''}`, { token, revalidate: 120 }),
+    enabled: !!token,
+  })
+}
+
+/** Screened-vs-Flagged buckets for the activity chart + monthly hero. */
+export const useTimeseries = (range: string, seasonId?: string) => {
+  const { token } = useSession()
+  const qs = new URLSearchParams({ range, ...(seasonId ? { seasonId } : {}) }).toString()
+  return useQuery({
+    queryKey: ['timeseries', range, seasonId ?? 'all'],
+    queryFn: () => apiStatFetch<Timeseries>(`/api/stats/timeseries?${qs}`, { token, revalidate: 120 }),
     enabled: !!token,
   })
 }

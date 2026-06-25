@@ -43,7 +43,7 @@ const LandingPage = () => {
         </h1>
         <p className="mt-4 max-w-xl text-balance text-[15px] leading-relaxed text-text-muted">
           Багш, сувилагч, эцэг эх хүүхдийн шүдийг гар утасны камераар шалгаж, эмчид хурдан
-          чиглүүлнэ. Энэ нь онош биш — аюулын шинжийг эрт илрүүлэхэд тусална.
+          чиглүүлнэ. 
         </p>
 
         {/* Begin CTA */}
@@ -85,8 +85,7 @@ const LandingPage = () => {
       </div>
 
       <p className="relative z-10 mt-12 max-w-md text-center text-[11px] leading-relaxed text-text-muted">
-        Screening-and-triage, not diagnosis. Ногоон = эдгээр зурагт аюулын шинж илрээгүй гэсэн үг.
-        Эцсийн дүгнэлтийг шүдний эмч баталгаажуулна.
+        Screening-and-triage
       </p>
     </main>
   )

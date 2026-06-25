@@ -4,7 +4,7 @@ import { prisma } from '@pinequest/db'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { writeAudit } from '../lib/audit.js'
 import { persistScreening } from '../lib/persistScreening.js'
-import { schoolScope } from '../lib/scopeFilter.js'
+import { resolveScope, scopeOr } from '../lib/scopeFilter.js'
 import type { AppEnv } from '../types.js'
 
 export const screeningRoutes = new Hono<AppEnv>()
@@ -18,17 +18,22 @@ screeningRoutes.post('/', authenticate, async (c) => {
 
 screeningRoutes.get('/', authenticate, async (c) => {
   const { childKey, classId, schoolId, seasonId, screenedById } = c.req.query()
-  const scope = schoolScope(c.get('jwtPayload'))
+  const or = scopeOr(await resolveScope(c.get('jwtPayload')))
   const screenings = await prisma.screening.findMany({
     where: {
-      childKey: childKey || undefined,
-      classId: classId || undefined,
-      schoolId: scope ?? (schoolId || undefined),
-      seasonId: seasonId || undefined,
-      screenedById: screenedById || undefined,
+      AND: [
+        or ? { OR: or } : {},
+        {
+          childKey: childKey || undefined,
+          classId: classId || undefined,
+          schoolId: schoolId || undefined,
+          seasonId: seasonId || undefined,
+          screenedById: screenedById || undefined,
+        },
+      ],
     },
     orderBy: { capturedAt: 'desc' },
-    include: { findings: true },
+    include: { findings: true, review: { select: { confirmedLevel: true } } },
   })
   return c.json({ success: true, data: screenings })
 })

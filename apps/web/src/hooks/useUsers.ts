@@ -9,6 +9,7 @@ export type UserRow = {
   email: string
   role: UserRole
   schoolId: string | null
+  classId: string | null // class-teacher scope (UserScope)
   isActive: boolean
   createdAt: string
 }
@@ -26,7 +27,7 @@ export const useCreateUser = () => {
   const { token } = useSession()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (body: { name: string; email: string; password: string; role: UserRole; schoolId?: string }) =>
+    mutationFn: (body: { name: string; email: string; password: string; role: UserRole; schoolId?: string; classId?: string }) =>
       apiFetch<UserRow>('/api/users', { token, method: 'POST', body }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
   })
@@ -36,7 +37,7 @@ export const usePatchUser = () => {
   const { token } = useSession()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (vars: { id: string; role?: UserRole; isActive?: boolean; schoolId?: string | null }) => {
+    mutationFn: (vars: { id: string; role?: UserRole; isActive?: boolean; schoolId?: string | null; classId?: string | null }) => {
       const { id, ...body } = vars
       return apiFetch<UserRow>(`/api/users/${id}`, { token, method: 'PATCH', body })
     },
