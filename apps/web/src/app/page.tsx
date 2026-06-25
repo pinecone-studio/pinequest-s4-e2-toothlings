@@ -2,14 +2,36 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowRightIcon, Squares2X2Icon, ClipboardDocumentCheckIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowRightIcon,
+  Squares2X2Icon,
+  ClipboardDocumentCheckIcon,
+  ClipboardDocumentListIcon,
+} from '@heroicons/react/24/outline'
 import { useSession } from '@/components/providers'
 import { homeForRole } from '@/lib/auth'
+import App from '@/components/Test'
+import TestLanding from '@/components/Test'
 
 const BOARDS = [
-  { href: '/dashboard/admin', label: 'Админ самбар', desc: 'Бүх сургууль, дүн, хяналт', Icon: Squares2X2Icon },
-  { href: '/dashboard/dentist', label: 'Эмчийн хяналт', desc: 'Скрининг шалгах дараалал', Icon: ClipboardDocumentCheckIcon },
-  { href: '/dashboard/follow-up', label: 'Дагалт', desc: 'Дагах шаардлагатай жагсаалт', Icon: ClipboardDocumentListIcon },
+  {
+    href: '/dashboard/admin',
+    label: 'Админ самбар',
+    desc: 'Бүх сургууль, дүн, хяналт',
+    Icon: Squares2X2Icon,
+  },
+  {
+    href: '/dashboard/dentist',
+    label: 'Эмчийн хяналт',
+    desc: 'Скрининг шалгах дараалал',
+    Icon: ClipboardDocumentCheckIcon,
+  },
+  {
+    href: '/dashboard/follow-up',
+    label: 'Дагалт',
+    desc: 'Дагах шаардлагатай жагсаалт',
+    Icon: ClipboardDocumentListIcon,
+  },
 ]
 
 const LandingPage = () => {
@@ -21,6 +43,7 @@ const LandingPage = () => {
   const onBegin = () => router.push(token ? homeForRole(role) : '/login')
 
   return (
+    // <TestLanding />
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg px-6 py-16">
       {/* soft brand glow */}
       <div className="pointer-events-none absolute -top-32 left-1/2 size-[36rem] -translate-x-1/2 rounded-full bg-primary-subtle blur-3xl" />
@@ -57,7 +80,9 @@ const LandingPage = () => {
         {!token && (
           <p className="mt-3 text-[12px] text-text-muted">
             Бүртгэлгүй юу?{' '}
-            <Link href="/register" className="font-medium text-primary hover:underline">Бүртгүүлэх</Link>
+            <Link href="/register" className="font-medium text-primary hover:underline">
+              Бүртгүүлэх
+            </Link>
           </p>
         )}
 
