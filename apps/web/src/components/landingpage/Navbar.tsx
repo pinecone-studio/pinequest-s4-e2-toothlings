@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { NAV } from './Landing.data'
 
 export function Navbar({ active }: { active: number }) {
@@ -74,8 +75,8 @@ export function Navbar({ active }: { active: number }) {
         >
           {String(active + 1).padStart(2, '0')} / {String(NAV.length).padStart(2, '0')}
         </span>
-        <a
-          href="#cta"
+        <Link
+          href="/dashboard"
           style={{
             padding: '10px 20px',
             borderRadius: 999,
@@ -85,8 +86,8 @@ export function Navbar({ active }: { active: number }) {
             fontSize: 17,
           }}
         >
-          Демо үзэх →
-        </a>
+          Эхлэх
+        </Link>
       </div>
     </nav>
   )
