@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { useSession } from '@/components/providers'
 import { homeForRole } from '@/lib/auth'
-import Landing from '@/components/landingpage/Landing'
+import { Landing } from '@/components/landingpage/Landing'
 
 const BOARDS = [
   {
