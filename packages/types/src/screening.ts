@@ -20,6 +20,54 @@ export interface InferenceResult {
 /** Longitudinal flag for a finding across seasons (child_key × season × FDI). */
 export type LongitudinalFlag = 'new' | 'worsened' | 'stable' | 'resolved'
 
+/** Child-level triage trajectory across seasons. */
+export type ChildTrendTag =
+  | 'first_season'   // only one season recorded
+  | 'stable'         // no meaningful change
+  | 'improved'       // last pair: level went down
+  | 'worsened'       // last pair: level went up
+  | 'improving'      // last 3: monotonically better
+  | 'deteriorating'  // last 3: monotonically worse
+  | 'chronic'        // last 3 all non-green
+  | 'volatile'       // 2+ direction changes in history
+  | 'unscreened'     // no screenings at all
+
+export interface ChildSeasonEntry {
+  seasonId: SeasonId
+  effectiveLevel: TriageLevel
+  triageScore: number
+  gapFromPrior?: 'consecutive' | 'one_skip' | 'large_gap'
+}
+
+/** Pure-computed trend — derived in packages/core, never persisted. */
+export interface ChildTrendSnapshot {
+  childKey: string
+  tag: ChildTrendTag
+  currentLevel: TriageLevel
+  previousLevel?: TriageLevel
+  seasonCount: number
+  /** Up to 5 most-recent seasons, ascending. */
+  recentHistory: ChildSeasonEntry[]
+  /** How many consecutive non-green seasons (for 'chronic'/'deteriorating'). */
+  chronicStreakSeasons?: number
+  /** FDI codes present last season but absent this season (empty until FDI ships). */
+  resolvedFdiCodes: number[]
+  /** FDI codes new this season (empty until FDI ships). */
+  newFdiCodes: number[]
+  latestSeasonId: SeasonId
+  latestCapturedAt: string
+}
+
+/** Compact trend for the mobile scan surface — no clinical detail. */
+export interface MobileChildTrend {
+  badge: 'better' | 'worse' | 'same' | 'first' | 'chronic'
+  /** Mongolian label for the badge. */
+  badgeLabelMn: string
+  seasonCount: number
+  previousLevel?: TriageLevel
+  currentLevel: TriageLevel
+}
+
 /** Per-tooth finding persisted with a screening (immutable). */
 export interface ToothFinding {
   id: string

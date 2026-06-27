@@ -12,6 +12,13 @@ import StudentEditModal from '@/components/admin/summary/StudentEditModal'
 import EmptyState from '@/components/ui/EmptyState'
 import { useSetPageHeader } from '@/components/shell/ShellHeaderContext'
 
+const TRIAGE_GROUPS = [
+  { level: 'red',    label: 'Яаралтай эмчилгээ шаардлагатай', dot: 'bg-triage-red',    text: 'text-triage-red' },
+  { level: 'yellow', label: 'Эмчилгээ шаардлагатай',           dot: 'bg-triage-yellow', text: 'text-triage-yellow' },
+  { level: 'green',  label: 'Дараагийн хяналтанд хамруулах',   dot: 'bg-triage-green',  text: 'text-triage-green' },
+  { level: 'none',   label: 'Шалгаагүй',                       dot: 'bg-border',        text: 'text-text-muted' },
+]
+
 const SummaryBoard = () => {
   const { data: students, isLoading } = useBoardStudents()
   const send = useSendToParent()
@@ -38,6 +45,12 @@ const SummaryBoard = () => {
       return true
     })
   }, [students, q, classFilter])
+
+  const groups = useMemo(() => {
+    const by: Record<string, BoardStudent[]> = { red: [], yellow: [], green: [], none: [] }
+    for (const s of filtered) by[s.latestLevel ?? 'none'].push(s)
+    return by
+  }, [filtered])
 
   const handleSend = async (s: BoardStudent) => {
     try {
@@ -108,16 +121,29 @@ const SummaryBoard = () => {
       ) : filtered.length === 0 ? (
         <EmptyState Icon={UsersIcon} title="Сурагч олдсонгүй" hint="Хайлт эсвэл ангийн шүүлтүүрийг өөрчилнө үү." />
       ) : (
-        <StudentGrid
-          students={filtered}
-          onSelect={setSelected}
-          onSend={(s) => { void handleSend(s) }}
-          onEdit={setEditing}
-          onDelete={setDeleting}
-          onStatus={(s, status) => {
-            setStatus.mutate({ childKey: s.childKey, status })
-          }}
-        />
+        <div className="flex flex-col gap-8">
+          {TRIAGE_GROUPS.map(({ level, label, dot, text }) => {
+            const list = groups[level]
+            if (!list?.length) return null
+            return (
+              <div key={level} className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <span className={`size-2 shrink-0 rounded-full ${dot}`} />
+                  <span className={`text-[13px] font-bold ${text}`}>{label}</span>
+                  <span className="text-[12px] text-text-muted">· {list.length}</span>
+                </div>
+                <StudentGrid
+                  students={list}
+                  onSelect={setSelected}
+                  onSend={(s) => { void handleSend(s) }}
+                  onEdit={setEditing}
+                  onDelete={setDeleting}
+                  onStatus={(s, status) => { setStatus.mutate({ childKey: s.childKey, status }) }}
+                />
+              </div>
+            )
+          })}
+        </div>
       )}
 
       <StudentModal student={selected} onClose={() => setSelected(null)} />

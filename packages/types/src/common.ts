@@ -12,6 +12,16 @@ export type FollowUpStatus =
   | 'treatment_done'
   | 'treatment_refused'
   | 'unclear'
+  | 'superseded'      // system: a later-season screening opened a new episode
+  | 'season_cleared'  // system: a green screening in a later season closed this arc
+
+/** Terminal reason stored on a closed FollowUpEpisode. */
+export type EpisodeCloseReason =
+  | 'treatment_done'
+  | 'treatment_refused'
+  | 'unclear'
+  | 'season_cleared'
+  | 'superseded'
 
 /** Screening period, e.g. "2026-spring". One leg of the identity triple. */
 export type SeasonId = string

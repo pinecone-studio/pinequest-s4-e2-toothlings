@@ -31,7 +31,7 @@ export const seasonForDate = (date: Date): SeasonId =>
 export const seasonsForYear = (year: number): SeasonId[] =>
   SCREENING_TERMS.map((term) => `${year}-${term}`)
 
-const parseSeason = (seasonId: SeasonId): { year: string; term?: SeasonTerm } => {
+export const parseSeason = (seasonId: SeasonId): { year: string; term?: SeasonTerm } => {
   const [year, term] = seasonId.split('-')
   return { year, term: SCREENING_TERMS.includes(term as SeasonTerm) ? (term as SeasonTerm) : undefined }
 }
@@ -40,4 +40,27 @@ const parseSeason = (seasonId: SeasonId): { year: string; term?: SeasonTerm } =>
 export const seasonLabelMn = (seasonId: SeasonId): string => {
   const { year, term } = parseSeason(seasonId)
   return term ? `${year} ${TERM_LABEL_MN[term]}` : seasonId
+}
+
+const TERM_ORDINAL: Record<SeasonTerm, number> = { fall: 0, winter: 1, spring: 2 }
+
+/**
+ * Total ordering across all seasons: year × 3 + term index.
+ * e.g. 2026-fall=6078, 2026-winter=6079, 2026-spring=6080, 2027-fall=6081.
+ * Unrecognised ids return NaN.
+ */
+export const seasonOrdinal = (seasonId: SeasonId): number => {
+  const { year, term } = parseSeason(seasonId)
+  if (!term) return NaN
+  return Number(year) * 3 + TERM_ORDINAL[term]
+}
+
+export type SeasonGap = 'consecutive' | 'one_skip' | 'large_gap'
+
+/** How many screening opportunities were missed between two season ids. */
+export const gapBetween = (prev: SeasonId, curr: SeasonId): SeasonGap => {
+  const d = seasonOrdinal(curr) - seasonOrdinal(prev)
+  if (d <= 1) return 'consecutive'
+  if (d === 2) return 'one_skip'
+  return 'large_gap'
 }

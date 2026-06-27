@@ -1,6 +1,10 @@
-import { eq } from 'drizzle-orm'
-import { screenings, toothFindings, screeningImages, questionnaires, followUps, type DB } from '@pinequest/db/d1'
-import type { SymptomSet, ToothFinding, TriageResult } from '@pinequest/types'
+import { and, desc, eq, isNotNull, isNull, lt } from 'drizzle-orm'
+import {
+  screenings, toothFindings, screeningImages, questionnaires,
+  followUpEpisodes, followUpEvents, followUps, type DB,
+} from '@pinequest/db/d1'
+import type { FindingClass, SymptomSet, ToothFinding, TriageLevel, TriageResult } from '@pinequest/types'
+import { computeToothLongitudinal } from '@pinequest/core'
 
 export type PersistInput = {
   id: string
@@ -17,9 +21,28 @@ export type PersistInput = {
   deviceId?: string
 }
 
-const withChildren = {
-  with: { findings: true, images: true, questionnaire: true },
-} as const
+const LEVEL_RANK: Record<TriageLevel, number> = { green: 0, yellow: 1, red: 2 }
+
+const withChildren = { with: { findings: true, images: true, questionnaire: true } } as const
+
+type Episode = typeof followUpEpisodes.$inferSelect
+
+const emitEvent = (
+  db: DB, ep: Episode, from: string | null, to: string, actorId: string, note?: string | null,
+) =>
+  db.insert(followUpEvents).values({
+    episodeId: ep.id, childKey: ep.childKey, seasonId: ep.triggerSeasonId,
+    fromStatus: from, toStatus: to,
+    actorId, actorRole: 'system', note: note ?? null,
+  })
+
+const closeEp = async (db: DB, ep: Episode, reason: string) => {
+  const [closed] = await db.update(followUpEpisodes)
+    .set({ closedAt: new Date(), closedReason: reason, status: reason, updatedById: 'system', version: ep.version + 1 })
+    .where(eq(followUpEpisodes.id, ep.id)).returning()
+  await emitEvent(db, ep, ep.status, reason, 'system')
+  return closed
+}
 
 export const persistScreening = async (
   db: DB,
@@ -31,6 +54,22 @@ export const persistScreening = async (
   const existing = await db.query.screenings.findFirst({ where: eq(screenings.id, body.id), ...withChildren })
   if (existing) return existing
 
+  const capturedAtDate = new Date(body.capturedAt)
+
+  // Server-side longitudinal: compare against prior season's findings for this child.
+  const priorRows = await db
+    .select({ fdi: toothFindings.fdi, className: toothFindings.className })
+    .from(toothFindings)
+    .innerJoin(screenings, eq(screenings.id, toothFindings.screeningId))
+    .where(and(eq(screenings.childKey, body.childKey), lt(screenings.capturedAt, capturedAtDate)))
+    .orderBy(desc(screenings.capturedAt))
+    .limit(100)
+  const priorFindings = priorRows.map((r) => ({
+    fdi: r.fdi ?? undefined,
+    className: r.className as FindingClass,
+  }))
+
+  // Immutable screening event.
   await db.insert(screenings).values({
     id: body.id,
     childKey: body.childKey,
@@ -44,7 +83,7 @@ export const persistScreening = async (
     triageReason: result.reason ?? null,
     modelName: body.modelName,
     modelVersion: body.modelVersion ?? null,
-    capturedAt: new Date(body.capturedAt),
+    capturedAt: capturedAtDate,
     deviceId: body.deviceId ?? null,
     syncedAt: new Date(),
   })
@@ -57,11 +96,10 @@ export const persistScreening = async (
       className: f.className,
       classId: f.classId,
       confidence: f.confidence,
-      boxX1: f.box.x1,
-      boxY1: f.box.y1,
-      boxX2: f.box.x2,
-      boxY2: f.box.y2,
-      longitudinal: f.longitudinal ?? null,
+      boxX1: f.box.x1, boxY1: f.box.y1, boxX2: f.box.x2, boxY2: f.box.y2,
+      longitudinal: computeToothLongitudinal(
+        { fdi: f.fdi, className: f.className }, priorFindings,
+      ),
     })))
   }
   if (body.imageRefs.length) {
@@ -76,7 +114,53 @@ export const persistScreening = async (
     trauma: body.symptoms.trauma ?? null,
   })
 
-  if (result.level !== 'green') {
+  // Episode lifecycle.
+  const openEp = await db.query.followUpEpisodes.findFirst({
+    where: and(eq(followUpEpisodes.childKey, body.childKey), isNull(followUpEpisodes.closedAt)),
+  })
+
+  if (result.level === 'green') {
+    if (openEp) await closeEp(db, openEp, 'season_cleared')
+  } else {
+    const isSameSeason = openEp?.triggerSeasonId === body.seasonId
+
+    if (isSameSeason && openEp) {
+      if (LEVEL_RANK[result.level] <= LEVEL_RANK[openEp.triggerLevel as TriageLevel]) {
+        // Idempotent re-screen — lower or equal severity in same season, no-op.
+        return db.query.screenings.findFirst({ where: eq(screenings.id, body.id), ...withChildren })
+      }
+      await closeEp(db, openEp, 'superseded')
+    } else if (!isSameSeason && openEp) {
+      await closeEp(db, openEp, 'superseded')
+    }
+
+    // Escalation: any prior episode closed as treatment_refused with a worse score.
+    const prevRefused = await db.query.followUpEpisodes.findFirst({
+      where: and(
+        eq(followUpEpisodes.childKey, body.childKey),
+        isNotNull(followUpEpisodes.closedAt),
+        eq(followUpEpisodes.closedReason, 'treatment_refused'),
+      ),
+      orderBy: [desc(followUpEpisodes.updatedAt)],
+    })
+    const escalation = !!prevRefused && result.score > prevRefused.triggerScore
+
+    const [newEp] = await db.insert(followUpEpisodes).values({
+      childKey: body.childKey,
+      schoolId: body.schoolId,
+      triggerSeasonId: body.seasonId,
+      triggerScreeningId: body.id,
+      triggerLevel: result.level,
+      triggerScore: result.score,
+      status: 'flagged',
+      escalationFlag: escalation,
+      previousEpisodeId: openEp?.id ?? null,
+      updatedById: 'system',
+    }).returning()
+
+    await emitEvent(db, newEp, null, 'flagged', 'system', escalation ? 'escalated_after_refusal' : null)
+
+    // Legacy write for backward compat while Phase C rolls out.
     await db.insert(followUps).values({
       childKey: body.childKey,
       schoolId: body.schoolId,

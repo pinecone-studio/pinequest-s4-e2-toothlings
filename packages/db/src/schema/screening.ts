@@ -30,6 +30,8 @@ export const screenings = sqliteTable('Screening', {
   index('Screening_school_triage_idx').on(t.schoolId, t.triageLevel),
   index('Screening_classId_idx').on(t.classId),
   index('Screening_capturedAt_idx').on(t.capturedAt),
+  index('Screening_childKey_capturedAt_idx').on(t.childKey, t.capturedAt),
+  index('Screening_childKey_season_capturedAt_idx').on(t.childKey, t.seasonId, t.capturedAt),
 ])
 
 export const screeningReviews = sqliteTable('ScreeningReview', {
