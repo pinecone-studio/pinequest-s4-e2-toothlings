@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTheme } from '@/lib/ThemeContext'
 import type { PhotoAnalysis } from '@/lib/api'
+import { buildChildSummary, detectionsToFindings } from '@pinequest/core'
+import type { SymptomSet } from '@pinequest/types'
 import ResultTriageCard, { TriageLevel } from '@/components/scan/result/ResultTriageCard'
 import ResultPhotoCard from '@/components/scan/result/ResultPhotoCard'
 import ResultDetectionList from '@/components/scan/result/ResultDetectionList'
@@ -28,11 +30,16 @@ export default function ResultScreen() {
     seasonId: string
     questionnaire: string
     photos: string
+    birthYear?: string
+    symptoms?: string
+    capturedAt?: string
   }>()
 
   const level = (params.triageLevel ?? 'green') as TriageLevel
   const score = Number(params.triageScore ?? '0')
   const screeningId = params.screeningId ?? ''
+  const birthYear = parseInt(params.birthYear ?? '0', 10)
+  const capturedAt = params.capturedAt ?? new Date().toISOString()
 
   const photos = useMemo<PhotoAnalysis[]>(() => {
     try {
@@ -45,6 +52,28 @@ export default function ResultScreen() {
 
   const allDetections = useMemo(() => photos.flatMap(p => p.detections), [photos])
 
+  const symptoms = useMemo<SymptomSet>(() => {
+    try { return JSON.parse(params.symptoms ?? '{}') as SymptomSet }
+    catch { return {} }
+  }, [params.symptoms])
+
+  const summary = useMemo(() => {
+    if (!birthYear) return null
+    let i = 0
+    const findings = detectionsToFindings(allDetections, () => `rs-${screeningId}-${i++}`)
+    const maxConf = allDetections.reduce((m, d) => Math.max(m, d.confidence), 0)
+    return buildChildSummary({
+      screeningId,
+      seasonId: params.seasonId ?? '',
+      capturedAt,
+      birthYear,
+      findings,
+      symptoms,
+      aiLevel: level,
+      confidentWording: maxConf >= 0.6,
+    })
+  }, [birthYear, allDetections, screeningId, params.seasonId, capturedAt, symptoms, level])
+
   return (
     <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
@@ -54,8 +83,8 @@ export default function ResultScreen() {
           <ResultPhotoCard key={`${photo.arch}-${i}`} photo={photo} />
         ))}
         <ResultDetectionList detections={allDetections} />
-        {level === 'green' && <ResultGreenAdvice />}
-        {level === 'yellow' && <ResultYellowAdvice />}
+        {level === 'green' && <ResultGreenAdvice homeSteps={summary?.homeSteps} />}
+        {level === 'yellow' && <ResultYellowAdvice homeSteps={summary?.homeSteps} />}
         {level === 'red' && <ResultRedAdvice guardianPhone={params.guardianPhone} />}
         <ResultBottomActions
           screeningId={screeningId}
@@ -68,6 +97,7 @@ export default function ResultScreen() {
               seasonId: params.seasonId,
               questionnaire: params.questionnaire,
               guardianPhone: params.guardianPhone,
+              birthYear: params.birthYear ?? '',
             },
           })}
           onHome={() => router.replace('/(tabs)')}

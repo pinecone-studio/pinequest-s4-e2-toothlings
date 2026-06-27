@@ -1,4 +1,4 @@
-import type { ChildScreeningSummary, InferenceDetection } from '@pinequest/types'
+import type { ChildScreeningSummary, InferenceDetection, SymptomSet } from '@pinequest/types'
 import { normalizeInference, detectionsToFindings, triage } from '@pinequest/core'
 import { getToken } from './auth'
 import { runLocalInference, isModelCached } from './localInference'
@@ -161,7 +161,8 @@ export type AnalyzeMeta = {
   seasonId: string
   contentVersionId?: string
   deviceId?: string
-  questionnaire?: string // JSON-serialized questionnaire answers
+  /** JSON-serialized SymptomSet — mapped from raw questionnaire answers before the call. */
+  symptoms?: string
 }
 
 /** One captured arch (upper/lower) tied to its own detections, for the result UI. */
@@ -184,11 +185,11 @@ const isOfflineError = (err: unknown): boolean =>
   err instanceof TypeError &&
   (err.message.includes('Network request failed') || err.message.includes('fetch'))
 
-const analyzeImageLocally = async (imageUri: string): Promise<AnalyzeResult> => {
+const analyzeImageLocally = async (imageUri: string, symptoms: SymptomSet = {}): Promise<AnalyzeResult> => {
   const raw = await runLocalInference(imageUri)
   const normalized = normalizeInference(raw, 'on_device')
   const findings = detectionsToFindings(normalized.detections, () => `local-${Math.random().toString(36).slice(2)}`)
-  const triageResult = triage(findings, {})
+  const triageResult = triage(findings, symptoms)
   return {
     screeningId: `local-${Date.now()}`,
     triageLevel: triageResult.level,
@@ -216,7 +217,8 @@ const analyzeImage = async (imageUri: string, meta: AnalyzeMeta): Promise<Analyz
     return json.data
   } catch (err) {
     if (isOfflineError(err) && (await isModelCached())) {
-      return analyzeImageLocally(imageUri)
+      const sym = (() => { try { return JSON.parse(meta.symptoms ?? '{}') as SymptomSet } catch { return {} } })()
+      return analyzeImageLocally(imageUri, sym)
     }
     throw err
   }

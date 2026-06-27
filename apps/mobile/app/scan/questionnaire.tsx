@@ -29,7 +29,7 @@ const QUESTIONS: Q[] = [
 export default function QuestionnaireScreen() {
   const router = useRouter()
   const { colors } = useTheme()
-  const params = useLocalSearchParams<{ childKey: string; classId: string; schoolId: string; seasonId: string; guardianPhone: string }>()
+  const params = useLocalSearchParams<{ childKey: string; classId: string; schoolId: string; seasonId: string; guardianPhone: string; birthYear?: string }>()
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, boolean | string>>({})
 
@@ -37,7 +37,7 @@ export default function QuestionnaireScreen() {
   const progress = (step + 1) / QUESTIONS.length
 
   const goToCamera = (finalAnswers: Record<string, boolean | string>) => {
-    router.push({ pathname: '/scan/camera', params: { ...params, questionnaire: JSON.stringify(finalAnswers) } })
+    router.push({ pathname: '/scan/camera', params: { ...params, questionnaire: JSON.stringify(finalAnswers), birthYear: params.birthYear ?? '' } })
   }
 
   const answer = (value: boolean | string) => {

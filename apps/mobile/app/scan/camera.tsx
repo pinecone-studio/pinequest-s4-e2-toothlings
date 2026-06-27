@@ -6,6 +6,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { analyzeImages } from '@/lib/api'
 import { toMongolian } from '@/lib/errorMessages'
 import { downloadModel, isModelCached } from '@/lib/localInference'
+import { detectionsToFindings, SUMMARY_CONTENT_VERSION, TRIAGE_THRESHOLDS } from '@pinequest/core'
+import type { SymptomSet } from '@pinequest/types'
+import { outbox } from '@/lib/useOutboxSync'
+import { getUser } from '@/lib/auth'
 import CameraPermission from '@/components/scan/camera/CameraPermission'
 import CameraHintBanner from '@/components/scan/camera/CameraHintBanner'
 import CameraFrameOverlay from '@/components/scan/camera/CameraFrameOverlay'
@@ -17,7 +21,7 @@ export default function CameraScreen() {
   const router = useRouter()
   const params = useLocalSearchParams<{
     childKey: string; classId: string; schoolId: string
-    seasonId: string; questionnaire: string; guardianPhone: string
+    seasonId: string; questionnaire: string; guardianPhone: string; birthYear?: string
   }>()
   const [permission, requestPermission] = useCameraPermissions()
   const [analyzing, setAnalyzing] = useState(false)
@@ -73,11 +77,51 @@ export default function CameraScreen() {
 
       setCapturing(false)
       setAnalyzing(true)
+
+      // Map raw questionnaire answers → SymptomSet before sending to server/triage
+      const symptomsObj: SymptomSet = (() => {
+        try {
+          const a = JSON.parse(params.questionnaire ?? '{}') as Record<string, unknown>
+          const s: SymptomSet = {}
+          if (a.swellingFever === true) { s.swelling = true; s.fever = true }
+          if (a.toothPain === true && a.painTrigger === 'Шөнө өвддөг') s.painDisturbingSleepOrEating = true
+          return s
+        } catch { return {} }
+      })()
+      const symptomsJson = JSON.stringify(symptomsObj)
+      const capturedAt = new Date().toISOString()
+
       const result = await analyzeImages(newPhotos.upper, newPhotos.lower, {
         childKey: params.childKey, classId: params.classId,
         schoolId: params.schoolId, seasonId: params.seasonId,
-        questionnaire: params.questionnaire,
+        symptoms: symptomsJson,
       })
+
+      // Offline fallback: queue ScreeningCreate for later sync via outbox
+      if (result.screeningId.startsWith('local-')) {
+        const user = await getUser()
+        let fi = 0
+        await outbox.add({
+          id: result.screeningId,
+          childKey: params.childKey,
+          classId: params.classId,
+          schoolId: params.schoolId,
+          seasonId: params.seasonId,
+          screenedById: user?.id ?? 'anonymous',
+          imageRefs: [newPhotos.upper, newPhotos.lower],
+          findings: detectionsToFindings(result.detections, () => `${result.screeningId}-f${fi++}`),
+          symptoms: symptomsObj,
+          triage: {
+            level: result.triageLevel,
+            score: result.triageScore,
+            confidentWording: result.detections.reduce((m, d) => Math.max(m, d.confidence), 0) >= TRIAGE_THRESHOLDS.confidentWording,
+          },
+          modelName: 'yolov8-local',
+          contentVersionId: SUMMARY_CONTENT_VERSION,
+          capturedAt,
+        }).catch(() => { /* non-critical: sync will retry on next connection */ })
+      }
+
       router.replace({
         pathname: '/scan/result',
         params: {
@@ -91,6 +135,9 @@ export default function CameraScreen() {
           schoolId: params.schoolId,
           seasonId: params.seasonId,
           questionnaire: params.questionnaire,
+          birthYear: params.birthYear ?? '',
+          symptoms: symptomsJson,
+          capturedAt,
         },
       })
     } catch (err) {
