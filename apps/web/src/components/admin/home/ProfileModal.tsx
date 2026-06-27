@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { CameraIcon, PencilIcon } from '@heroicons/react/24/outline'
+import { CameraIcon, PencilIcon, ArrowsRightLeftIcon } from '@heroicons/react/24/outline'
 import Modal from '@/components/ui/Modal'
-import { useMe, useUpdateMe } from '@/hooks/useMe'
+import { useMe, useUpdateMe, useSwitchRole } from '@/hooks/useMe'
 import { useBoardStudents } from '@/hooks/useBoard'
 import { useSession } from '@/components/providers'
 import ProfileEditForm from './ProfileEditForm'
@@ -30,6 +30,7 @@ const ProfileModal = ({ open, onClose }: Props) => {
   const { data: me } = useMe()
   const { data: students } = useBoardStudents()
   const update = useUpdateMe()
+  const switchRole = useSwitchRole()
   const fileRef = useRef<HTMLInputElement>(null)
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState('')
@@ -86,7 +87,22 @@ const ProfileModal = ({ open, onClose }: Props) => {
             <Field label="Нэр" value={me?.name} />
             <Field label="И-мэйл" value={me?.email} />
             {me?.phone && <Field label="Утас" value={me.phone} />}
-            <Field label="Эрх" value={role ? ROLE_LABEL[role] : null} />
+            <div className="rounded-xl border border-border bg-surface-raised px-4 py-3">
+              <p className="text-[10px] uppercase tracking-wider text-text-muted">Эрх</p>
+              <div className="mt-0.5 flex items-center justify-between">
+                <p className="text-[14px] text-text-base">{role ? ROLE_LABEL[role] : '—'}</p>
+                {(role === 'parent' || role === 'teacher') && (
+                  <button
+                    onClick={() => switchRole.mutate(role === 'parent' ? 'teacher' : 'parent')}
+                    className="flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] text-text-muted transition-colors hover:bg-border hover:text-text-base"
+                    title={role === 'parent' ? 'Багш болгох' : 'Эцэг эх болгох'}
+                  >
+                    <ArrowsRightLeftIcon className="size-3.5" />
+                    {role === 'parent' ? 'Багш' : 'Эцэг эх'}
+                  </button>
+                )}
+              </div>
+            </div>
             {child && (
               <div className="rounded-xl border border-primary/30 bg-primary-subtle px-4 py-3">
                 <p className="text-[10px] uppercase tracking-wider text-text-muted">Хүүхэд</p>
