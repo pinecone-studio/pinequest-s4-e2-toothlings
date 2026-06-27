@@ -30,6 +30,34 @@ describe('normalizeInference', () => {
   it('tags on-device source when asked', () => {
     expect(normalizeInference(raw, 'on_device').source).toBe('on_device')
   })
+
+  it('drops sub-threshold noise (below the display confidence floor)', () => {
+    const noisy: RawInference = {
+      detections: [
+        { class_id: 0, class_name: 'caries', confidence: 0.32, box: { x1: 5, y1: 5, x2: 9, y2: 9 } },
+        { class_id: 0, class_name: 'caries', confidence: 0.62, box: { x1: 20, y1: 20, x2: 30, y2: 30 } },
+      ],
+      image_width: 640,
+      image_height: 480,
+    }
+    const r = normalizeInference(noisy)
+    expect(r.detections).toHaveLength(1)
+    expect(r.detections[0].confidence).toBe(0.62)
+  })
+
+  it('merges heavily-overlapping boxes, keeping the most confident', () => {
+    const dup: RawInference = {
+      detections: [
+        { class_id: 0, class_name: 'caries', confidence: 0.6, box: { x1: 0, y1: 0, x2: 10, y2: 10 } },
+        { class_id: 0, class_name: 'caries', confidence: 0.9, box: { x1: 1, y1: 1, x2: 11, y2: 11 } },
+      ],
+      image_width: 640,
+      image_height: 480,
+    }
+    const r = normalizeInference(dup)
+    expect(r.detections).toHaveLength(1)
+    expect(r.detections[0].confidence).toBe(0.9)
+  })
 })
 
 describe('detectionsToFindings', () => {

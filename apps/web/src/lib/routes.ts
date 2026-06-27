@@ -1,7 +1,8 @@
 /** Consumer app paths — matches product user-flow diagram. */
 export const ROUTES = {
   landing: '/',
-  login: '/login',
+  // /login + /register pages were removed — auth is an overlay on the landing.
+  login: '/?auth=1',
   home: '/home',
 
   scan: {

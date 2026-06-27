@@ -3,10 +3,12 @@ import { useTheme } from '@/lib/ThemeContext'
 
 export type TriageLevel = 'green' | 'yellow' | 'red'
 
+// SCREENING-not-diagnosis wording: green never says "healthy"; no clinical words
+// (цоорол/decay) — only "danger signs seen in THESE photos". Mirrors @pinequest/core.
 const CONFIG: Record<TriageLevel, { label: string; subtitle: string; dotColor: string }> = {
-  green: { label: 'Эрүүл', subtitle: 'Цооролын тодорхой шинж илрээгүй', dotColor: '#2A7D4F' },
-  yellow: { label: 'Анхаарал шаардлагатай', subtitle: 'Эртний цооролын шинж илэрлээ', dotColor: '#8A6500' },
-  red: { label: 'Яаралтай', subtitle: 'Идэвхтэй цоорол / халдварын шинж', dotColor: '#B83838' },
+  green: { label: 'Аюулын шинж илрээгүй', subtitle: 'Эдгээр зурагт тодорхой шинж тэмдэг харагдсангүй', dotColor: '#2A7D4F' },
+  yellow: { label: 'Анхаарал шаардлагатай', subtitle: 'Шүдний эмчид үзүүлэхийг зөвлөж байна (яаралтай биш)', dotColor: '#8A6500' },
+  red: { label: 'Яаралтай', subtitle: 'Аль болох хурдан шүдний эмчид хандана уу', dotColor: '#B83838' },
 }
 
 type Props = { level: TriageLevel; score: number }
@@ -25,9 +27,11 @@ export default function ResultTriageCard({ level, score }: Props) {
       </View>
       <Text style={[s.label, { color: textColor }]}>{label}</Text>
       <Text style={[s.subtitle, { color: textColor }]}>{subtitle}</Text>
-      <View style={s.badge}>
-        <Text style={[s.badgeText, { color: textColor }]}>AI итгэл · {pct}%</Text>
-      </View>
+      {pct > 0 && (
+        <View style={s.badge}>
+          <Text style={[s.badgeText, { color: textColor }]}>Эрсдэлийн оноо · {pct}%</Text>
+        </View>
+      )}
     </View>
   )
 }

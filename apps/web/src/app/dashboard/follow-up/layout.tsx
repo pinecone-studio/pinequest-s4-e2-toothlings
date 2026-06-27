@@ -11,7 +11,7 @@ const FollowUpLayout = ({ children }: { children: React.ReactNode }) => {
   const allowed = role === 'follow_up' || role === 'admin'
 
   useEffect(() => {
-    if (ready && (!token || !allowed)) router.replace('/login')
+    if (ready && (!token || !allowed)) router.replace('/?auth=1')
   }, [ready, token, allowed, router])
 
   if (!ready || !token || !allowed) return null
