@@ -5,6 +5,7 @@ import { and, desc, eq, inArray } from 'drizzle-orm'
 import type { UserRole } from '@pinequest/types'
 import { users, userScopes, type DB } from '@pinequest/db/d1'
 import { authorize } from '../middleware/auth.js'
+import { writeAudit } from '../lib/audit.js'
 import type { AppEnv } from '../types.js'
 
 export const userRoutes = new Hono<AppEnv>()
@@ -47,6 +48,7 @@ userRoutes.post('/', authorize('admin'), async (c) => {
     .values({ name, email, role, phone: phone?.trim() || null, passwordHash, schoolId: schoolId ?? null })
     .returning(userCols)
   await setClassScope(db, user.id, classId, c.get('jwtPayload').sub)
+  await writeAudit(db, c.get('jwtPayload').sub, 'User', user.id, 'user_create', null, user)
   return c.json({ success: true, data: { ...user, classId: classId ?? null } }, 201)
 })
 
@@ -63,7 +65,9 @@ userRoutes.patch('/:id', authorize('admin'), async (c) => {
   if (!parsed.success) return c.json({ success: false, data: null, message: 'invalid_input' }, 400)
   const { role, isActive, schoolId, classId } = parsed.data
   const id = c.req.param('id')
+  const [before] = await db.select(userCols).from(users).where(eq(users.id, id))
   const [user] = await db.update(users).set({ role, isActive, schoolId }).where(eq(users.id, id)).returning(userCols)
   await setClassScope(db, id, classId, c.get('jwtPayload').sub)
+  await writeAudit(db, c.get('jwtPayload').sub, 'User', id, 'user_update', before, user)
   return c.json({ success: true, data: user })
 })

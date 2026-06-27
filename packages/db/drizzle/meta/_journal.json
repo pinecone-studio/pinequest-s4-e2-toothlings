@@ -29,6 +29,13 @@
       "when": 1782412227143,
       "tag": "0003_married_jocasta",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1782566344465,
+      "tag": "0004_material_abomination",
+      "breakpoints": true
     }
   ]
 }

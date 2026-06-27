@@ -1,7 +1,6 @@
-import Link from 'next/link'
 import { NAV } from './Landing.data'
 
-export function Navbar({ active }: { active: number }) {
+export function Navbar({ active, onBegin }: { active: number; onBegin: () => void }) {
   return (
     <nav
       style={{
@@ -75,8 +74,9 @@ export function Navbar({ active }: { active: number }) {
         >
           {String(active + 1).padStart(2, '0')} / {String(NAV.length).padStart(2, '0')}
         </span>
-        <Link
-          href="/dashboard"
+        <button
+          type="button"
+          onClick={onBegin}
           style={{
             padding: '10px 20px',
             borderRadius: 999,
@@ -84,10 +84,13 @@ export function Navbar({ active }: { active: number }) {
             color: 'var(--bg)',
             fontWeight: 600,
             fontSize: 17,
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
           }}
         >
           Эхлэх
-        </Link>
+        </button>
       </div>
     </nav>
   )

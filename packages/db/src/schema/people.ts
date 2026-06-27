@@ -13,7 +13,7 @@ export const users = sqliteTable('User', {
   schoolId: text('schoolId'),
   isActive: integer('isActive', { mode: 'boolean' }).notNull().default(true),
   createdAt: ts('createdAt').notNull().$defaultFn(() => new Date()),
-})
+}, (t) => [index('User_phone_idx').on(t.phone)])
 
 export const userScopes = sqliteTable('UserScope', {
   id: id(),

@@ -7,12 +7,15 @@ const TIPS = [
   'Чихэрлэг хүнс, ундааг хязгаарлах',
 ]
 
-export default function ResultGreenAdvice() {
+type Props = { homeSteps?: string[] }
+
+export default function ResultGreenAdvice({ homeSteps }: Props) {
   const { colors } = useTheme()
+  const steps = homeSteps ?? TIPS
   return (
     <View style={s.container}>
       <Text style={[s.label, { color: colors.textMuted }]}>ЗӨВЛӨМЖ</Text>
-      {TIPS.map((tip, i) => (
+      {steps.map((tip, i) => (
         <View
           key={i}
           style={[s.item, { backgroundColor: colors.surface, borderColor: colors.border }]}

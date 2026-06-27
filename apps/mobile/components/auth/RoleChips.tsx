@@ -4,7 +4,7 @@ import { useTheme } from '@/lib/ThemeContext'
 const ROLES = [
   { key: 'parent', emoji: '👨‍👩‍👧', label: 'Эцэг эх' },
   { key: 'teacher', emoji: '🧑‍🏫', label: 'Багш' },
-  { key: 'health', emoji: '⚕️', label: 'ЭМ ажилтан' },
+  { key: 'school_doctor', emoji: '⚕️', label: 'Эмч' },
 ] as const
 
 export type RoleKey = typeof ROLES[number]['key']

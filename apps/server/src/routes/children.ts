@@ -6,15 +6,18 @@ import { children, schoolClasses } from '@pinequest/db/d1'
 import type { DuplicateWarning } from '@pinequest/types'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { loadChildSummary } from '../lib/childSummary.js'
-import { hasChildAccess } from '../lib/scopeFilter.js'
+import { hasChildAccess, hasClassScope } from '../lib/scopeFilter.js'
 import { inChunks } from '../lib/chunk.js'
 import type { AppEnv } from '../types.js'
 
 export const childRoutes = new Hono<AppEnv>()
 
 childRoutes.get('/classes/:classId/children', authenticate, async (c) => {
-  const data = await c.get('db').select().from(children)
-    .where(and(eq(children.classId, c.req.param('classId')), eq(children.isActive, true)))
+  const db = c.get('db')
+  const classId = c.req.param('classId')
+  if (!(await hasClassScope(db, c.get('jwtPayload'), classId))) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
+  const data = await db.select().from(children)
+    .where(and(eq(children.classId, classId), eq(children.isActive, true)))
     .orderBy(asc(children.rosterSlot))
   return c.json({ success: true, data })
 })
@@ -60,13 +63,19 @@ childRoutes.post('/classes/:classId/children/bulk', authorize('admin'), async (c
 })
 
 childRoutes.get('/children/:id', authenticate, async (c) => {
-  const child = await c.get('db').query.children.findFirst({ where: eq(children.id, c.req.param('id')) })
+  const db = c.get('db')
+  const child = await db.query.children.findFirst({ where: eq(children.id, c.req.param('id')) })
   if (!child) return c.json({ success: false, data: null }, 404)
+  if (!(await hasChildAccess(db, c.get('jwtPayload'), child))) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
   return c.json({ success: true, data: child })
 })
 
 childRoutes.get('/children/:id/summary', authenticate, async (c) => {
-  const data = await loadChildSummary(c.get('db'), c.req.param('id'))
+  const db = c.get('db')
+  const child = await db.query.children.findFirst({ where: eq(children.id, c.req.param('id')) })
+  if (!child) return c.json({ success: false, data: null }, 404)
+  if (!(await hasChildAccess(db, c.get('jwtPayload'), child))) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
+  const data = await loadChildSummary(db, c.req.param('id'))
   if (!data) return c.json({ success: false, data: null }, 404)
   return c.json({ success: true, data })
 })

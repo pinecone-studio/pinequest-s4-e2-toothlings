@@ -11,12 +11,12 @@ import PrimaryButton from './PrimaryButton'
 const INST_TYPES = ['Сургууль', 'Цэцэрлэг', 'Бусад'] as const
 type InstType = (typeof INST_TYPES)[number]
 
-const NEEDS_SCHOOL: RoleKey[] = ['teacher']
+const NEEDS_SCHOOL: RoleKey[] = ['teacher', 'school_doctor']
 
 const RegisterForm = () => {
   const { submit, busy, error } = useAuth()
   const { colors } = useTheme()
-  const [role, setRole] = useState<RoleKey>('teacher')
+  const [role, setRole] = useState<RoleKey>('parent')
   const [instType, setInstType] = useState<InstType>('Сургууль')
   const [name, setName] = useState('')
   const [extra, setExtra] = useState('')
@@ -36,7 +36,7 @@ const RegisterForm = () => {
     if (!name.trim()) e.name = 'Нэрээ оруулна уу'
     if (needsSchool && !extra.trim())
       e.extra = instType === 'Бусад' ? 'Байгууллагын нэрээ оруулна уу' : 'Дугаараа оруулна уу'
-    if (role === 'parent' && !extra.trim()) e.extra = 'Хүүхдийн кодоо оруулна уу'
+    if (role === 'parent' && !extra.trim()) e.extra = 'Хүүхдийн нэрийг оруулна уу'
     if (!phone.trim()) e.phone = 'Утасны дугаараа оруулна уу'
     if (password.length < 6) e.password = '6+ тэмдэгт нууц үг оруулна уу'
     if (!confirm) e.confirm = 'Нууц үгээ давтана уу'
@@ -55,7 +55,7 @@ const RegisterForm = () => {
       password,
       role,
       ...(needsSchool ? { schoolName } : {}),
-      ...(role === 'parent' ? { childCode: extra.trim() } : {}),
+      ...(role === 'parent' ? { childName: extra.trim() } : {}),
     })
   }
 
@@ -70,7 +70,6 @@ const RegisterForm = () => {
             setExtra('')
             clearFieldErr('extra')
           }}
-          disabled={['health']}
         />
       </View>
 
@@ -120,10 +119,10 @@ const RegisterForm = () => {
       {role === 'parent' && (
         <View>
           <TextField
-            label="ХҮҮХДИЙН КОД"
+            label="ХҮҮХДИЙН НЭР"
             value={extra}
             onChange={(v) => { setExtra(v); clearFieldErr('extra') }}
-            placeholder="Хүүхдийн код"
+            placeholder="Хүүхдийн нэр"
           />
           {fieldErr.extra ? <Text style={s.err}>{fieldErr.extra}</Text> : null}
         </View>

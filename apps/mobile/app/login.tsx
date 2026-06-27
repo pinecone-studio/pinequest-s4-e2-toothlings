@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { Animated, Dimensions, ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '@/lib/ThemeContext'
 import AuthBrand from '@/components/auth/AuthBrand'
@@ -13,20 +13,31 @@ const TABS: { mode: Mode; label: string }[] = [
   { mode: 'register', label: 'Бүртгүүлэх' },
 ]
 
+const { height } = Dimensions.get('window')
+
+// Auth as a bottom slide-over: brand backdrop with the form sheet sliding up.
 const LoginScreen = () => {
   const { colors } = useTheme()
   const [mode, setMode] = useState<Mode>('login')
+  const slide = useRef(new Animated.Value(height)).current
+
+  useEffect(() => {
+    Animated.timing(slide, { toValue: 0, duration: 320, useNativeDriver: true }).start()
+  }, [slide])
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
-      <ScrollView
-        contentContainerStyle={s.scroll}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
+    <View style={[s.root, { backgroundColor: colors.bg }]}>
+      <SafeAreaView style={s.brandWrap}>
         <AuthBrand subtitle={'Хүүхдийн шүдний эрүүл мэндийн\nанхан шатны хяналт'} />
+      </SafeAreaView>
 
-        <View style={[s.card, { backgroundColor: colors.surface }]}>
+      <Animated.View style={[s.sheet, { backgroundColor: colors.surface, transform: [{ translateY: slide }] }]}>
+        <View style={[s.grabber, { backgroundColor: colors.border }]} />
+        <ScrollView
+          contentContainerStyle={s.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <View style={[s.tabs, { backgroundColor: colors.surfaceRaised }]}>
             {TABS.map(({ mode: m, label }) => (
               <TouchableOpacity
@@ -43,46 +54,31 @@ const LoginScreen = () => {
           </View>
 
           {mode === 'login' ? <LoginForm /> : <RegisterForm />}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </Animated.View>
+    </View>
   )
 }
 
 const s = StyleSheet.create({
-  safe: { flex: 1 },
-  scroll: {
-    padding: 24,
-    gap: 20,
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingBottom: 40,
-  },
-  card: {
-    borderRadius: 20,
-    padding: 22,
-    gap: 20,
+  root: { flex: 1 },
+  brandWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
+  sheet: {
+    maxHeight: '88%',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingTop: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 12,
   },
-  tabs: {
-    flexDirection: 'row',
-    borderRadius: 12,
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  tabLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter_600SemiBold',
-  },
+  grabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, marginBottom: 8 },
+  scroll: { padding: 22, gap: 20, paddingBottom: 40 },
+  tabs: { flexDirection: 'row', borderRadius: 12, padding: 4 },
+  tab: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+  tabLabel: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
 })
 
 export default LoginScreen

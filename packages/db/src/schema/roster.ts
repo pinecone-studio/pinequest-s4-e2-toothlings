@@ -23,7 +23,10 @@ export const schoolClasses = sqliteTable('SchoolClass', {
   reminderPhone: text('reminderPhone'),
   isActive: integer('isActive', { mode: 'boolean' }).notNull().default(true),
   createdAt: ts('createdAt').notNull().$defaultFn(() => new Date()),
-}, (t) => [uniqueIndex('SchoolClass_school_name_season_key').on(t.schoolId, t.name, t.seasonId)])
+}, (t) => [
+  uniqueIndex('SchoolClass_school_name_season_key').on(t.schoolId, t.name, t.seasonId),
+  index('SchoolClass_schoolId_idx').on(t.schoolId),
+])
 
 export const children = sqliteTable('Child', {
   id: id(),
@@ -45,4 +48,5 @@ export const children = sqliteTable('Child', {
   uniqueIndex('Child_class_slot_key').on(t.classId, t.rosterSlot),
   uniqueIndex('Child_class_childKey_key').on(t.classId, t.childKey),
   index('Child_childKey_idx').on(t.childKey),
+  index('Child_schoolId_idx').on(t.schoolId),
 ])

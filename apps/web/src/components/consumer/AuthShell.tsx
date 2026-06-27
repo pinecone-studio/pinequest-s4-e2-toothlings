@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { ROUTES } from '@/lib/routes'
 
+// Centered overlay modal — no marketing column. Dimmed backdrop + a single card.
 export const AuthShell = ({
   title,
   subtitle,
@@ -14,54 +15,20 @@ export const AuthShell = ({
   children: React.ReactNode
   footer?: React.ReactNode
 }) => (
-  <div className="auth-page flex min-h-screen">
-    <aside className="auth-hero hidden w-[48%] flex-col justify-between p-12 lg:flex">
-      <Link href={ROUTES.landing} className="flex items-center gap-3">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-[#F3B900] text-lg font-bold text-slate-900">
-          S
-        </span>
-        <span className="text-xl font-bold tracking-tight">Screener</span>
+  <div className="auth-page fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+    <div className="warm-card relative w-full max-w-md p-8 shadow-2xl">
+      <Link href={ROUTES.landing} aria-label="Хаах" className="absolute right-5 top-5 text-xl leading-none text-text-muted transition-colors hover:text-text-base">
+        ✕
       </Link>
-
-      <div>
-        <h1 className="max-w-md text-[40px] font-bold leading-[1.1] tracking-tight">
-          AI оношлогоо + ухаалаг сойз
-        </h1>
-        <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-text-muted">
-          Хүүхдийн шүдний эрүүл мэндийг гэртээ хянаж, мэргэжлийн эмчтэй холбогдоорой.
-        </p>
-        <ul className="mt-8 space-y-3 text-[14px] text-text-muted">
-          <li className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-primary" />
-            YOLOv8 AI шинжилгээ
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-primary" />
-            Бодит цагийн угаалгын хяналт
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-primary" />
-            Эмчийн зөвлөгөө, тайлан
-          </li>
-        </ul>
-      </div>
-
-      <p className="text-[12px] text-text-muted">© Screener — шалгалтын систем, эмчийн онош биш</p>
-    </aside>
-
-    <main className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-      <div className="warm-card w-full max-w-md p-8">
-        <div className="mb-8 lg:hidden">
-          <Link href={ROUTES.landing} className="text-[13px] font-semibold text-primary">
-            ← Буцах
-          </Link>
-        </div>
-        <h2 className="text-[26px] font-bold tracking-tight">{title}</h2>
-        <p className="mt-2 text-[14px] text-text-muted">{subtitle}</p>
-        <div className="mt-8">{children}</div>
-        {footer ? <div className="mt-6 border-t border-border pt-6">{footer}</div> : null}
-      </div>
-    </main>
+      <Link href={ROUTES.landing} className="mb-6 flex items-center gap-2.5">
+        <span className="flex size-9 items-center justify-center rounded-xl bg-[#F3B900] text-base font-bold text-slate-900">S</span>
+        <span className="text-[17px] font-bold tracking-tight">Toothlings</span>
+      </Link>
+      <h2 className="text-[24px] font-bold tracking-tight">{title}</h2>
+      <p className="mt-1.5 text-[14px] text-text-muted">{subtitle}</p>
+      <div className="mt-7">{children}</div>
+      {footer ? <div className="mt-6 border-t border-border pt-6">{footer}</div> : null}
+    </div>
   </div>
 )
 

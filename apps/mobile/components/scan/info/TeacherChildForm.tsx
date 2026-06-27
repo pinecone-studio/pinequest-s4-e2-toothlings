@@ -23,7 +23,7 @@ export default function TeacherChildForm() {
     if (!ready) return
     router.push({
       pathname: '/scan/questionnaire' as never,
-      params: { childKey: `${schoolId}:${classId}:${rosterSlot}`, classId, schoolId, seasonId: SEASON_ID, guardianPhone, guardianEmail },
+      params: { childKey: `${schoolId}:${classId}:${rosterSlot}`, classId, schoolId, seasonId: SEASON_ID, guardianPhone, guardianEmail, birthYear },
     })
   }
 

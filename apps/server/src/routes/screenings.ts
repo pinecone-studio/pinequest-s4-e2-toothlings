@@ -5,15 +5,18 @@ import { screenings, screeningReviews } from '@pinequest/db/d1'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { writeAudit } from '../lib/audit.js'
 import { persistScreening } from '../lib/persistScreening.js'
-import { resolveScope, scopeWhere } from '../lib/scopeFilter.js'
+import { hasChildAccess, resolveScope, scopeWhere } from '../lib/scopeFilter.js'
 import type { AppEnv } from '../types.js'
 
 export const screeningRoutes = new Hono<AppEnv>()
 
 screeningRoutes.post('/', authenticate, async (c) => {
+  const db = c.get('db')
   const body = screeningCreateSchema.parse(await c.req.json())
+  // A device may only submit screenings for classes/schools within its scope.
+  if (!(await hasChildAccess(db, c.get('jwtPayload'), body))) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
   const result = triage(body.findings, body.symptoms)
-  const screening = await persistScreening(c.get('db'), body, result, c.get('jwtPayload').sub)
+  const screening = await persistScreening(db, body, result, c.get('jwtPayload').sub)
   return c.json({ success: true, data: screening }, 201)
 })
 
@@ -38,11 +41,13 @@ screeningRoutes.get('/', authenticate, async (c) => {
 })
 
 screeningRoutes.get('/:id', authenticate, async (c) => {
-  const screening = await c.get('db').query.screenings.findFirst({
+  const db = c.get('db')
+  const screening = await db.query.screenings.findFirst({
     where: eq(screenings.id, c.req.param('id')),
     with: { findings: true, images: true, questionnaire: true, review: true },
   })
   if (!screening) return c.json({ success: false, data: null }, 404)
+  if (!(await hasChildAccess(db, c.get('jwtPayload'), screening))) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
   return c.json({ success: true, data: screening })
 })
 

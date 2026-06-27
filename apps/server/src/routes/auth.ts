@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { sign } from 'hono/jwt'
-import { eq, or } from 'drizzle-orm'
+import { eq, or, inArray } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import type { UserRole } from '@pinequest/types'
 import { users, schools, children, parentChildLinks } from '@pinequest/db/d1'
@@ -36,8 +36,8 @@ const SELF_ROLES = ['teacher', 'school_doctor', 'parent'] as const
 
 authRoutes.post('/register', async (c) => {
   const db = c.get('db')
-  const { name, email, password, phone, role, schoolName, childCode } =
-    await c.req.json<{ name: string; email?: string; password: string; phone?: string; role?: string; schoolName?: string; childCode?: string }>()
+  const { name, email, password, phone, role, schoolName, childName } =
+    await c.req.json<{ name: string; email?: string; password: string; phone?: string; role?: string; schoolName?: string; childName?: string }>()
   // Phone is the required identifier — remote soum residents may have no email.
   const normPhone = /^\d{8}$/.test((phone ?? '').trim()) ? `+976${(phone ?? '').trim()}` : (phone ?? '').trim()
   if (!name || !normPhone || !password || password.length < 6) {
@@ -53,30 +53,42 @@ authRoutes.post('/register', async (c) => {
   const existing = await db.query.users.findFirst({ where: eq(users.email, storedEmail) })
   if (existing) return c.json({ success: false, data: null, message: 'email_taken' }, 409)
 
-  // School-bound roles find-or-create their school; a parent links to one child by its code.
+  // School-bound roles find-or-create their school; a parent links to one child by
+  // its code. A staff member MAY also pass a childCode → dual teacher/parent link.
   let schoolId: string | null = null
   let linkChildKey: string | null = null
+  let linkSchoolId: string | null = null
+  // Parent links to their child by NAME (roster lookup). Names aren't unique, so
+  // match any first/last name token and take the first hit.
+  const cname = (childName ?? '').trim()
+  const tokens = cname.split(/\s+/).filter(Boolean)
+  const findChildByName = () =>
+    db.query.children.findFirst({ where: or(inArray(children.firstName, tokens), inArray(children.lastName, tokens)) })
   if (selectedRole === 'teacher' || selectedRole === 'school_doctor') {
     const sName = (schoolName ?? '').trim()
     if (!sName) return c.json({ success: false, data: null, message: 'school_required' }, 400)
     const school = await db.query.schools.findFirst({ where: eq(schools.name, sName) })
     schoolId = school?.id ?? (await db.insert(schools).values({ name: sName }).returning())[0].id
+    if (tokens.length) {
+      const child = await findChildByName()
+      if (child) { linkChildKey = child.childKey; linkSchoolId = child.schoolId }
+    }
   } else if (selectedRole === 'parent') {
-    const code = (childCode ?? '').trim().toLowerCase()
-    if (!code) return c.json({ success: false, data: null, message: 'child_code_required' }, 400)
-    const child = await db.query.children.findFirst({ where: eq(children.childKey, code) })
+    if (!tokens.length) return c.json({ success: false, data: null, message: 'child_name_required' }, 400)
+    const child = await findChildByName()
     if (!child) return c.json({ success: false, data: null, message: 'child_not_found' }, 400)
     schoolId = child.schoolId
     linkChildKey = child.childKey
+    linkSchoolId = child.schoolId
   }
 
   const passwordHash = await bcrypt.hash(password, 10)
   const [user] = await db.insert(users)
     .values({ name, email: storedEmail, role: selectedRole, phone: normPhone, passwordHash, schoolId })
     .returning()
-  if (selectedRole === 'parent' && linkChildKey && schoolId) {
+  if (linkChildKey && linkSchoolId) {
     await db.insert(parentChildLinks)
-      .values({ userId: user.id, childKey: linkChildKey, schoolId, consentAt: new Date() })
+      .values({ userId: user.id, childKey: linkChildKey, schoolId: linkSchoolId, consentAt: new Date() })
       .onConflictDoNothing()
   }
   const token = await sign(
@@ -84,6 +96,30 @@ authRoutes.post('/register', async (c) => {
     secretOf(c.env),
   )
   return c.json({ success: true, data: { token, user: { id: user.id, name: user.name, role: user.role, schoolId: user.schoolId } } }, 201)
+})
+
+// Dual-role switch: a teacher who also linked their own child can re-scope to a
+// parent JWT (and back). Reuses role-based scoping — no separate session model.
+authRoutes.post('/switch-role', authenticate, async (c) => {
+  const db = c.get('db')
+  const payload = c.get('jwtPayload')
+  const { role } = await c.req.json<{ role: string }>()
+  const user = await db.query.users.findFirst({ where: eq(users.id, payload.sub) })
+  if (!user) return c.json({ success: false, data: null, message: 'not_found' }, 404)
+
+  let target: UserRole
+  if (role === 'parent') {
+    const link = await db.query.parentChildLinks.findFirst({ where: eq(parentChildLinks.userId, user.id) })
+    if (!link) return c.json({ success: false, data: null, message: 'no_parent_link' }, 403)
+    target = 'parent'
+  } else {
+    target = user.role as UserRole // back to their provisioned role
+  }
+  const token = await sign(
+    { sub: user.id, role: target, schoolId: user.schoolId ?? undefined, exp: Math.floor(Date.now() / 1000) + TTL },
+    secretOf(c.env),
+  )
+  return c.json({ success: true, data: { token, user: { id: user.id, name: user.name, role: target, schoolId: user.schoolId } } })
 })
 
 authRoutes.patch('/me', authenticate, async (c) => {
@@ -107,9 +143,14 @@ authRoutes.patch('/me', authenticate, async (c) => {
 
 authRoutes.get('/me', authenticate, async (c) => {
   const db = c.get('db')
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, c.get('jwtPayload').sub),
-    columns: { id: true, email: true, name: true, role: true, phone: true, schoolId: true, isActive: true },
-  })
-  return c.json({ success: true, data: user ?? null })
+  const sub = c.get('jwtPayload').sub
+  const [user, link] = await Promise.all([
+    db.query.users.findFirst({
+      where: eq(users.id, sub),
+      columns: { id: true, email: true, name: true, role: true, phone: true, schoolId: true, isActive: true },
+    }),
+    db.query.parentChildLinks.findFirst({ where: eq(parentChildLinks.userId, sub) }),
+  ])
+  // activeRole = the JWT's current (possibly switched) role; hasParentLink gates the switch UI.
+  return c.json({ success: true, data: user ? { ...user, activeRole: c.get('jwtPayload').role, hasParentLink: !!link } : null })
 })

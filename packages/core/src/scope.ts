@@ -7,41 +7,29 @@ type ScopeTarget = {
   districtCode?: string
 }
 
-// Hierarchy: district > school > class > child
-const RANK: Record<ScopeKind, number> = {
-  district: 4,
-  school: 3,
-  class: 2,
-  child: 1,
-}
-
 /**
  * Returns true if the grant covers the target.
- * A broader scope covers all narrower targets within it:
- *   school grant covers any classId/childKey in that school.
- * The caller must pass school/district membership if needed —
- * this function does no DB lookups (pure, testable).
+ *
+ * A broader grant covers a narrower target through the target's OWN membership
+ * fields: a school grant covers a child only when the caller has resolved that
+ * child's `schoolId` into the target. This function does no DB lookups (pure,
+ * testable), so the caller must populate the membership it wants checked.
+ * Matching is strict per level — a bare `childKey` is NOT covered by a school or
+ * class grant unless the matching `schoolId`/`classId` is also supplied.
  */
 export const scopeCovers = (grant: UserScopeGrant, target: ScopeTarget): boolean => {
-  const rank = RANK[grant.scopeKind as ScopeKind] ?? 0
-
-  if (grant.scopeKind === 'district') {
-    return target.districtCode === grant.scopeId || rank >= RANK.school
+  switch (grant.scopeKind as ScopeKind) {
+    case 'district':
+      return target.districtCode === grant.scopeId
+    case 'school':
+      return target.schoolId === grant.scopeId
+    case 'class':
+      return target.classId === grant.scopeId
+    case 'child':
+      return target.childKey === grant.scopeId
+    default:
+      return false
   }
-  if (grant.scopeKind === 'school') {
-    return (
-      target.schoolId === grant.scopeId ||
-      (target.classId !== undefined) || // school covers any class within it (caller verifies membership)
-      (target.childKey !== undefined)
-    )
-  }
-  if (grant.scopeKind === 'class') {
-    return target.classId === grant.scopeId || target.childKey !== undefined
-  }
-  if (grant.scopeKind === 'child') {
-    return target.childKey === grant.scopeId
-  }
-  return false
 }
 
 /** Returns true if ANY of the user's grants covers the target. */

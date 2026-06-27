@@ -13,7 +13,7 @@ const DashboardIndex = () => {
 
   useEffect(() => {
     if (!ready) return
-    router.replace(token ? homeForRole(role) : '/login')
+    router.replace(token ? homeForRole(role) : '/?auth=1')
   }, [ready, token, role, router])
 
   return null

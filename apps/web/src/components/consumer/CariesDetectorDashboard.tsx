@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Camera, Upload, Sparkles, Eraser, Stethoscope } from '@/lib/icons'
+import { Camera, Upload, Sparkles, Eraser, Stethoscope, MapPin, AlertTriangle } from '@/lib/icons'
 import Link from 'next/link'
 import { DetectedRow, FilterPill, FlatCard, PillButton } from '@/components/consumer/warm/WarmUI'
 import { TriageHeroCard } from '@/components/consumer/MobilePatterns'
@@ -26,6 +26,35 @@ const DETECTION_LABEL: Record<string, string> = {
 const formatLabel = (d: ScanDetection) => DETECTION_LABEL[d.label] ?? d.label
 
 const DEFAULT_FILTERS = ['Болд', 'Сарнай', 'Энхбаяр']
+
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+
+/**
+ * Downscale a picked image to a compact JPEG data URL. Stored instead of a
+ * `blob:` object URL so scan history survives a page reload (a `blob:` URL dies
+ * with its session, leaving broken thumbnails).
+ */
+const fileToDataUrl = (file: File, maxEdge = 640): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      const scale = Math.min(1, maxEdge / Math.max(img.width, img.height))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * scale)
+      canvas.height = Math.round(img.height * scale)
+      const ctx = canvas.getContext('2d')
+      URL.revokeObjectURL(url)
+      if (!ctx) return reject(new Error('no_canvas'))
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL('image/jpeg', 0.7))
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('bad_image'))
+    }
+    img.src = url
+  })
 
 const IntraoralImageView = ({ imageUrl, detections }: { imageUrl: string; detections: ScanDetection[] }) => (
   <div className="relative overflow-hidden rounded-2xl bg-surface-raised">
@@ -98,6 +127,20 @@ const ResultsPanel = ({ result }: { result: ScanResult }) => {
           Эмчийн зөвлөгөө авах
         </PillButton>
       </Link>
+
+      {(triageLevel === 'red' || triageLevel === 'yellow') && (
+        <Link href={ROUTES.doctor.map}>
+          <PillButton variant="secondary" className="w-full">
+            <MapPin className="size-4" strokeWidth={2} />
+            Ойрын эмнэлэг хайх
+          </PillButton>
+        </Link>
+      )}
+
+      <p className="flex items-start gap-2 text-[12px] leading-relaxed text-text-muted">
+        <AlertTriangle className="mt-0.5 size-3.5 shrink-0" strokeWidth={2} />
+        Энэ бол урьдчилсан скрининг — онош биш. Эцсийн дүгнэлтийг шүдний эмч гаргана.
+      </p>
     </div>
   )
 }
@@ -116,6 +159,7 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
   const [cameraError, setCameraError] = useState<string | null>(null)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState('')
+  const [dragOver, setDragOver] = useState(false)
 
   const filterOptions = useMemo(() => {
     const q = getQuestionnaire()
@@ -169,6 +213,14 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
 
   const onFile = (f: File | null) => {
     if (!f) return
+    if (!f.type.startsWith('image/')) {
+      setAnalysisError('Зөвхөн зураг (jpg, png) оруулна уу.')
+      return
+    }
+    if (f.size > MAX_UPLOAD_BYTES) {
+      setAnalysisError('Зураг хэт том байна — 10MB-аас бага зураг оруулна уу.')
+      return
+    }
     stopCamera()
     setFile(f)
     setPreview(URL.createObjectURL(f))
@@ -198,9 +250,11 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
     setAnalyzing(true)
     setAnalysisError(null)
     try {
-      const scanResult = await analyzeScanImage(file, preview)
+      // Persist a self-contained data URL (not the ephemeral blob:) so history survives reload.
+      const persistUrl = await fileToDataUrl(file).catch(() => preview)
+      const scanResult = await analyzeScanImage(file, persistUrl)
       saveScanResult(scanResult)
-      sessionStorage.setItem('screener.lastCapture', preview)
+      sessionStorage.setItem('screener.lastCapture', persistUrl)
       setResult(scanResult)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'inference_failed'
@@ -252,7 +306,15 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="mt-6 flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-border bg-surface-raised p-10 text-center transition-all duration-200 hover:border-[#F3B900]/50 hover:bg-[#F3B900]/5"
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => { e.preventDefault(); setDragOver(false); onFile(e.dataTransfer.files?.[0] ?? null) }}
+                className={cn(
+                  'mt-6 flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-10 text-center transition-all duration-200',
+                  dragOver
+                    ? 'border-[#F3B900] bg-[#F3B900]/10'
+                    : 'border-border bg-surface-raised hover:border-[#F3B900]/50 hover:bg-[#F3B900]/5',
+                )}
               >
                 <span className="flex size-14 items-center justify-center rounded-2xl bg-surface shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
                   <Upload className="size-7 text-text-muted" strokeWidth={1.5} />
@@ -260,7 +322,7 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
                 <div>
                   <p className="text-[16px] font-semibold text-text-base">Шүдний ойрын зураг оруулна уу</p>
                   <p className="mt-2 max-w-sm text-[13px] text-text-muted">
-                    Файл чөлөөлөх эсвэл камер ашиглан шүдний ойрын зураг аваарай
+                    Зургийг энд чирч оруулах, дарж сонгох, эсвэл камер ашиглаарай
                   </p>
                 </div>
               </button>

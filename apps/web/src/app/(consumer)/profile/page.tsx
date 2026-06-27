@@ -13,6 +13,7 @@ import {
   SettingRow,
 } from '@/components/consumer/warm/WarmUI'
 import { FileDown, History } from '@/lib/icons'
+import { useMe, useSwitchRole } from '@/hooks/useMe'
 import {
   clearQuestionnaire,
   getBrushSession,
@@ -187,10 +188,27 @@ const HistorySection = () => {
 
 const SettingsSection = () => {
   const router = useRouter()
+  const { data: me } = useMe()
+  const switchRole = useSwitchRole()
+  const isParentView = me?.activeRole === 'parent'
+
+  const toParent = () => switchRole.mutate('parent', { onSuccess: () => router.push('/dashboard/admin/child') })
+  const toStaff = () => switchRole.mutate('teacher', { onSuccess: () => router.push('/dashboard/admin') })
 
   return (
   <section id="settings" className="scroll-mt-24">
     <SectionHeader eyebrow="03 · Тохиргоо" title="Тохиргоо" subtitle="Мэдэгдэл, хэл, нууц үг болон апп тохиргоо." />
+
+    {me?.hasParentLink && (
+      <button
+        type="button"
+        onClick={isParentView ? toStaff : toParent}
+        disabled={switchRole.isPending}
+        className="mt-8 flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-6 py-3 text-[14px] font-bold text-primary transition-all duration-200 hover:bg-primary/20 disabled:opacity-50"
+      >
+        {isParentView ? '← Багш горимд буцах' : 'Эцэг эх болж хүүхдээ харах →'}
+      </button>
+    )}
 
     <div className="warm-card mt-8 divide-y divide-border-muted px-6">
       <SettingRow

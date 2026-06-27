@@ -36,13 +36,15 @@ export const teacherClassCreateSchema = z.object({
 })
 export type TeacherClassCreateInput = z.infer<typeof teacherClassCreateSchema>
 
+// MUST mirror FollowUpStatus in @pinequest/types/common.ts — this validates the
+// /api/followups PATCH boundary, and a divergence silently 400s valid UI values.
 export const followUpStatusSchema = z.enum([
   'flagged',
   'contacted',
-  'referred',
-  'treatment_completed',
-  'verified_resolved',
-  'lost_to_follow_up',
+  'doctor_connected',
+  'treatment_done',
+  'treatment_refused',
+  'unclear',
 ])
 
 export const followUpUpdateSchema = z.object({

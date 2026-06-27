@@ -47,7 +47,7 @@ export const screeningImages = sqliteTable('ScreeningImage', {
   screeningId: text('screeningId').notNull(),
   ref: text('ref').notNull(),
   order: integer('order').notNull().default(0),
-})
+}, (t) => [index('ScreeningImage_screeningId_idx').on(t.screeningId)])
 
 export const toothFindings = sqliteTable('ToothFinding', {
   id: text('id').primaryKey(), // client-generated
@@ -61,7 +61,7 @@ export const toothFindings = sqliteTable('ToothFinding', {
   boxX2: real('boxX2').notNull(),
   boxY2: real('boxY2').notNull(),
   longitudinal: text('longitudinal'),
-})
+}, (t) => [index('ToothFinding_screeningId_idx').on(t.screeningId)])
 
 export const questionnaires = sqliteTable('Questionnaire', {
   id: uuid(),

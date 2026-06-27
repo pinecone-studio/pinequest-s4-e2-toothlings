@@ -3,6 +3,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm'
 import { children, screenings, screeningReviews, schoolClasses, followUps } from '@pinequest/db/d1'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { resolveScope, scopeWhere, hasChildAccess } from '../lib/scopeFilter.js'
+import { writeAudit } from '../lib/audit.js'
 import type { AppEnv } from '../types.js'
 
 const FOLLOWUP_STATUSES = ['flagged', 'contacted', 'doctor_connected', 'treatment_done', 'treatment_refused', 'unclear']
@@ -73,9 +74,11 @@ boardRoutes.patch('/students/:childKey/followup', authorize('teacher', 'school_d
   if (!(await hasChildAccess(db, c.get('jwtPayload'), child))) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
 
   const updatedById = c.get('jwtPayload').sub
+  const before = await db.query.followUps.findFirst({ where: eq(followUps.childKey, childKey) })
   const [row] = await db.insert(followUps)
     .values({ childKey, schoolId: child.schoolId, status, updatedById })
     .onConflictDoUpdate({ target: followUps.childKey, set: { status, updatedById, updatedAt: new Date() } })
     .returning()
+  await writeAudit(db, updatedById, 'FollowUp', row.id, before ? 'followup_update' : 'followup_create', before, row)
   return c.json({ success: true, data: row })
 })

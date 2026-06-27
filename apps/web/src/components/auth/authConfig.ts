@@ -2,12 +2,12 @@ import type { UserRole } from '@pinequest/types'
 
 export type AuthData = { token: string; user: { id: string; name: string; role: string } }
 
-/** Roles a person may pick when self-registering (admin/dentist/follow_up are provisioned). */
+/** Roles a person may pick when self-registering (admin/dentist/follow_up are provisioned).
+ *  Default is the plain user (parent) — they see only their own child's data. */
 export const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
-  { value: 'parent', label: 'Эцэг эх' },
+  { value: 'parent', label: 'Хэрэглэгч (эцэг эх)' },
   { value: 'teacher', label: 'Багш' },
   { value: 'school_doctor', label: 'Сургууль/цэцэрлэгийн эмч' },
-  { value: 'screener', label: 'Хэрэглэгч' },
 ]
 
 // Padding + text size mirror Dropdown's `md` trigger (px-3 py-2 text-[13px])
@@ -35,10 +35,10 @@ export const authErrorText = (msg: string): string => {
       return 'Нэр, утас болон 6+ тэмдэгт нууц үг шаардлагатай'
     case 'school_required':
       return 'Сургууль / цэцэрлэгийн нэрээ оруулна уу'
-    case 'child_code_required':
-      return 'Хүүхдийн кодоо оруулна уу'
+    case 'child_name_required':
+      return 'Хүүхдийн нэрийг оруулна уу'
     case 'child_not_found':
-      return 'Энэ кодтой хүүхэд олдсонгүй'
+      return 'Энэ нэртэй хүүхэд олдсонгүй'
     default:
       return 'Серверт холбогдсонгүй — дахин оролдоно уу'
   }

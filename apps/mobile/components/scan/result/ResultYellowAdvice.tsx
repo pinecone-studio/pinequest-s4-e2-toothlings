@@ -7,7 +7,9 @@ const HOME_TIPS = [
   { icon: '🍬', text: 'Чихэр, амтат ундааг түр зогсоо' },
 ]
 
-export default function ResultYellowAdvice() {
+type Props = { homeSteps?: string[] }
+
+export default function ResultYellowAdvice({ homeSteps }: Props) {
   const { colors } = useTheme()
   const router = useRouter()
   return (
@@ -19,12 +21,18 @@ export default function ResultYellowAdvice() {
         </Text>
       </View>
       <Text style={[s.label, { color: colors.textMuted }]}>ТҮР ХҮРТЭЛ ГЭРТЭЭ</Text>
-      {HOME_TIPS.map((t, i) => (
-        <View key={i} style={[s.tip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={s.tipIcon}>{t.icon}</Text>
-          <Text style={[s.tipText, { color: colors.textBase }]}>{t.text}</Text>
-        </View>
-      ))}
+      {homeSteps
+        ? homeSteps.map((step, i) => (
+            <View key={i} style={[s.tip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[s.tipText, { color: colors.textBase }]}>{step}</Text>
+            </View>
+          ))
+        : HOME_TIPS.map((t, i) => (
+            <View key={i} style={[s.tip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={s.tipIcon}>{t.icon}</Text>
+              <Text style={[s.tipText, { color: colors.textBase }]}>{t.text}</Text>
+            </View>
+          ))}
       <TouchableOpacity style={[s.btn, { backgroundColor: colors.primary }]} onPress={() => router.push('/(tabs)/hospital' as never)}>
         <Text style={[s.btnText, { color: colors.primaryText }]}>Ойр эмнэлэг хайх</Text>
       </TouchableOpacity>

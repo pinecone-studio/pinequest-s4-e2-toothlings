@@ -16,7 +16,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const allowed = !!role && BOARD_ROLES.includes(role)
 
   useEffect(() => {
-    if (ready && (!token || !allowed)) router.replace('/login')
+    if (ready && (!token || !allowed)) router.replace('/?auth=1')
   }, [ready, token, allowed, router])
 
   if (!ready || !token || !allowed) return null
