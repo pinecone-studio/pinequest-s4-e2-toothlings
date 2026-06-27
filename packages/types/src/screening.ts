@@ -41,6 +41,23 @@ export interface SymptomSet {
   trauma?: boolean
 }
 
+/** When the pain reportedly started (questionnaire Q4). */
+export type PainOnset = 'yesterday' | '2_3_days' | '5_plus_days'
+
+/**
+ * Pain-flow answers (questionnaire Q1–Q3). Q1 "does it hurt?" gates the rest;
+ * if `present` is false the screener goes straight to the oral image.
+ */
+export interface PainDetail {
+  present?: boolean
+  cold?: boolean
+  hot?: boolean
+  biting?: boolean
+  spontaneous?: boolean
+  night?: boolean
+  onset?: PainOnset | null
+}
+
 /** Derived triage outcome (computed in @pinequest/core, never by the model). */
 export interface TriageResult {
   level: TriageLevel
@@ -116,6 +133,14 @@ export interface ChildScreeningSummary {
   dentitionStage: DentitionStage
   /** Hedged, compliant one-line result statement. */
   headline: string
+  /**
+   * Board/dentist-facing narrative: what the screening flagged and why, woven
+   * from findings + reported pain/danger signs + age. Clinical audience — NOT
+   * the parent-facing copy (that stays in `headline`).
+   */
+  assessment: string
+  /** Recommended next steps for the dentist (referral-side). */
+  dentistActions: string[]
   /** Versioned, age-aware "what to do at home" steps. */
   homeSteps: string[]
   /** Pinned content version backing headline + homeSteps. */

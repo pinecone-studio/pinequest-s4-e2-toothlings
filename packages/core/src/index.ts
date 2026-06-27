@@ -1,6 +1,7 @@
 export * from './childKey.js'
 export * from './triage.js'
 export * from './childSummary.js'
+export * from './toothNarrative.js'
 export * from './roles.js'
 export * from './season.js'
 export * from './schemas.js'

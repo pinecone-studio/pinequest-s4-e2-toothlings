@@ -2,7 +2,7 @@
   "name": "pinequest-s4-e2-team-7",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@11.9.0",
   "engines": {
     "node": ">=20"
   },

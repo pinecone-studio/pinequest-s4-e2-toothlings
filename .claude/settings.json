@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npx tsc *)",
       "Bash(/usr/local/lib/node_modules/corepack/shims/pnpm lint *)",
-      "Bash(corepack pnpm *)"
+      "Bash(corepack pnpm *)",
+      "Bash(curl -s http://localhost:8787/api/schools -H 'authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLWFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzgzMDU4MDAwfQ.zZg0O_eBBMmfkjZeIBVvt390nlA0RPm_bFBx2V0upRE')"
     ]
   }
 }

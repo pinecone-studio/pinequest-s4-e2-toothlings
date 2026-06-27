@@ -4,10 +4,13 @@ import { children, screenings, screeningImages, type DB } from '@pinequest/db/d1
 import type {
   ChildScreeningSummary,
   FindingClass,
+  PainDetail,
+  PainOnset,
   SymptomSet,
   ToothFinding,
   TriageLevel,
 } from '@pinequest/types'
+import { hospitalForChild, type HospitalGuide } from './hospitals.js'
 
 export type QuestionnaireAnswers = {
   swelling: boolean
@@ -16,6 +19,13 @@ export type QuestionnaireAnswers = {
   gumPimpleOrFistula: boolean
   trauma: boolean
   bleedingGums: boolean | null
+  painPresent: boolean
+  painCold: boolean
+  painHot: boolean
+  painBiting: boolean
+  painSpontaneous: boolean
+  painNight: boolean
+  painOnset: PainOnset | null
 }
 
 /** Roster-side child fields the board may show (PII stays server-scoped). */
@@ -33,7 +43,7 @@ export type ChildSummaryPayload = {
   screeningCount: number
   imageRefs: string[]
   questionnaire: QuestionnaireAnswers | null
-  hospital: null
+  hospital: HospitalGuide | null
 }
 
 const toFinding = (f: {
@@ -59,6 +69,20 @@ const toSymptoms = (q: {
   trauma: q?.trauma ?? false,
 })
 
+const toPain = (q: {
+  painPresent: boolean | null; painCold: boolean | null; painHot: boolean | null
+  painBiting: boolean | null; painSpontaneous: boolean | null; painNight: boolean | null
+  painOnset: string | null
+} | null | undefined): PainDetail => ({
+  present: q?.painPresent ?? false,
+  cold: q?.painCold ?? false,
+  hot: q?.painHot ?? false,
+  biting: q?.painBiting ?? false,
+  spontaneous: q?.painSpontaneous ?? false,
+  night: q?.painNight ?? false,
+  onset: (q?.painOnset as PainOnset | null) ?? null,
+})
+
 export const loadChildSummary = async (db: DB, id: string): Promise<ChildSummaryPayload | null> => {
   const child = await db.query.children.findFirst({ where: eq(children.id, id) })
   if (!child) return null
@@ -80,6 +104,7 @@ export const loadChildSummary = async (db: DB, id: string): Promise<ChildSummary
         birthYear: child.birthYear,
         findings: latest.findings.map(toFinding),
         symptoms: toSymptoms(latest.questionnaire),
+        pain: toPain(latest.questionnaire),
         aiLevel: latest.triageLevel as TriageLevel,
         confidentWording: latest.triageConfidentWording,
         reviewedLevel: (latest.review?.confirmedLevel as TriageLevel | undefined) ?? undefined,
@@ -107,8 +132,15 @@ export const loadChildSummary = async (db: DB, id: string): Promise<ChildSummary
           gumPimpleOrFistula: latest.questionnaire.gumPimpleOrFistula ?? false,
           trauma: latest.questionnaire.trauma ?? false,
           bleedingGums: latest.questionnaire.bleedingGums ?? null,
+          painPresent: latest.questionnaire.painPresent ?? false,
+          painCold: latest.questionnaire.painCold ?? false,
+          painHot: latest.questionnaire.painHot ?? false,
+          painBiting: latest.questionnaire.painBiting ?? false,
+          painSpontaneous: latest.questionnaire.painSpontaneous ?? false,
+          painNight: latest.questionnaire.painNight ?? false,
+          painOnset: (latest.questionnaire.painOnset as PainOnset | null) ?? null,
         }
       : null,
-    hospital: null,
+    hospital: summary ? hospitalForChild(child.schoolId, summary.effectiveLevel) : null,
   }
 }

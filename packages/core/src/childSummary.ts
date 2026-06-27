@@ -1,17 +1,19 @@
 import type {
   ChildScreeningSummary,
   DentitionStage,
+  PainDetail,
   SymptomSet,
   ToothFinding,
   TriageLevel,
 } from '@pinequest/types'
+import { buildAssessment, buildDentistActions } from './toothNarrative.js'
 
 /**
  * Dentist-approved, versioned parent/teacher copy. SCREENING-not-diagnosis:
  * hedged wording, no banned clinical words (decay/caries/cavity, "эрүүл шүд",
- * "асуудалгүй"). Bump the version when the wording changes; the app pins it.
+ * "асуудалгүй") in parent-facing fields. Bump the version when wording changes.
  */
-export const SUMMARY_CONTENT_VERSION = 'screen-mn-v1'
+export const SUMMARY_CONTENT_VERSION = 'screen-mn-v2'
 
 const HEADLINE: Record<TriageLevel, string> = {
   green: 'Эдгээр зурагт аюулын шинж тэмдэг илрээгүй. Энэ нь онош биш — хяналтаар үргэлжлүүлээрэй.',
@@ -20,20 +22,28 @@ const HEADLINE: Record<TriageLevel, string> = {
 }
 
 const BASE_STEPS = [
-  'Өдөрт 2 удаа фтортой оохойгоор шүдээ угаах.',
+  'Өглөө, орой 2 удаа, тус бүр 2 минут зөв аргаар шүдээ угаах.',
+  'Фторын агууламж өндөртэй (1500ppm-с дээш) шүдний оо хэрэглэх — савлагаан дээрх тоог шалгах.',
   'Чихэрлэг хоол, ундааны хэрэглээг багасгах.',
 ]
 
 const LEVEL_STEPS: Record<TriageLevel, string[]> = {
-  green: ['Дараагийн хяналтын скринингт хамрагдах.'],
+  green: ['Дараагийн улирлын хяналтын скринингт дахин хамрагдах.'],
   yellow: ['1–2 долоо хоногийн дотор шүдний эмчид үзүүлэх цаг товлох.'],
   red: ['Өвдөлт, хавдар, эсвэл халуурвал яаралтай эмнэлэгт хандах.'],
 }
 
-const STAGE_STEP: Record<DentitionStage, string> = {
-  primary: 'Бага насны хүүхдэд эцэг эх нь шүд угаахад нь туслах.',
-  mixed: 'Шинээр ургаж буй байнгын араа шүдэнд онцгой анхаарах.',
-  permanent: 'Шүдний цэвэрлэгээний утас өдөр бүр хэрэглэж эхлэх.',
+const STAGE_STEPS: Record<DentitionStage, string[]> = {
+  primary: ['Бага насны хүүхдэд эцэг эх нь шүд угаахад нь туслах.'],
+  mixed: [
+    'Шинээр ургаж буй байнгын араа шүдэнд онцгой анхаарах.',
+    'Хэлэн дээрх өнгөрийг өдөр бүр сайн цэвэрлэх.',
+    'Хатуу, эрүүл хоол (мах, ногоо) сайн зажилснаар эрүү, шүдний хөгжлийг дэмжих.',
+  ],
+  permanent: [
+    'Өдөр бүр шүдний цэвэрлэгээний утас хэрэглэх.',
+    'Хатуу, эрүүл хоол сайн зажилснаар эрүү, шүдний хөгжлийг дэмжих.',
+  ],
 }
 
 /** Expected dentition stage by age (educational only — not a per-tooth claim). */
@@ -61,6 +71,7 @@ type BuildInput = {
   birthYear: number
   findings: ToothFinding[]
   symptoms: SymptomSet
+  pain?: PainDetail
   aiLevel: TriageLevel
   confidentWording: boolean
   reviewedLevel?: TriageLevel
@@ -71,7 +82,8 @@ type BuildInput = {
 /**
  * Build a compliant per-child screening summary. Pure: same output on phone,
  * server, and board. Counts are "areas a dentist should check", never a
- * diagnosis or a decay count.
+ * diagnosis or a decay count. `headline`/`homeSteps` are parent-safe; the
+ * `assessment`/`dentistActions` are board/dentist-facing clinical copy.
  */
 export const buildChildSummary = (input: BuildInput): ChildScreeningSummary => {
   const effectiveLevel = input.reviewedLevel ?? input.aiLevel
@@ -90,7 +102,8 @@ export const buildChildSummary = (input: BuildInput): ChildScreeningSummary => {
     .map((f) => f.fdi)
     .filter((n): n is number => typeof n === 'number')
 
-  const homeSteps = [...BASE_STEPS, ...LEVEL_STEPS[effectiveLevel], STAGE_STEP[stage]]
+  const narrative = { ageYears, stage, level: effectiveLevel, findings: input.findings, symptoms: input.symptoms, pain: input.pain }
+  const homeSteps = [...BASE_STEPS, ...LEVEL_STEPS[effectiveLevel], ...STAGE_STEPS[stage]]
 
   return {
     screeningId: input.screeningId,
@@ -107,6 +120,8 @@ export const buildChildSummary = (input: BuildInput): ChildScreeningSummary => {
     ageYears,
     dentitionStage: stage,
     headline: HEADLINE[effectiveLevel],
+    assessment: buildAssessment(narrative),
+    dentistActions: buildDentistActions(narrative),
     homeSteps,
     contentVersion: SUMMARY_CONTENT_VERSION,
   }

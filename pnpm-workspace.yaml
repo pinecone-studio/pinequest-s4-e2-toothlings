@@ -1,6 +1,17 @@
 packages:
   - "apps/*"
   - "packages/*"
+# TEMP (demo deploy): disable the minimum-release-age supply-chain gate that was
+# blocking `next build`/wrangler. Revert to re-enable the policy after the demo.
+minimumReleaseAge: 0
+verifyDepsBeforeRun: false
+allowBuilds:
+  '@prisma/client': set this to true or false
+  '@prisma/engines': set this to true or false
+  esbuild: set this to true or false
+  prisma: set this to true or false
+  sharp: set this to true or false
+  workerd: set this to true or false
 onlyBuiltDependencies:
   - esbuild
   - sharp

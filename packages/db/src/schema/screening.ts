@@ -75,6 +75,14 @@ export const questionnaires = sqliteTable('Questionnaire', {
   bleedingGums: bool('bleedingGums'),
   smoker: bool('smoker'),
   lastCheckupAdult: text('lastCheckupAdult'),
+  // Pain triage flow (Q1 "does it hurt?" → branch into quality + onset).
+  painPresent: bool('painPresent'),
+  painCold: bool('painCold'),
+  painHot: bool('painHot'),
+  painBiting: bool('painBiting'),
+  painSpontaneous: bool('painSpontaneous'),
+  painNight: bool('painNight'),
+  painOnset: text('painOnset'), // 'yesterday' | '2_3_days' | '5_plus_days'
 })
 
 // The only mutable record (two-way sync, version optimistic-lock).
