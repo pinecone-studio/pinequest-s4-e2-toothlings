@@ -3,7 +3,8 @@ import type { UserRole } from '@pinequest/types'
 const TOKEN_KEY = 'toothlings_token'
 
 export const setToken = (token: string): void => {
-  document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=43200; samesite=lax`
+  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; secure' : ''
+  document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=43200; samesite=strict${secure}`
 }
 
 export const getToken = (): string | null => {

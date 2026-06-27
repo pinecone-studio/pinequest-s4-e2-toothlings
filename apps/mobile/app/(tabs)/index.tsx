@@ -36,7 +36,7 @@ type LatestScreening = {
 const HomeScreen = () => {
   const { colors } = useTheme()
   const router = useRouter()
-  const { sync } = useOutboxSync()
+  const { sync, syncing, pendingCount, deadCount } = useOutboxSync()
   const [user, setUser] = useState<AuthUser | null>(null)
   const [latest, setLatest] = useState<LatestScreening | null>(null)
 
@@ -71,6 +71,9 @@ const HomeScreen = () => {
         <GreetingHeader
           name={user?.name ?? '...'}
           onPressAvatar={() => router.push('/(tabs)/profile' as never)}
+          syncing={syncing}
+          pendingCount={pendingCount}
+          deadCount={deadCount}
         />
         <ScanHeroCard onScan={handleScan} />
         {latest && (() => {

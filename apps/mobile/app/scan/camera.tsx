@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View, ActivityIndicator, Text, TouchableOpacity } from 'react-native'
 import { CameraView, useCameraPermissions } from 'expo-camera'
+import { Ionicons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
 import { isModelCached, downloadModel } from '@/lib/localInference'
 import { useCameraCapture } from '@/lib/useCameraCapture'
@@ -20,6 +21,7 @@ export default function CameraScreen() {
   }>()
   const [permission, requestPermission] = useCameraPermissions()
   const [cameraReady, setCameraReady] = useState(false)
+  const [torchOn, setTorchOn] = useState(false)
 
   const { cameraRef, mode, photos, analyzing, capturing, error, capture, toggleMode } = useCameraCapture(params)
   const priorLevel = usePriorLevel(params.childKey)
@@ -45,7 +47,7 @@ export default function CameraScreen() {
 
   return (
     <View style={s.root}>
-      <CameraView ref={cameraRef} style={s.camera} facing="back" enableTorch onCameraReady={() => setCameraReady(true)} />
+      <CameraView ref={cameraRef} style={s.camera} facing="back" enableTorch={torchOn} onCameraReady={() => setCameraReady(true)} />
       {!cameraReady && (
         <View style={s.camLoading}>
           <ActivityIndicator size="large" color="#fff" />
@@ -79,7 +81,9 @@ export default function CameraScreen() {
           <Text style={s.modeTxt}>{mode === 'upper' ? 'Эрүү' : 'Хоншоор'}</Text>
         </TouchableOpacity>
         <CameraShutterBar onCapture={capture} disabled={busy} />
-        <View style={{ width: 72 }} />
+        <TouchableOpacity style={s.modeBtn} onPress={() => setTorchOn(v => !v)} disabled={busy}>
+          <Ionicons name={torchOn ? 'flashlight' : 'flashlight-outline'} size={22} color="#fff" />
+        </TouchableOpacity>
       </View>
     </View>
   )

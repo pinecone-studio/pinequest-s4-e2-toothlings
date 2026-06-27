@@ -49,6 +49,16 @@ export class SQLiteStore implements ILocalStore {
     return db.getAllAsync<OutboxEntry>(`SELECT * FROM outbox WHERE sentAt IS NULL ORDER BY createdAt ASC`)
   }
 
+  async getStuck(): Promise<OutboxEntry[]> {
+    const db = await getDb()
+    return db.getAllAsync<OutboxEntry>(`SELECT * FROM outbox WHERE sentAt IS NULL AND attempts >= 5 ORDER BY createdAt ASC`)
+  }
+
+  async resetAttempts(id: string): Promise<void> {
+    const db = await getDb()
+    await db.runAsync(`UPDATE outbox SET attempts = 0, lastError = NULL WHERE id = ?`, id)
+  }
+
   async markSent(id: string): Promise<void> {
     const db = await getDb()
     await db.runAsync(`UPDATE outbox SET sentAt = ? WHERE id = ?`, new Date().toISOString(), id)

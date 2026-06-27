@@ -21,12 +21,13 @@ export const canManageOwnClass = (role: UserRole): boolean =>
 export const canViewFullChart = (role: UserRole): boolean =>
   role === 'dentist' || role === 'admin' || role === 'school_doctor'
 
-/** Confirm or override triage (audited event) — clinical only. */
-export const canOverrideTriage = (role: UserRole): boolean => role === 'dentist'
+/** Confirm or override triage (audited event) — dentist or admin. Mirrors authorize('dentist','admin'). */
+export const canOverrideTriage = (role: UserRole): boolean =>
+  role === 'dentist' || role === 'admin'
 
-/** Move a child through the follow-up lifecycle (audited event). */
+/** Move a child through the follow-up lifecycle (audited event). Mirrors authorize('follow_up','school_doctor','admin'). */
 export const canUpdateFollowUp = (role: UserRole): boolean =>
-  role === 'follow_up' || role === 'admin' || role === 'school_doctor' || role === 'teacher'
+  role === 'follow_up' || role === 'admin' || role === 'school_doctor'
 
 /** Manage rosters, content versions, and users. */
 export const canManageRoster = (role: UserRole): boolean => role === 'admin'

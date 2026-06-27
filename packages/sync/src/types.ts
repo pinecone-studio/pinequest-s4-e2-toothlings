@@ -45,6 +45,10 @@ export type ParsedEntry = Omit<OutboxEntry, 'payload'> & { data: ScreeningCreate
 export interface ILocalStore {
   enqueue(entry: OutboxEntry): Promise<void>
   getPending(): Promise<OutboxEntry[]>
+  /** Entries that have exceeded max retry attempts and will no longer auto-sync. */
+  getStuck(): Promise<OutboxEntry[]>
+  /** Reset attempts on stuck entries so they will be retried on next sync. */
+  resetAttempts(id: string): Promise<void>
   markSent(id: string): Promise<void>
   markFailed(id: string, error: string): Promise<void>
   clear(): Promise<void>

@@ -43,7 +43,7 @@ export default function QuestionnaireScreen() {
   const answer = (value: boolean | string) => {
     const next = { ...answers, [q.key]: value }
     setAnswers(next)
-    if (step === 0 && value === false) { goToCamera(next); return }
+    if (step === 0 && value === false) { setStep(QUESTIONS.length - 1); return }
     if (step < QUESTIONS.length - 1) { setStep(s => s + 1) } else { goToCamera(next) }
   }
 

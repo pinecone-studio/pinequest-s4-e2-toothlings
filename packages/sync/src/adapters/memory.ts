@@ -25,6 +25,15 @@ export class MemoryStore implements ILocalStore {
     if (e) this.entries.set(id, { ...e, attempts: e.attempts + 1, lastError: error })
   }
 
+  async getStuck(): Promise<OutboxEntry[]> {
+    return Array.from(this.entries.values()).filter((e) => !e.sentAt && e.attempts >= 5)
+  }
+
+  async resetAttempts(id: string): Promise<void> {
+    const e = this.entries.get(id)
+    if (e) this.entries.set(id, { ...e, attempts: 0, lastError: undefined })
+  }
+
   async clear(): Promise<void> {
     this.entries.clear()
   }
