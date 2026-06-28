@@ -6,14 +6,14 @@ import { useUpdateFollowUp, useNotify, type FollowUpRow as Row } from '@/hooks/u
 const STATUSES: FollowUpStatus[] = ['flagged', 'contacted', 'doctor_connected', 'treatment_done', 'treatment_refused', 'unclear']
 
 const STATUS_LABEL: Record<FollowUpStatus, string> = {
-  flagged:           'Тэмдэглэсэн',
+  flagged:           'Шинэ',
   contacted:         'Холбогдсон',
   doctor_connected:  'Эмчтэй холбосон',
   treatment_done:    'Эмчилгээ хийлгэсэн',
   treatment_refused: 'Эмчилгээ хийлгээгүй',
   unclear:           'Тодорхойгүй',
   superseded:        'Шинэ улиралд шилжсэн',
-  season_cleared:    'Ногоон болсон',
+  season_cleared:    'Харьцангуй эрүүл',
 }
 
 const STATUS_CLS: Record<FollowUpStatus, string> = {

@@ -15,7 +15,7 @@ const ClassListRow = ({ row, onSchedule }: Props) => {
 
   return (
     <li className="grow flex items-center gap-3 blob border border-border bg-surface px-4 py-3 shadow-(--shadow-card) hover:shadow-(--shadow-card-lg)">
-      <Link href={`/dashboard/admin/classes/${row.id}`} className="btn flex min-w-0 flex-1 flex-col gap-1 transition-all duration-150">
+      <Link href={`/dashboard/classes/${row.id}`} className="btn flex min-w-0 flex-1 flex-col gap-1 transition-all duration-150">
         <span className="text-[14px] font-semibold text-text-base">
           {row.name} <span className="font-normal text-text-muted">· {row.seasonId}</span>
         </span>

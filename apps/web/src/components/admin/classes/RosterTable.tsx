@@ -55,7 +55,7 @@ export const RosterTable = ({ rows, levelByKey = {} }: Props) => {
                 return (
                   <tr
                     key={c.id}
-                    onClick={() => router.push(`/dashboard/admin/children/${c.id}`)}
+                    onClick={() => router.push(`/dashboard/children/${c.id}`)}
                     className="btn cursor-pointer border-b border-border-muted transition-colors last:border-0 hover:bg-surface-raised"
                   >
                     <td className="px-4 py-3 text-text-muted">{c.rosterSlot}</td>
