@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AppShell, StatusPill } from '@/components/consumer/AppShell'
 import { BrushArchMonitor } from '@/components/consumer/BrushArchMonitor'
+import { BrushOrientation3D } from '@/components/consumer/BrushOrientation3D'
 import { ToothModel } from '@/components/consumer/ToothModel'
+import { useEsp32Imu } from '@/hooks/useEsp32Imu'
 import { FilterPill } from '@/components/consumer/warm/WarmUI'
 import Button from '@/components/ui/Button'
 import {
@@ -15,6 +17,12 @@ import {
   teethToCoverageMap,
   type BrushMlState,
 } from '@/lib/brushMl'
+import {
+  DEFAULT_ESP32_WS_URL,
+  imuToSensorFrame,
+  inferZoneFromImu,
+  isValidEsp32WsUrl,
+} from '@/lib/esp32Imu'
 import {
   getBrushSession,
   saveBrushSession,
@@ -91,18 +99,33 @@ const InstructionsPanel = () => (
   </div>
 )
 
+const WS_URL_STORAGE_KEY = 'esp32.wsUrl'
+
 const MonitorPanel = () => {
   const [activeZone, setActiveZone] = useState<BrushZone>('UL')
   const [seconds, setSeconds] = useState<Record<BrushZone, number>>({ UL: 0, UR: 0, LL: 0, LR: 0 })
   const [pressure, setPressure] = useState<'low' | 'ok' | 'high'>('ok')
   const [running, setRunning] = useState(false)
   const [mlState, setMlState] = useState<BrushMlState>(() => createBrushMlState())
+  const [wsUrl, setWsUrl] = useState(DEFAULT_ESP32_WS_URL)
+  const [wsReady, setWsReady] = useState(false)
   const tickRef = useRef(0)
   const mlRef = useRef(mlState)
   const secondsRef = useRef(seconds)
 
+  const { status, reading, liveReadingRef, trackerRef, fusionMode, error, reconnect, calibrate } =
+    useEsp32Imu(wsUrl, wsReady)
+
   mlRef.current = mlState
   secondsRef.current = seconds
+
+  useEffect(() => {
+    const savedUrl = localStorage.getItem(WS_URL_STORAGE_KEY)?.trim()
+    if (savedUrl && isValidEsp32WsUrl(savedUrl)) {
+      setWsUrl(savedUrl)
+    }
+    setWsReady(true)
+  }, [])
 
   useEffect(() => {
     const saved = getBrushSession()
@@ -114,19 +137,42 @@ const MonitorPanel = () => {
   }, [])
 
   useEffect(() => {
+    if (!reading) return
+    setActiveZone(inferZoneFromImu(reading))
     if (!running) return
+    setMlState((prev) => processSensorFrame(prev, imuToSensorFrame(reading)))
+  }, [reading, running])
+
+  useEffect(() => {
+    if (!running) return
+    const id = window.setInterval(() => {
+      const zone = liveReadingRef.current
+        ? inferZoneFromImu(liveReadingRef.current)
+        : activeZone
+      setSeconds((s) => ({ ...s, [zone]: s[zone] + 1 }))
+    }, 1000)
+    return () => window.clearInterval(id)
+  }, [running, activeZone])
+
+  useEffect(() => {
+    if (!running || status === 'connected') return
     const id = window.setInterval(() => {
       tickRef.current += 1
       const r = Math.random()
       const nextPressure = r > 0.85 ? 'high' : r < 0.1 ? 'low' : 'ok'
       setPressure(nextPressure)
-      setSeconds((s) => ({ ...s, [activeZone]: s[activeZone] + 1 }))
-
       const frame = synthesizeSensorFrame(activeZone, tickRef.current, nextPressure)
       setMlState((prev) => processSensorFrame(prev, frame))
     }, 800)
     return () => window.clearInterval(id)
-  }, [running, activeZone])
+  }, [running, activeZone, status])
+
+  const handleWsUrlChange = (next: string) => {
+    setWsUrl(next)
+    if (isValidEsp32WsUrl(next)) {
+      localStorage.setItem(WS_URL_STORAGE_KEY, next.trim())
+    }
+  }
 
   const total = Object.values(seconds).reduce((a, b) => a + b, 0)
   const start = () => {
@@ -147,11 +193,23 @@ const MonitorPanel = () => {
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_300px]">
       <div className="space-y-4">
+        <BrushOrientation3D
+          reading={reading}
+          trackerRef={trackerRef}
+          fusionMode={fusionMode}
+          status={status}
+          wsUrl={wsUrl}
+          onWsUrlChange={handleWsUrlChange}
+          onReconnect={reconnect}
+          onCalibrate={calibrate}
+          error={error}
+        />
+
         <BrushArchMonitor mlState={mlState} running={running} />
 
         <div className="warm-card p-4">
           <p className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-slate-500">
-            ML pipeline · ESP32 → IMU + даралт
+            Бүсийн хугацаа · {status === 'connected' ? 'ESP32 IMU' : 'Симуляци'}
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {ZONES.map(({ id, label }) => (
@@ -171,7 +229,7 @@ const MonitorPanel = () => {
             ))}
           </div>
           <p className="mt-3 text-[12px] text-slate-500">
-            Бодит холболтод ESP32 WebSocket frame ирж ML model шүд бүр дээр coverage шинэчилнэ.
+            ESP32 холбогдсон үед yaw/pitch/roll-оор бүс автоматаар сонгогдож, шүдний хамралт шинэчлэгдэнэ.
           </p>
         </div>
       </div>
