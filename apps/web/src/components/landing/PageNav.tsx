@@ -46,6 +46,7 @@ export const PageNav = () => {
       {[0, 1, 2, 3, 4].map((i) => {
         const Icon = NAV_ICONS[i]
         const on = active === i
+        const hot = hovered === i || on
         return (
           <div key={i} className="flex items-center gap-4"
             onMouseEnter={() => setHovered(i)}
@@ -54,16 +55,16 @@ export const PageNav = () => {
               type="button"
               onClick={() => goTo(i)}
               aria-label={LABELS[i]}
-              className="flex shrink-0 items-center justify-center transition-all duration-300"
-              style={{ width: 52, height: 52, borderRadius: 16, background: on ? 'var(--olive)' : 'rgba(255,255,255,0.08)', color: on ? '#0d1e35' : 'rgba(255,255,255,0.55)', border: `1px solid ${on ? 'var(--olive)' : 'rgba(255,255,255,0.12)'}` }}
+              className="btn flex shrink-0 items-center justify-center transition-all duration-300"
+              style={{ width: 52, height: 52, borderRadius: 16, background: on ? 'var(--olive)' : hot ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.08)', color: on ? '#0d1e35' : hot ? '#fff' : 'rgba(255,255,255,0.55)', border: `1px solid ${on ? 'var(--olive)' : hot ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.12)'}` }}
             >
               <Icon />
             </button>
             <AnimatePresence>
               {hovered === i && (
                 <m.span
-                  className="pointer-events-none whitespace-nowrap rounded-full px-4 py-1.5 font-black uppercase"
-                  style={{ fontSize: 14, letterSpacing: '0.04em', background: on ? 'var(--olive)' : 'rgba(255,255,255,0.15)', color: on ? '#0d1e35' : '#fff', backdropFilter: 'blur(8px)', border: `1px solid ${on ? 'var(--olive)' : 'rgba(255,255,255,0.3)'}` }}
+                  className="pointer-events-none whitespace-nowrap rounded-xl px-4 py-1.5 font-black uppercase shadow-(--shadow-card)"
+                  style={{ fontSize: 14, letterSpacing: '0.04em', background: 'var(--olive)', color: '#0d1e35', border: '1px solid var(--olive)' }}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -8 }}

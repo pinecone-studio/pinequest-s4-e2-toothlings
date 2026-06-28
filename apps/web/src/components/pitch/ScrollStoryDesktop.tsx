@@ -44,11 +44,13 @@ export const ScrollStoryDesktop = () => {
 
   return (
     <div ref={ref} className="relative h-[560vh]">
-      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
+      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden pl-0 lg:pl-28">
         <GraphPaper />
-        <p className="absolute left-[6vw] top-[10vh] text-[12px] font-bold uppercase tracking-[0.35em]" style={{ color: ACCENT }}>
-         ToothLings платформ нь:
-        </p>
+        <div className="absolute left-0 right-0 top-[10vh] mx-auto max-w-6xl px-6">
+          <p className="text-[12px] font-bold uppercase tracking-[0.35em]" style={{ color: ACCENT }}>
+           <span className="text-white">Tooth</span><span style={{ color: ACCENT }}>Lings</span> платформ нь:
+          </p>
+        </div>
         <div className="relative mx-auto aspect-[16/9] w-full max-w-335">
           <svg className="absolute inset-0 h-full w-full overflow-visible" viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`} aria-hidden>
             {CONNECTORS.map((_, i) => (

@@ -8,26 +8,32 @@ export const StatsSection = () => (
       <p className="mb-4 text-[12px] font-bold uppercase tracking-[0.35em]" style={{ color: 'var(--olive)' }}>
         Асуудал
       </p>
-      <h2 className="mb-6 font-black uppercase"
-        style={{ fontSize: 'clamp(2rem, 5vw, 6rem)', lineHeight: 0.92, letterSpacing: '-0.03em', color: '#fff', maxWidth: '18ch' }}>
-        Шүд цоорох өвчний тархалтын судалгаа
-      </h2>
-      <p className="max-w-2xl text-[15px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
-        Монгол улсад нийт хүүхдийн 89.7% нь шүдний цооролтой боловч алслагдсан сум, багт хамгийн ойр шүдний эмнэлэг 300+ км зайд
-        байрлаж байна. Энэ нь эмчилгээ тусламж, үзлэг хяналтанд орох хугацааг хойшлуулж, хүүхдийн зовиур,
-        өвдөлтийг анхааралгүй орхиход хүргэж байна.
-      </p>
-      <div className="mt-10 max-w-2xl">
-        <p className="font-black uppercase leading-none"
-          style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)', letterSpacing: '-0.03em', color: 'var(--olive)' }}>
-         89.7%
-        </p>
-        <p className="mt-2 text-[15px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          Улсын хэмжээнд 5 настай хүүхдийн 82.9%, 12 настай хүүхдийн 80.9% нь шүд цоорох өвчинд нэрвэгдсэн байна.
-        
-        </p>
+      <div className="grid gap-12 lg:grid-cols-[1fr_auto] lg:gap-16">
+        <div className="max-w-2xl">
+          <h2 className="mb-6 font-black uppercase"
+            style={{ fontSize: 'clamp(2rem, 5vw, 6rem)', lineHeight: 0.92, letterSpacing: '-0.03em', color: '#fff', maxWidth: '18ch' }}>
+            Шүд цоорох өвчний тархалтын судалгаа
+          </h2>
+          <p className="text-[15px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Монгол улсад нийт хүүхдийн 89.7% нь шүдний цооролтой боловч алслагдсан сум, багт хамгийн ойр шүдний эмнэлэг 300+ км зайд
+            байрлаж байна. Энэ нь эмчилгээ тусламж, үзлэг хяналтанд орох хугацааг хойшлуулж, хүүхдийн зовиур,
+            өвдөлтийг анхааралгүй орхиход хүргэж байна.
+          </p>
+          <div className="mt-10">
+            <p className="font-black uppercase leading-none"
+              style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)', letterSpacing: '-0.03em', color: 'var(--olive)' }}>
+             89.7%
+            </p>
+            <p className="mt-2 text-[15px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              Улсын хэмжээнд 5 настай хүүхдийн 82.9%, 12 настай хүүхдийн 80.9% нь шүд цоорох өвчинд нэрвэгдсэн байна.
+
+            </p>
+          </div>
+        </div>
+        <div className="flex h-full w-full items-center justify-center p-8 sm:p-10 lg:w-104">
+          <KidsRatio />
+        </div>
       </div>
-      <KidsRatio />
       <MongoliaMap />
       <div className="mt-16 max-w-2xl">
         <p className="text-[15px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>

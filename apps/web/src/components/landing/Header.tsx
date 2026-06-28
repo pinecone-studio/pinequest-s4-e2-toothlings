@@ -2,10 +2,13 @@
 import Link from 'next/link'
 import { m, useScroll, useTransform } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { homeForRole } from '@/lib/auth'
+import { useSession } from '@/components/providers'
 
 export const Header = () => {
   const [thresh, setThresh] = useState(300)
   const [mounted, setMounted] = useState(false)
+  const { token, role } = useSession()
   const { scrollY } = useScroll()
   const wmarkOp = useTransform(scrollY, [thresh * 0.6, thresh], [0, 1])
 
@@ -15,6 +18,8 @@ export const Header = () => {
   }, [])
 
   if (!mounted) return null
+
+  const loggedIn = !!token
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-[140] flex items-center justify-between px-6 py-4"
@@ -34,15 +39,17 @@ export const Header = () => {
         </m.div>
       </Link>
       <div className="flex items-center gap-3">
-        <Link href="/?auth=login"
-          className="hidden rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:inline-flex">
-          Нэвтрэх
-        </Link>
-        <Link href="/?auth=register"
-          className="rounded-full px-4 py-2 text-sm font-bold transition-colors hover:opacity-90"
-          style={{ background: 'var(--olive)', color: '#0d1e35' }}>
-          Эхлэх
-        </Link>
+        {loggedIn ? (
+          <Link href={homeForRole(role)}
+            className="btn inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-[13px] font-semibold text-text-on-primary shadow-(--shadow-card) transition-all duration-150 hover:bg-primary-hover">
+            Эхлэх
+          </Link>
+        ) : (
+          <Link href="/?auth=login"
+            className="btn inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-[13px] font-semibold text-text-on-primary shadow-(--shadow-card) transition-all duration-150 hover:bg-primary-hover">
+            Нэвтрэх
+          </Link>
+        )}
       </div>
     </nav>
   )

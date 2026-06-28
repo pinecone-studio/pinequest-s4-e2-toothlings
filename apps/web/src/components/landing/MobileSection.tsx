@@ -28,7 +28,7 @@ export const MobileSection = () => (
       </p>
       <QRCard size={280} />
     </div>
-    <div className="hidden md:flex md:min-h-screen md:items-center md:gap-[4vw] md:px-[5vw] md:py-24">
+    <div className="mx-auto hidden w-full max-w-6xl md:flex md:min-h-screen md:items-center md:gap-[4vw] md:px-6 md:py-24">
       <div style={{ flex: '1 1 52%', minWidth: 280 }}>
         <h2 className="mb-10 select-none font-black uppercase"
           style={{ fontSize: 'clamp(1.8rem, 4.5vw, 5rem)', lineHeight: 0.92, letterSpacing: '-0.03em' }}>
