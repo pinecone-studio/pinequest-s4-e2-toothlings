@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 const ROLE_ROUTES: Record<string, string[]> = {
   '/dashboard/dentist': ['dentist', 'admin'],
   '/dashboard/follow-up': ['follow_up', 'admin'],
-  '/dashboard/admin': ['admin', 'school_doctor', 'teacher', 'parent'],
+  '/dashboard': ['admin', 'school_doctor', 'teacher', 'parent', 'screener'],
 }
 
 export const middleware = (req: NextRequest): NextResponse => {

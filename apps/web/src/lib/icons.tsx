@@ -165,4 +165,13 @@ export const ArrowLeftRight = ({ size, strokeWidth, className, ...rest }: IconPr
   </svg>
 )
 
+export const ToothBrush = ({ size, strokeWidth, className, ...rest }: IconProps) => (
+  <svg {...base(size, strokeWidth, className)} {...rest}>
+    <path d="M2 12h14" />
+    <rect x="16" y="9" width="6" height="6" rx="1" />
+    <path d="M18 9V6" />
+    <path d="M21 9V6" />
+  </svg>
+)
+
 export type LucideIcon = typeof Home

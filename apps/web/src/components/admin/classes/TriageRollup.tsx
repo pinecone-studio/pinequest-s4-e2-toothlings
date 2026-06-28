@@ -21,7 +21,7 @@ export const TriageRollup = ({ classId }: { classId: string }) => {
         green={green}
         yellow={yellow}
         red={red}
-        onSegmentClick={(level) => router.push(`/dashboard/admin/classes/${classId}?triage=${level}`)}
+        onSegmentClick={(level) => router.push(`/dashboard/classes/${classId}?triage=${level}`)}
       />
       <p className="text-xs text-text-muted">
         Нийт: {total} — Улаан: {red} · Шар: {yellow} · Ногоон: {green}

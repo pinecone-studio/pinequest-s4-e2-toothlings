@@ -26,11 +26,10 @@ type JwtPayload = { sub: string; role: UserRole; schoolId?: string; exp?: number
 
 /** Landing route for a role after login/registration. */
 export const homeForRole = (role: UserRole | string | null): string => {
-  if (role === 'admin' || role === 'school_doctor' || role === 'teacher') return '/dashboard/admin'
-  if (role === 'parent') return '/dashboard/admin/child'
+  if (role === 'parent') return '/dashboard/child'
   if (role === 'dentist') return '/dashboard/dentist'
   if (role === 'follow_up') return '/dashboard/follow-up'
-  return '/home'
+  return '/dashboard'
 }
 
 /** Decode the (unverified) JWT payload for client-side UX gating only.
