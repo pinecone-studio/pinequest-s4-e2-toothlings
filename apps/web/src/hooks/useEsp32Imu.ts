@@ -6,7 +6,14 @@ import { isValidEsp32WsUrl, type ImuReading } from '@/lib/esp32Imu'
 
 export type Esp32ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error'
 
-export const useEsp32Imu = (url: string, enabled = true) => {
+/** Called on EVERY parsed sample (full stream rate) — for ML, before rAF coalescing. */
+export type Esp32SampleListener = (sample: ImuReading) => void
+
+export const useEsp32Imu = (
+  url: string,
+  enabled = true,
+  onSample?: Esp32SampleListener,
+) => {
   const [status, setStatus] = useState<Esp32ConnectionStatus>('idle')
   const [reading, setReading] = useState<ImuReading | null>(null)
   const [fusionMode, setFusionMode] = useState<ReturnType<Mpu6050Tracker['getFusionMode']>>('euler')
@@ -14,6 +21,9 @@ export const useEsp32Imu = (url: string, enabled = true) => {
 
   const trackerRef = useRef(new Mpu6050Tracker())
   const liveReadingRef = useRef<ImuReading | null>(null)
+  const rawSampleRef = useRef<ImuReading | null>(null)
+  const onSampleRef = useRef<Esp32SampleListener | undefined>(onSample)
+  onSampleRef.current = onSample
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const attemptRef = useRef(0)
@@ -85,6 +95,8 @@ export const useEsp32Imu = (url: string, enabled = true) => {
       ws.onmessage = (evt) => {
         const parsed = parseMpu6050Payload(String(evt.data))
         if (!parsed) return
+        rawSampleRef.current = parsed
+        onSampleRef.current?.(parsed)
         const euler = trackerRef.current.update(parsed)
         publishReading({
           ...parsed,
@@ -139,6 +151,7 @@ export const useEsp32Imu = (url: string, enabled = true) => {
     status,
     reading,
     liveReadingRef,
+    rawSampleRef,
     trackerRef,
     fusionMode,
     error,

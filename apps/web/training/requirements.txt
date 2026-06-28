@@ -1,0 +1,3 @@
+# Brushing-zone trainer (Python 3.9–3.11).
+numpy>=1.26,<2.0
+tensorflow>=2.15,<2.20

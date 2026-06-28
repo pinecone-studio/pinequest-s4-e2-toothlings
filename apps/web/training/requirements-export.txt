@@ -1,0 +1,2 @@
+# TFJS export deps (kept separate — tensorflowjs pins can conflict with TF).
+tensorflowjs>=4.13,<4.18
