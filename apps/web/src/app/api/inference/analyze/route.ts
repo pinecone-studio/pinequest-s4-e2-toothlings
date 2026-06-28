@@ -22,12 +22,12 @@ const toPercentBox = (box: BoundingBox, imageWidth: number, imageHeight: number)
 
 const adviceFor = (level: 'green' | 'yellow' | 'red', count: number): string => {
   if (level === 'red') {
-    return `Шүдний эмчид ойрын хугацаанд үзүүлэхийг зөвлөж байна. ${count} шинж тэмдэг илэрлээ. Өдөрт 2 удаа зөв угааж, чихэрлэг зүйлийг хязгаарлаарай.`
+    return `Яаралтай эмчилгээ шаардлагатай шүднүүд ${count} танигдсан `
   }
   if (level === 'yellow') {
-    return 'Шүдний гадаргуу дээр кариесийн шинж илэрсэн. 2 долоо хоногийн дотор эмчид үзүүлэхийг зөвлөж байна. Өдөрт 2 удаа зөв угаалга хий.'
+    return 'Эмчилгээ шаардлагатай цоорсон шүднүүд танигдсан.'
   }
-  return 'Аюулын шинж тэмдэг олдсонгүй — шүдний эмчид хянуулахыг зөвлөж байна.'
+  return 'Харьцангуй эрүүл байгаа тул дараагийн хяналт хийнэ.'
 }
 
 /** Proxy image upload to YOLOv8 and return triage + percent-scaled detection boxes. */
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     raw = (await res.json()) as RawInference
   } catch {
     return NextResponse.json(
-      { message: 'inference_unreachable — inference server did not respond; restart `pnpm dev`' },
+      { message: 'inference_unreachable' },
       { status: 503 },
     )
   }

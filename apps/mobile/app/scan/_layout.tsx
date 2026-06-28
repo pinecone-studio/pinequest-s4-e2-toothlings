@@ -8,6 +8,10 @@ export default function ScanLayout() {
         options={{ title: 'Шалгуулагчийн мэдээлэл', headerBackTitle: 'Буцах' }}
       />
       <Stack.Screen
+        name="consent"
+        options={{ title: 'Зөвшөөрөл', headerBackTitle: 'Буцах' }}
+      />
+      <Stack.Screen
         name="questionnaire"
         options={{ title: 'Асуумж', headerBackTitle: 'Буцах' }}
       />

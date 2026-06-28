@@ -1,15 +1,16 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '@/lib/ThemeContext'
-import type { Doctor } from '@/lib/doctorsData'
+import type { ListDoctor } from '@/lib/doctorsData'
 
 type Props = {
-  doctor: Doctor
+  doctor: ListDoctor
   onPress: () => void
 }
 
 const DoctorCard = ({ doctor, onPress }: Props) => {
   const { colors } = useTheme()
+  const initials = doctor.name.split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2)
 
   return (
     <TouchableOpacity
@@ -17,23 +18,25 @@ const DoctorCard = ({ doctor, onPress }: Props) => {
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={[s.avatar, { backgroundColor: colors.triageGreenBg }]}>
-        <Text style={s.avatarText}>{doctor.name[0]}</Text>
-      </View>
+      {doctor.avatarUrl ? (
+        <Image source={{ uri: doctor.avatarUrl }} style={s.avatar} />
+      ) : (
+        <View style={[s.avatar, s.avatarFallback, { backgroundColor: colors.triageGreenBg }]}>
+          <Text style={[s.avatarText, { color: colors.primary }]}>{initials}</Text>
+        </View>
+      )}
       <View style={s.info}>
         <Text style={[s.name, { color: colors.textBase }]}>{doctor.name}</Text>
-        <Text style={[s.specialty, { color: colors.textMuted }]}>{doctor.specialty}</Text>
-        <Text style={[s.clinic, { color: colors.textSecondary }]}>
-          {doctor.clinic} · {doctor.district} · {doctor.exp}
-        </Text>
+        {doctor.specialty && (
+          <Text style={[s.specialty, { color: colors.textMuted }]}>{doctor.specialty}</Text>
+        )}
+        {(doctor.clinic || doctor.area) && (
+          <Text style={[s.clinic, { color: colors.textSecondary }]}>
+            {[doctor.clinic, doctor.area].filter(Boolean).join(' · ')}
+          </Text>
+        )}
       </View>
-      <View style={s.right}>
-        <View style={s.ratingRow}>
-          <Ionicons name="star" size={12} color="#F2B705" />
-          <Text style={[s.rating, { color: colors.textBase }]}> {doctor.rating}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
-      </View>
+      <Ionicons name="chevron-forward" size={16} color={colors.textDisabled} />
     </TouchableOpacity>
   )
 }
@@ -41,6 +44,7 @@ const DoctorCard = ({ doctor, onPress }: Props) => {
 const s = StyleSheet.create({
   card: {
     flexDirection: 'row',
+    alignItems: 'center',
     padding: 14,
     marginHorizontal: 16,
     marginBottom: 10,
@@ -52,23 +56,13 @@ const s = StyleSheet.create({
     shadowRadius: 3,
     elevation: 1,
   },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
+  avatar: { width: 48, height: 48, borderRadius: 24, marginRight: 12 },
+  avatarFallback: { alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontFamily: 'Inter_700Bold', fontSize: 18 },
   info: { flex: 1 },
   name: { fontFamily: 'Inter_600SemiBold', fontSize: 15 },
   specialty: { fontFamily: 'Inter_400Regular', fontSize: 12, marginTop: 2 },
   clinic: { fontFamily: 'Inter_400Regular', fontSize: 12, marginTop: 2 },
-  right: { alignItems: 'flex-end', gap: 4 },
-  ratingRow: { flexDirection: 'row', alignItems: 'center' },
-  rating: { fontFamily: 'Inter_600SemiBold', fontSize: 13 },
-
 })
 
 export default DoctorCard

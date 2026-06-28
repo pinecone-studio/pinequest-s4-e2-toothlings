@@ -14,6 +14,7 @@ export type AppEnv = {
     JWT_SECRET?: string
     CORS_ORIGIN?: string
     INFERENCE_URL?: string
+    MODEL_VERSION?: string
     SEED_ENABLED?: string
   }
   Variables: {

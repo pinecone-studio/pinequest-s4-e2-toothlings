@@ -43,7 +43,7 @@ const ChatScreen = () => {
           <Text style={[s.doctorName, { color: colors.textBase }]}>{doctor.name}</Text>
           <Text style={[s.doctorRole, { color: colors.textMuted }]}>{doctor.specialty}</Text>
         </View>
-        <TouchableOpacity onPress={() => router.push(`/hospital/call?id=${id}`)}>
+        <TouchableOpacity onPress={() => router.push({ pathname: '/hospital/call', params: { id } })}>
           <Ionicons name="videocam-outline" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>

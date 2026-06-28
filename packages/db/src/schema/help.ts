@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, real, index, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 const id = () => text('id').primaryKey().$defaultFn(() => crypto.randomUUID())
 const ts = (name: string) => integer(name, { mode: 'timestamp_ms' })
@@ -8,8 +8,12 @@ export const volunteerDentists = sqliteTable('VolunteerDentist', {
   id: id(),
   userId: text('userId').notNull(), // FK User (dentist) — one profile per dentist
   displayName: text('displayName').notNull(),
+  specialty: text('specialty'), // 'endodontics'|'oral_surgery'|'operative'|'pediatric'|'prosthodontics'|'periodontics'
   org: text('org'), // clinic / hospital (optional)
   area: text('area'), // soum / district served (optional)
+  avatarUrl: text('avatarUrl'),
+  lat: real('lat'),
+  lng: real('lng'),
   isAvailable: integer('isAvailable', { mode: 'boolean' }).notNull().default(true),
   createdAt: ts('createdAt').notNull().$defaultFn(() => new Date()),
 }, (t) => [uniqueIndex('VolunteerDentist_userId_key').on(t.userId)])

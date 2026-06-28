@@ -120,6 +120,10 @@ export interface Screening {
   /** Device wall-clock time of capture. */
   capturedAt: string
   deviceId?: string
+  /** ISO timestamp when guardian consent was recorded. */
+  consentAt?: string
+  /** Content version of the consent disclosure shown. */
+  consentVersion?: string
   /** Server receipt time; null until synced up. */
   syncedAt: string | null
 }

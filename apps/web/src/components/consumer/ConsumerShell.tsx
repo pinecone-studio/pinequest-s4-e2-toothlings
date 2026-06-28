@@ -1,14 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Bell, ChevronDown, LogOut, Settings } from '@/lib/icons'
+import { ArrowLeftRight, Bell, ChevronDown, LogOut, Settings } from '@/lib/icons'
 import { ConsumerSearchBox } from '@/components/consumer/ConsumerSearchBox'
 import { SidebarToggleIcon } from '@/components/consumer/SidebarToggleIcon'
 import { ThemeToggle } from '@/components/consumer/ThemeToggle'
 import { useSession } from '@/components/providers'
 import { useMe } from '@/hooks/useMe'
+import { homeForRole } from '@/lib/auth'
 import { HOME_NAV, MAIN_NAV } from '@/lib/nav'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/utils'
@@ -19,9 +20,13 @@ const CHROME_H = 68
 
 export const ConsumerShell = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
+  const router = useRouter()
   const { logout } = useSession()
   const { data: me } = useMe()
   const [collapsed, setCollapsed] = useState(true)
+
+  const dashboardHref = me?.role ? homeForRole(me.role) : null
+  const hasDashboard = dashboardHref !== null && dashboardHref !== '/home'
 
   const initial = me?.name?.charAt(0)?.toUpperCase() ?? 'U'
   const displayName = me?.name ?? 'Хэрэглэгч'
@@ -131,6 +136,17 @@ export const ConsumerShell = ({ children }: { children: React.ReactNode }) => {
 
           <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
             <ThemeToggle />
+            {hasDashboard && (
+              <button
+                type="button"
+                onClick={() => router.push(dashboardHref!)}
+                title="Хяналтын самбар руу очих"
+                className="flex size-10 items-center justify-center rounded-full bg-surface text-text-muted shadow-[var(--shadow-card)] ring-1 ring-border transition-all duration-200 hover:text-text-base"
+                aria-label="Хяналтын самбар руу очих"
+              >
+                <ArrowLeftRight className="size-[18px]" strokeWidth={2} />
+              </button>
+            )}
             <button
               type="button"
               className="relative flex size-10 items-center justify-center rounded-full bg-surface text-text-muted shadow-[var(--shadow-card)] ring-1 ring-border transition-all duration-200 hover:text-text-base"

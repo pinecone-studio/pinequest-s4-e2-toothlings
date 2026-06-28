@@ -33,6 +33,10 @@ export type OutboxEntry = {
   attempts: number
   lastError?: string
   sentAt?: string
+  /** ISO timestamp before which this entry should not be retried (exponential backoff). */
+  nextRetryAt?: string
+  /** Triage level extracted at enqueue time; used to sort urgent screenings first. */
+  triageLevel?: 'green' | 'yellow' | 'red'
 }
 
 /** Parsed form of an OutboxEntry used internally by Outbox. */
@@ -45,6 +49,10 @@ export type ParsedEntry = Omit<OutboxEntry, 'payload'> & { data: ScreeningCreate
 export interface ILocalStore {
   enqueue(entry: OutboxEntry): Promise<void>
   getPending(): Promise<OutboxEntry[]>
+  /** Entries that have exceeded max retry attempts and will no longer auto-sync. */
+  getStuck(): Promise<OutboxEntry[]>
+  /** Reset attempts on stuck entries so they will be retried on next sync. */
+  resetAttempts(id: string): Promise<void>
   markSent(id: string): Promise<void>
   markFailed(id: string, error: string): Promise<void>
   clear(): Promise<void>

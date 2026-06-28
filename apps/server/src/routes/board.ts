@@ -123,7 +123,13 @@ boardRoutes.get('/students', authenticate, async (c) => {
 boardRoutes.patch('/students/:childKey/followup', authorize('teacher', 'school_doctor', 'admin'), async (c) => {
   const db = c.get('db')
   const childKey = c.req.param('childKey')
-  const { status } = await c.req.json<{ status: string }>()
+  const body = await c.req.json<{
+    status: string
+    appointmentAt?: string | null
+    notificationChannel?: string | null
+    notes?: string | null
+  }>()
+  const { status, appointmentAt, notificationChannel, notes } = body
   if (!FOLLOWUP_STATUSES.includes(status)) {
     return c.json({ success: false, data: null, message: 'invalid_status' }, 400)
   }
@@ -135,6 +141,11 @@ boardRoutes.patch('/students/:childKey/followup', authorize('teacher', 'school_d
   }
 
   const actorId = c.get('jwtPayload').sub
+  const episodeExtra = {
+    ...(appointmentAt !== undefined && { appointmentAt: appointmentAt ? new Date(appointmentAt) : null }),
+    ...(notificationChannel !== undefined && { notificationChannel: notificationChannel ?? null }),
+    ...(notes !== undefined && { notes: notes ?? null }),
+  }
 
   // Update open episode.
   const openEp = await db.query.followUpEpisodes.findFirst({
@@ -142,7 +153,7 @@ boardRoutes.patch('/students/:childKey/followup', authorize('teacher', 'school_d
   })
   if (openEp) {
     const [updated] = await db.update(followUpEpisodes)
-      .set({ status, updatedById: actorId, version: openEp.version + 1 })
+      .set({ status, updatedById: actorId, version: openEp.version + 1, ...episodeExtra })
       .where(eq(followUpEpisodes.id, openEp.id)).returning()
     await db.insert(followUpEvents).values({
       episodeId: openEp.id, childKey, seasonId: openEp.triggerSeasonId,

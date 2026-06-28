@@ -36,6 +36,20 @@
       "when": 1782566344465,
       "tag": "0004_material_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1782600000000,
+      "tag": "0005_longitudinal",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1782700000000,
+      "tag": "0006_volunteer_and_audit",
+      "breakpoints": true
     }
   ]
 }

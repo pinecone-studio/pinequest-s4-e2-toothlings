@@ -86,6 +86,7 @@ export const useCameraCapture = (params: Params) => {
             confidentWording: result.detections.reduce((m, d) => Math.max(m, d.confidence), 0) >= TRIAGE_THRESHOLDS.confidentWording,
           },
           modelName: 'yolov8-local',
+          modelVersion: result.modelVersion,
           capturedAt,
         }).catch(() => {})
       }

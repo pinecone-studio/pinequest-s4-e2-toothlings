@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { and, desc, eq, inArray, or, type SQL } from 'drizzle-orm'
-import { volunteerDentists, helpRequests, children } from '@pinequest/db/d1'
+import { volunteerDentists, helpRequests, children, users } from '@pinequest/db/d1'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { resolveScope } from '../lib/scopeFilter.js'
 import type { AppEnv } from '../types.js'
@@ -18,21 +18,52 @@ helpRoutes.get('/volunteer', authorize('dentist', 'admin'), async (c) => {
 helpRoutes.post('/volunteer', authorize('dentist', 'admin'), async (c) => {
   const db = c.get('db')
   const userId = c.get('jwtPayload').sub
-  const { displayName, org, area, isAvailable } =
-    await c.req.json<{ displayName: string; org?: string; area?: string; isAvailable?: boolean }>()
+  const { displayName, org, area, isAvailable, specialty, lat, lng, avatarUrl } =
+    await c.req.json<{ displayName: string; org?: string; area?: string; isAvailable?: boolean; specialty?: string; lat?: number; lng?: number; avatarUrl?: string }>()
   if (!displayName?.trim()) return c.json({ success: false, data: null, message: 'invalid_input' }, 400)
-  const set = { displayName: displayName.trim(), org: org?.trim() || null, area: area?.trim() || null, isAvailable: isAvailable ?? true }
+  const set = {
+    displayName: displayName.trim(),
+    specialty: specialty?.trim() || null,
+    org: org?.trim() || null,
+    area: area?.trim() || null,
+    avatarUrl: avatarUrl?.trim() || null,
+    lat: lat ?? null,
+    lng: lng ?? null,
+    isAvailable: isAvailable ?? true,
+  }
   const [row] = await db.insert(volunteerDentists).values({ userId, ...set })
     .onConflictDoUpdate({ target: volunteerDentists.userId, set })
     .returning()
   return c.json({ success: true, data: row })
 })
 
-// Available volunteers (so a family/teacher can see who can help).
+const selectVolunteers = (db: ReturnType<typeof import('@pinequest/db/d1').createDb>) =>
+  db.select({
+    id: volunteerDentists.id,
+    userId: volunteerDentists.userId,
+    displayName: volunteerDentists.displayName,
+    specialty: volunteerDentists.specialty,
+    org: volunteerDentists.org,
+    area: volunteerDentists.area,
+    avatarUrl: volunteerDentists.avatarUrl,
+    lat: volunteerDentists.lat,
+    lng: volunteerDentists.lng,
+    isAvailable: volunteerDentists.isAvailable,
+    phone: users.phone,
+  })
+  .from(volunteerDentists)
+  .leftJoin(users, eq(users.id, volunteerDentists.userId))
+  .where(eq(volunteerDentists.isAvailable, true))
+
+// Available volunteers — all (admin/dentist use) and red-only filtered (for board panel).
 helpRoutes.get('/volunteers', authenticate, async (c) => {
-  const rows = await c.get('db')
-    .select({ id: volunteerDentists.id, displayName: volunteerDentists.displayName, org: volunteerDentists.org, area: volunteerDentists.area })
-    .from(volunteerDentists).where(eq(volunteerDentists.isAvailable, true))
+  const rows = await selectVolunteers(c.get('db'))
+  return c.json({ success: true, data: rows })
+})
+
+// Volunteers ready to take RED cases — same list but semantically scoped to board "find dentist" flow.
+helpRoutes.get('/volunteers/red', authenticate, async (c) => {
+  const rows = await selectVolunteers(c.get('db'))
   return c.json({ success: true, data: rows })
 })
 

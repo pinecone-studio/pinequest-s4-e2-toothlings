@@ -16,14 +16,20 @@ export type HelpRequestRow = {
   dentist: { id: string; displayName: string; org: string | null } | null
 }
 
-export type VolunteerProfile = {
+export type VolunteerDentist = {
   id: string
   userId: string
   displayName: string
+  specialty: string | null
   org: string | null
   area: string | null
+  avatarUrl: string | null
+  lat: number | null
+  lng: number | null
   isAvailable: boolean
-} | null
+}
+
+export type VolunteerProfile = VolunteerDentist | null
 
 export const useHelpRequests = () => {
   const { token } = useSession()
@@ -43,11 +49,21 @@ export const useVolunteerProfile = () => {
   })
 }
 
+export const useVolunteerDentists = () => {
+  const { token } = useSession()
+  return useQuery({
+    queryKey: ['help-volunteers-red'],
+    queryFn: () => apiFetch<VolunteerDentist[]>('/api/help/volunteers/red', { token }),
+    enabled: !!token,
+    staleTime: 60_000,
+  })
+}
+
 export const useUpsertVolunteer = () => {
   const { token } = useSession()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (body: { displayName: string; org?: string; area?: string; isAvailable?: boolean }) =>
+    mutationFn: (body: { displayName: string; specialty?: string; org?: string; area?: string; isAvailable?: boolean; lat?: number; lng?: number; avatarUrl?: string }) =>
       apiFetch<VolunteerProfile>('/api/help/volunteer', { token, method: 'POST', body }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['help-volunteer'] }),
   })
@@ -58,6 +74,16 @@ export const useConnectRequest = () => {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => apiFetch(`/api/help/requests/${id}/connect`, { token, method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['help-requests'] }),
+  })
+}
+
+export const useRequestHelp = () => {
+  const { token } = useSession()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { childKey: string; level: 'red' | 'yellow'; note?: string }) =>
+      apiFetch<HelpRequestRow>('/api/help/requests', { token, method: 'POST', body }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['help-requests'] }),
   })
 }

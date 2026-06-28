@@ -1,7 +1,7 @@
 import {
   Squares2X2Icon,
   UserIcon,
-  AcademicCapIcon,
+  MagnifyingGlassCircleIcon,
   ClipboardDocumentCheckIcon,
   ClipboardDocumentListIcon,
   ChartBarIcon,
@@ -27,7 +27,7 @@ export type NavItem = {
 //   parent        → only their own child
 // Server-side scope enforcement is the real boundary; this only shapes the UI.
 const OVERVIEW: NavItem = { href: '/dashboard/admin', label: 'Мэдээлэл', Icon: Squares2X2Icon }
-const COHORTS: NavItem = { href: '/dashboard/admin/cohorts', label: 'Анги', Icon: AcademicCapIcon }
+const COHORTS: NavItem = { href: '/dashboard/admin/cohorts', label: 'Шинжилгээ', Icon: MagnifyingGlassCircleIcon }
 const FOLLOWUP: NavItem = { href: '/dashboard/admin/follow-up', label: 'Хяналт', Icon: ClipboardDocumentListIcon, badgeKey: 'followup' }
 const SUMMARY: NavItem = { href: '/dashboard/admin/summary', label: 'Дүгнэлт', Icon: ChartBarIcon }
 const TRENDS: NavItem = { href: '/dashboard/admin/trends', label: 'Харьцуулалт', Icon: ArrowTrendingUpIcon }

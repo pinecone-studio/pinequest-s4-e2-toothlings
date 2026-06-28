@@ -11,6 +11,7 @@ export const auditLogs = sqliteTable('AuditLog', {
   action: text('action').notNull(),
   oldValue: text('oldValue'), // JSON string
   newValue: text('newValue'), // JSON string
+  hash: text('hash'), // SHA-256 chain: hash(prevHash|userId|entityType|entityId|action|newValue)
   createdAt: ts('createdAt').notNull().$defaultFn(() => new Date()),
 }, (t) => [
   index('AuditLog_userId_idx').on(t.userId),

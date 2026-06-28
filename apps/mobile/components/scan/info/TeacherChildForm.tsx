@@ -22,7 +22,7 @@ export default function TeacherChildForm() {
   const onNext = () => {
     if (!ready) return
     router.push({
-      pathname: '/scan/questionnaire' as never,
+      pathname: '/scan/consent' as never,
       params: { childKey: `${schoolId}:${classId}:${rosterSlot}`, classId, schoolId, seasonId: SEASON_ID, guardianPhone, guardianEmail, birthYear },
     })
   }

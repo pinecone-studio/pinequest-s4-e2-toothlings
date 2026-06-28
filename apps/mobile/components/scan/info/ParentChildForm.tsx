@@ -23,7 +23,7 @@ export default function ParentChildForm({ userId }: Props) {
     if (!ready) return
     const slug = childName.trim().toLowerCase().replace(/\s+/g, '-')
     router.push({
-      pathname: '/scan/questionnaire' as never,
+      pathname: '/scan/consent' as never,
       params: { childKey: `parent:${userId}:${slug}`, classId: 'home', schoolId: 'home', seasonId: SEASON_ID, guardianPhone, guardianEmail },
     })
   }

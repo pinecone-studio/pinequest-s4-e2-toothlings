@@ -16,6 +16,7 @@ export class Outbox {
       payload: JSON.stringify(screening),
       createdAt: new Date().toISOString(),
       attempts: 0,
+      triageLevel: screening.triage.level,
     }
     await this.store.enqueue(entry)
   }
@@ -71,6 +72,22 @@ export class Outbox {
     }
 
     return { sent, failed, skipped }
+  }
+
+  /** Count of entries waiting to sync (not yet sent, under max attempts). */
+  async getPendingCount(): Promise<number> {
+    const raw = await this.store.getPending()
+    return raw.filter((e) => e.attempts < MAX_ATTEMPTS).length
+  }
+
+  /** Entries that have permanently failed and will not auto-retry. */
+  async getStuck(): Promise<OutboxEntry[]> {
+    return this.store.getStuck()
+  }
+
+  /** Force-retry a stuck entry by resetting its attempt counter. */
+  async resetStuck(id: string): Promise<void> {
+    await this.store.resetAttempts(id)
   }
 
   async clear(): Promise<void> {

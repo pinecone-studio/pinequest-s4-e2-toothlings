@@ -1,12 +1,17 @@
-import { View, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, TouchableOpacity, StyleSheet, Vibration } from 'react-native'
 
 type Props = { onCapture: () => void; disabled: boolean }
 
 export default function CameraShutterBar({ onCapture, disabled }: Props) {
+  const handlePress = () => {
+    Vibration.vibrate(40)
+    onCapture()
+  }
+
   return (
     <TouchableOpacity
       style={[s.shutter, disabled && s.shutterDisabled]}
-      onPress={onCapture}
+      onPress={handlePress}
       disabled={disabled}
       activeOpacity={0.8}
     >

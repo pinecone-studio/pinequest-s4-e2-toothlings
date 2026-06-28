@@ -45,7 +45,16 @@ export const useBoardStudents = () => {
     queryKey: ['board-students'],
     queryFn: () => apiFetch<BoardStudent[]>('/api/board/students', { token }),
     enabled: !!token,
+    staleTime: 60_000,
   })
+}
+
+export type FollowUpUpdateVars = {
+  childKey: string
+  status: FollowUpStatus
+  appointmentAt?: string | null
+  notificationChannel?: 'sms' | 'call' | 'in_person' | null
+  notes?: string | null
 }
 
 export const useSetFollowUpStatus = () => {
@@ -53,8 +62,16 @@ export const useSetFollowUpStatus = () => {
   const qc = useQueryClient()
   const toast = useToast()
   return useMutation({
-    mutationFn: (vars: { childKey: string; status: FollowUpStatus }) =>
-      apiFetch(`/api/board/students/${vars.childKey}/followup`, { token, method: 'PATCH', body: { status: vars.status } }),
+    mutationFn: ({ childKey, status, appointmentAt, notificationChannel, notes }: FollowUpUpdateVars) =>
+      apiFetch(`/api/board/students/${childKey}/followup`, {
+        token, method: 'PATCH',
+        body: {
+          status,
+          ...(appointmentAt !== undefined && { appointmentAt }),
+          ...(notificationChannel !== undefined && { notificationChannel }),
+          ...(notes !== undefined && { notes }),
+        },
+      }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['board-students'] }); toast.success('Төлөв шинэчлэгдлээ') },
     onError: () => toast.error('Алдаа гарлаа — дахин оролдоно уу'),
   })

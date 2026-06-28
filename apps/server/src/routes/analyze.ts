@@ -85,6 +85,12 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
 
   return c.json({
     success: true,
-    data: { screeningId, triageLevel: triageResult.level, triageScore: triageResult.score, detections: allDetections },
+    data: {
+      screeningId,
+      triageLevel: triageResult.level,
+      triageScore: triageResult.score,
+      detections: allDetections,
+      modelVersion: c.env.MODEL_VERSION ?? 'yolov8-server',
+    },
   }, 201)
 })

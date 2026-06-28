@@ -70,7 +70,10 @@ const findingClassSchema = z.enum(['caries', 'cavity', 'crack'])
 
 export const toothFindingSchema = z.object({
   id: z.string(),
-  fdi: z.number().int().optional(),
+  fdi: z.number().int().refine(
+    (n) => { const q = Math.floor(n / 10); const t = n % 10; return (q >= 1 && q <= 4 && t >= 1 && t <= 8) || (q >= 5 && q <= 8 && t >= 1 && t <= 5) },
+    { message: 'Invalid FDI tooth code' },
+  ).optional(),
   className: findingClassSchema,
   classId: z.number().int(),
   confidence: z.number().min(0).max(1),
@@ -108,5 +111,7 @@ export const screeningCreateSchema = z.object({
   contentVersionId: z.string(),
   capturedAt: z.string(),
   deviceId: z.string().optional(),
+  consentAt: z.string().optional(),
+  consentVersion: z.string().optional(),
 })
 export type ScreeningCreateInput = z.infer<typeof screeningCreateSchema>

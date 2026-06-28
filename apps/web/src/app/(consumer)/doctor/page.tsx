@@ -36,12 +36,9 @@ const DoctorListPanel = () => {
             <p className="text-[13px] text-text-muted">{d.clinic} · {d.district}</p>
             <p className="mt-1 text-[12px] text-text-muted">Туршлага: {d.exp} · ★ {d.rating}</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <p className="text-[14px] font-semibold text-text-base">{d.price}</p>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3B900]/15 px-3 py-1.5 text-[12px] font-semibold text-[#B8860B] transition group-hover:bg-[#F3B900] group-hover:text-slate-900">
-              💬 Чатлах
-            </span>
-          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3B900]/15 px-3 py-1.5 text-[12px] font-semibold text-[#B8860B] transition group-hover:bg-[#F3B900] group-hover:text-slate-900">
+            💬 Чатлах
+          </span>
         </button>
       ))}
     </div>

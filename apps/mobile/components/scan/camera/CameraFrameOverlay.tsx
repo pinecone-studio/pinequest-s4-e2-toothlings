@@ -1,21 +1,33 @@
-import { View, Dimensions, StyleSheet } from 'react-native'
+import { useEffect, useRef } from 'react'
+import { View, Animated, Dimensions, StyleSheet } from 'react-native'
+import ToothGuide from './ToothGuide'
 
 const { width: SW, height: SH } = Dimensions.get('window')
-const FT = SH * 0.20        // frame top
-const FB = SH * 0.78        // frame bottom
-const FL = SW * 0.06        // left/right margin
+const FT = SH * 0.20
+const FB = SH * 0.78
+const FL = SW * 0.06
 const FH = FB - FT
 const C = 28
 const DARK = 'rgba(0,0,0,0.65)'
 
-// The per-tooth `ToothGuide` overlay is temporarily disabled. `mode` is kept on
-// the prop contract so callers don't change when the guide is re-enabled.
 type Props = { mode: 'upper' | 'lower' }
 
-export default function CameraFrameOverlay(_props: Props) {
+export default function CameraFrameOverlay({ mode }: Props) {
+  const pulse = useRef(new Animated.Value(0.7)).current
+
+  useEffect(() => {
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1.0, duration: 750, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0.7, duration: 750, useNativeDriver: true }),
+      ]),
+    )
+    anim.start()
+    return () => anim.stop()
+  }, [pulse])
+
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {/* Blur simulation panels */}
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: FT, backgroundColor: DARK }} />
       <View style={{ position: 'absolute', top: FB, left: 0, right: 0, bottom: 0, backgroundColor: DARK }} />
       <View style={{ position: 'absolute', top: FT, left: 0, width: FL, height: FH, backgroundColor: DARK }} />
@@ -27,7 +39,19 @@ export default function CameraFrameOverlay(_props: Props) {
       <View style={[s.c, { top: FB - C, left: FL, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: '#fff' }]} />
       <View style={[s.c, { top: FB - C, right: FL, borderBottomWidth: 3, borderRightWidth: 3, borderColor: '#fff' }]} />
 
-      {/* tooth guide hidden temporarily */}
+      {/* Tooth guide centered in the clear zone */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: FT + FH / 2 - 25,
+          left: FL,
+          right: FL,
+          alignItems: 'center',
+          opacity: pulse,
+        }}
+      >
+        <ToothGuide mode={mode} />
+      </Animated.View>
     </View>
   )
 }
