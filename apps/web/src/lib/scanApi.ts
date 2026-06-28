@@ -1,4 +1,9 @@
-import { getQuestionnaire, questionnaireSymptoms, type ScanDetection, type ScanResult } from '@/lib/consumerState'
+import {
+  getQuestionnaire,
+  questionnaireSymptoms,
+  type ScanDetection,
+  type ScanResult,
+} from '@/lib/consumerState'
 
 type AnalyzePayload = {
   triage: ScanResult['triage']
@@ -8,11 +13,29 @@ type AnalyzePayload = {
   advice: string
 }
 
+type AnalyzeErrorPayload = {
+  message?: string
+  details?: string
+}
+
 export const analyzeScanImage = async (file: File, imageUrl: string): Promise<ScanResult> => {
   const q = getQuestionnaire()
   const form = new FormData()
   form.append('image', file)
   if (q) {
+    const appendIfPresent = (key: string, value?: string) => {
+      if (value && value.trim()) form.append(key, value.trim())
+    }
+
+    appendIfPresent('childName', q.childName)
+    appendIfPresent('age', q.age)
+    appendIfPresent('lastDentalVisit', q.lastDentalVisit)
+    form.append('hasPainfulTooth', q.hasPainfulTooth)
+    appendIfPresent('painWhen', q.painWhen)
+    appendIfPresent('painSince', q.painSince)
+    form.append('feverSwelling', q.feverSwelling ?? 'no')
+    appendIfPresent('filledAt', q.filledAt)
+
     form.append('hasPain', q.hasPainfulTooth === 'yes' ? 'yes' : 'no')
     const symptoms = questionnaireSymptoms(q)
     if (symptoms.painDisturbingSleepOrEating) form.append('nightPain', 'yes')
@@ -21,9 +44,11 @@ export const analyzeScanImage = async (file: File, imageUrl: string): Promise<Sc
   }
 
   const res = await fetch('/api/inference/analyze', { method: 'POST', body: form })
-  const payload = (await res.json()) as AnalyzePayload | { message?: string }
+  const payload = (await res.json().catch(() => ({}))) as AnalyzePayload | AnalyzeErrorPayload
   if (!res.ok) {
-    throw new Error('message' in payload && payload.message ? payload.message : 'inference_failed')
+    const message = 'message' in payload && payload.message ? payload.message : 'inference_failed'
+    const details = 'details' in payload && payload.details ? `: ${payload.details}` : ''
+    throw new Error(`${message}${details}`)
   }
 
   const data = payload as AnalyzePayload
@@ -40,7 +65,14 @@ export const analyzeScanImage = async (file: File, imageUrl: string): Promise<Sc
 }
 
 export const scanErrorText = (message: string): string => {
-  if (message.includes('inference_unreachable') || message.includes('inference_not_configured')) {
+  const lower = message.toLowerCase()
+  if (lower.includes('missing_gemini_key')) {
+    return 'Gemini API түлхүүр олдсонгүй — env файлд GEMINI_API_KEY-ээ шалгана уу.'
+  }
+  if (lower.includes('gemini_parse_error') || lower.includes('gemini_failed')) {
+    return 'Gemini-аас хариу буцаагүй. Зураг тодорхой, жижиг хэмжээтэй эсэхийг шалгаад дахин оролдоно уу.'
+  }
+  if (lower.includes('inference_unreachable') || lower.includes('inference_not_configured')) {
     return 'AI сервер түр ажиллахгүй байна — хэдэн секунд хүлээгээд дахин оролдоно уу.'
   }
   if (message === 'inference_failed') return 'AI шинжилгээ амжилтгүй — дахин оролдоно уу.'
