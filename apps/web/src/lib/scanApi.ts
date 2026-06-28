@@ -1,5 +1,7 @@
 import { getQuestionnaire, questionnaireSymptoms, type ScanDetection, type ScanResult } from '@/lib/consumerState'
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
+
 type AnalyzePayload = {
   triage: ScanResult['triage']
   urgent: boolean
@@ -20,7 +22,7 @@ export const analyzeScanImage = async (file: File, imageUrl: string): Promise<Sc
     if (symptoms.swelling) form.append('feverSwelling', 'yes')
   }
 
-  const res = await fetch('/api/inference/analyze', { method: 'POST', body: form })
+  const res = await fetch(`${API_BASE}/api/inference/analyze`, { method: 'POST', body: form })
   const payload = (await res.json()) as AnalyzePayload | { message?: string }
   if (!res.ok) {
     throw new Error('message' in payload && payload.message ? payload.message : 'inference_failed')
@@ -40,8 +42,8 @@ export const analyzeScanImage = async (file: File, imageUrl: string): Promise<Sc
 }
 
 export const scanErrorText = (message: string): string => {
-  if (message.includes('inference_unreachable')) {
-    return 'AI сервер ажиллахгүй байна — `pnpm dev` дахин асаагаад хэдэн секунд хүлээнэ үү (model ачаалж байж болно).'
+  if (message.includes('inference_unreachable') || message.includes('inference_not_configured')) {
+    return 'AI сервер түр ажиллахгүй байна — хэдэн секунд хүлээгээд дахин оролдоно уу.'
   }
   if (message === 'inference_failed') return 'AI шинжилгээ амжилтгүй — дахин оролдоно уу.'
   return 'AI шинжилгээнд алдаа гарлаа — дахин оролдоно уу.'

@@ -7,12 +7,10 @@ import io
 import os
 from pathlib import Path
 
-from download_model import download
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from PIL import Image
-from ultralytics import YOLO
 
 PORT = int(os.environ.get("INFERENCE_PORT", "8765"))
 CONFIDENCE = float(os.environ.get("INFERENCE_CONF", "0.25"))
@@ -30,12 +28,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model: YOLO | None = None
+model = None
 
 
-def get_model() -> YOLO:
+def get_model():
     global model
     if model is None:
+        try:
+            from ultralytics import YOLO
+            from download_model import download
+        except ImportError as exc:
+            raise HTTPException(503, f"Inference unavailable: {exc}. Install ultralytics.") from exc
         weights = download()
         model = YOLO(str(weights))
     return model

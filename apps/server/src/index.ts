@@ -11,6 +11,7 @@ import { boardRoutes } from './routes/board.js'
 import { helpRoutes } from './routes/help.js'
 import { childRoutes } from './routes/children.js'
 import { analyzeRoutes } from './routes/analyze.js'
+import { inferencePublicRoutes } from './routes/inferencePublic.js'
 import { screeningRoutes } from './routes/screenings.js'
 import { followUpRoutes } from './routes/followups.js'
 import { userRoutes } from './routes/users.js'
@@ -36,6 +37,7 @@ app.route('/api/board', boardRoutes)
 app.route('/api/help', helpRoutes)
 app.route('/api', childRoutes)
 app.route('/api/screenings', analyzeRoutes) // /analyze literal before /:id param
+app.route('/api/inference', inferencePublicRoutes)
 app.route('/api/screenings', screeningRoutes)
 app.route('/api/followups', followUpRoutes)
 app.route('/api/users', userRoutes)

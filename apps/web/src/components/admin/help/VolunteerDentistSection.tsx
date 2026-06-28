@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import type { BoardStudent } from '@/hooks/useBoard'
 import type { ChildSummaryPayload } from '@/hooks/useChildSummary'
 import { useVolunteerDentists, useRequestHelp } from '@/hooks/useHelp'
@@ -23,8 +23,24 @@ export const VolunteerDentistSection = ({ student, detail }: Props) => {
   const requestHelp = useRequestHelp()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [requested, setRequested] = useState<string | null>(null)
+  const [distances, setDistances] = useState<Record<string, number>>({})
 
-  const headline = detail?.summary?.headline
+  const handleDistances = useCallback((d: Record<string, number>) => {
+    setDistances(d)
+    // Auto-select the closest dentist that has a location
+    const closest = Object.entries(d).sort(([, a], [, b]) => a - b)[0]
+    if (closest) setSelectedId(closest[0])
+  }, [])
+
+  // Sort by distance when available, otherwise preserve server order
+  const sorted = useMemo(() => {
+    if (Object.keys(distances).length === 0) return dentists
+    return [...dentists].sort((a, b) => {
+      const da = distances[a.id] ?? Infinity
+      const db = distances[b.id] ?? Infinity
+      return da - db
+    })
+  }, [dentists, distances])
 
   const handleConnect = (dentist: VolunteerDentist) => {
     if (requested === dentist.id) return
@@ -33,6 +49,8 @@ export const VolunteerDentistSection = ({ student, detail }: Props) => {
       { onSuccess: () => setRequested(dentist.id) }
     )
   }
+
+  const headline = detail?.summary?.headline
 
   return (
     <div className="mt-4 space-y-3 rounded-2xl border border-triage-red/30 bg-red-50/40 p-4">
@@ -55,36 +73,45 @@ export const VolunteerDentistSection = ({ student, detail }: Props) => {
           dentists={dentists}
           selectedId={selectedId}
           onSelect={(d) => setSelectedId(d.id)}
+          onDistancesReady={handleDistances}
           className="h-full w-full"
         />
       </div>
 
       <div className="space-y-2">
         <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
-          Боломжтой эмч нар {isLoading ? '…' : `(${dentists.length})`}
+          Холбогдох боломжтой шүдний эмч{isLoading ? '…' : `(${dentists.length})`}
+          {Object.keys(distances).length > 0 && (
+            <span className="ml-1 normal-case text-primary">· Ойролцоогоор эрэмблэгдсэн</span>
+          )}
         </p>
         {isLoading ? (
           <div className="space-y-2">
-            {[0, 1].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-2xl bg-surface-raised" />
-            ))}
+            {[0, 1].map((i) => <div key={i} className="h-16 animate-pulse rounded-2xl bg-surface-raised" />)}
           </div>
-        ) : dentists.length === 0 ? (
+        ) : sorted.length === 0 ? (
           <p className="text-[13px] text-text-muted">Одоогоор боломжтой сайн дурын эмч байхгүй.</p>
         ) : (
           <div className="max-h-56 overflow-y-auto space-y-2 pr-1">
-            {dentists.map((d) => (
-              <DentistProfileCard
-                key={d.id}
-                dentist={d}
-                active={selectedId === d.id}
-                connecting={requestHelp.isPending && selectedId === d.id}
-                onConnect={requested === d.id ? undefined : () => {
-                  setSelectedId(d.id)
-                  handleConnect(d)
-                }}
-              />
-            ))}
+            {sorted.map((d) => {
+              const dist = distances[d.id]
+              return (
+                <div key={d.id}>
+                  <DentistProfileCard
+                    dentist={d}
+                    active={selectedId === d.id}
+                    connecting={requestHelp.isPending && selectedId === d.id}
+                    onConnect={requested === d.id ? undefined : () => {
+                      setSelectedId(d.id)
+                      handleConnect(d)
+                    }}
+                  />
+                  {dist != null && (
+                    <p className="ml-3 mt-0.5 text-[10px] text-primary font-medium">📍 {dist.toFixed(0)} км</p>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
