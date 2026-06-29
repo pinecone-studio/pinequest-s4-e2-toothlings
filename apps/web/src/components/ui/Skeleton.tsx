@@ -1,9 +1,11 @@
 import type { CSSProperties } from 'react'
+import { cn } from '@/lib/utils'
 
 type Props = { className?: string; rows?: number; gap?: number }
 
-const Skeleton = ({ className = '', style }: { className?: string; style?: CSSProperties }) => (
-  <div className={`skeleton rounded-lg ${className}`} style={style} />
+// cn/twMerge so callers can override the default radius (e.g. rounded-2xl) cleanly.
+const Skeleton = ({ className, style }: { className?: string; style?: CSSProperties }) => (
+  <div className={cn('skeleton rounded-lg', className)} style={style} />
 )
 
 export const SkeletonCard = ({ rows = 3 }: Props) => (

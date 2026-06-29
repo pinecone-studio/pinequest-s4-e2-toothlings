@@ -1,7 +1,6 @@
 import {
   Squares2X2Icon,
   UserIcon,
-  ClipboardDocumentCheckIcon,
   ClipboardDocumentListIcon,
   ChartBarIcon,
   UsersIcon,
@@ -33,10 +32,9 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   admin:        [OVERVIEW, SCREENING, BRUSH_NAV, FOLLOWUP, SUMMARY, TRENDS, TEACHERS],
   school_doctor:[OVERVIEW, SCREENING, BRUSH_NAV, FOLLOWUP, SUMMARY, TRENDS, TEACHERS],
   teacher:      [OVERVIEW, SCREENING, BRUSH_NAV, FOLLOWUP, SUMMARY, TRENDS],
-  parent:       [{ href: '/dashboard/child', label: 'Хүүхэд', Icon: UserIcon }],
+  parent:       [{ href: '/dashboard/child', label: 'Дүгнэлт', Icon: UserIcon }],
   dentist: [
-    { href: '/dashboard/dentist', label: 'Хяналт', Icon: ClipboardDocumentCheckIcon, badgeKey: 'review' },
-    { href: '/dashboard/dentist/help', label: 'Тусламж', Icon: HandRaisedIcon },
+    { href: '/dashboard/dentist/help', label: 'Дуудлага', Icon: HandRaisedIcon },
   ],
   follow_up: [{ href: '/dashboard/follow-up', label: 'Хяналтын самбар', Icon: ClipboardDocumentListIcon }],
   screener:  [OVERVIEW, SCREENING, BRUSH_NAV],

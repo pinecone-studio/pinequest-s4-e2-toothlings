@@ -50,6 +50,34 @@
       "when": 1782700000000,
       "tag": "0006_volunteer_and_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1782800000000,
+      "tag": "0007_appointment_and_dentist_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1782900000000,
+      "tag": "0008_appointment_dentist_note",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1783000000000,
+      "tag": "0009_call_invites",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1783100000000,
+      "tag": "0010_dentist_blocks",
+      "breakpoints": true
     }
   ]
 }

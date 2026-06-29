@@ -4,18 +4,29 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid'
+import type { MouseEvent } from 'react'
 import { useSession } from '@/components/providers'
 import { useReviewQueue } from '@/hooks/useScreening'
 import { useFollowUps } from '@/hooks/useFollowUps'
 import { NAV_BY_ROLE } from './navConfig'
+import { useRouteTransition } from './RouteTransition'
 import { cn } from '@/lib/utils'
 
 const Sidebar = () => {
   const pathname = usePathname()
   const router = useRouter()
   const { role, logout } = useSession()
+  const { navigate, pendingHref } = useRouteTransition()
   const onLogout = () => { logout(); router.push('/') }
   const items = role ? (NAV_BY_ROLE[role] ?? []) : []
+
+  // Route through the transition for a branded loading status; let modified
+  // clicks (new tab, etc.) fall through to the real <Link href>.
+  const onNavClick = (e: MouseEvent, href: string) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
+    navigate(href)
+  }
 
   // Notification counts relocated here from the old TopBar — surfaced as a dot
   // on the relevant rail icon (no separate bell).
@@ -37,12 +48,16 @@ const Sidebar = () => {
 
       <nav className="flex flex-1 flex-col items-center gap-2" aria-label="Үндсэн цэс">
         {items.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(item.href + '/')
+          // During a pending nav, light up the destination immediately.
+          const active = pendingHref
+            ? pendingHref === item.href
+            : pathname === item.href || pathname.startsWith(item.href + '/')
           const badge = item.badgeKey ? (counts[item.badgeKey] ?? 0) : 0
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={(e) => onNavClick(e, item.href)}
               aria-current={active ? 'page' : undefined}
               aria-label={item.label}
               className="group flex w-full flex-col items-center gap-1"

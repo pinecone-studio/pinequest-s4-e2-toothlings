@@ -18,8 +18,8 @@ helpRoutes.get('/volunteer', authorize('dentist', 'admin'), async (c) => {
 helpRoutes.post('/volunteer', authorize('dentist', 'admin'), async (c) => {
   const db = c.get('db')
   const userId = c.get('jwtPayload').sub
-  const { displayName, org, area, isAvailable, specialty, lat, lng, avatarUrl } =
-    await c.req.json<{ displayName: string; org?: string; area?: string; isAvailable?: boolean; specialty?: string; lat?: number; lng?: number; avatarUrl?: string }>()
+  const { displayName, org, area, isAvailable, specialty, lat, lng, avatarUrl, experienceYears, licenseNo } =
+    await c.req.json<{ displayName: string; org?: string; area?: string; isAvailable?: boolean; specialty?: string; lat?: number; lng?: number; avatarUrl?: string; experienceYears?: number; licenseNo?: string }>()
   if (!displayName?.trim()) return c.json({ success: false, data: null, message: 'invalid_input' }, 400)
   const set = {
     displayName: displayName.trim(),
@@ -27,6 +27,8 @@ helpRoutes.post('/volunteer', authorize('dentist', 'admin'), async (c) => {
     org: org?.trim() || null,
     area: area?.trim() || null,
     avatarUrl: avatarUrl?.trim() || null,
+    experienceYears: experienceYears ?? null,
+    licenseNo: licenseNo?.trim() || null,
     lat: lat ?? null,
     lng: lng ?? null,
     isAvailable: isAvailable ?? true,
@@ -37,8 +39,10 @@ helpRoutes.post('/volunteer', authorize('dentist', 'admin'), async (c) => {
   return c.json({ success: true, data: row })
 })
 
-const selectVolunteers = (db: ReturnType<typeof import('@pinequest/db/d1').createDb>) =>
-  db.select({
+// onlyAvailable=true → just dentists open to new cases (board "find a dentist" flow).
+// onlyAvailable=false → every volunteer, so the picker can SHOW availability status.
+const selectVolunteers = (db: ReturnType<typeof import('@pinequest/db/d1').createDb>, onlyAvailable: boolean) => {
+  const q = db.select({
     id: volunteerDentists.id,
     userId: volunteerDentists.userId,
     displayName: volunteerDentists.displayName,
@@ -46,6 +50,8 @@ const selectVolunteers = (db: ReturnType<typeof import('@pinequest/db/d1').creat
     org: volunteerDentists.org,
     area: volunteerDentists.area,
     avatarUrl: volunteerDentists.avatarUrl,
+    experienceYears: volunteerDentists.experienceYears,
+    licenseNo: volunteerDentists.licenseNo,
     lat: volunteerDentists.lat,
     lng: volunteerDentists.lng,
     isAvailable: volunteerDentists.isAvailable,
@@ -53,17 +59,18 @@ const selectVolunteers = (db: ReturnType<typeof import('@pinequest/db/d1').creat
   })
   .from(volunteerDentists)
   .leftJoin(users, eq(users.id, volunteerDentists.userId))
-  .where(eq(volunteerDentists.isAvailable, true))
+  return onlyAvailable ? q.where(eq(volunteerDentists.isAvailable, true)) : q
+}
 
-// Available volunteers — all (admin/dentist use) and red-only filtered (for board panel).
+// Full volunteer list (mobile dentist picker) — includes busy ones so the card shows status.
 helpRoutes.get('/volunteers', authenticate, async (c) => {
-  const rows = await selectVolunteers(c.get('db'))
+  const rows = await selectVolunteers(c.get('db'), false)
   return c.json({ success: true, data: rows })
 })
 
-// Volunteers ready to take RED cases — same list but semantically scoped to board "find dentist" flow.
+// Volunteers ready to take RED cases — available-only, for the board "find dentist" flow.
 helpRoutes.get('/volunteers/red', authenticate, async (c) => {
-  const rows = await selectVolunteers(c.get('db'))
+  const rows = await selectVolunteers(c.get('db'), true)
   return c.json({ success: true, data: rows })
 })
 

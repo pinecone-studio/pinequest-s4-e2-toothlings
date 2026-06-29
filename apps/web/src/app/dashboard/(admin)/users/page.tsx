@@ -19,7 +19,7 @@ import { useSetPageHeader } from '@/components/shell/ShellHeaderContext'
 
 const ROLE_LABEL: Record<UserRole, string> = {
   screener: 'Хэрэглэгч', teacher: 'Багш', parent: 'Эцэг эх', school_doctor: 'Сургуулийн эмч',
-  dentist: 'Шүдний эмч', follow_up: 'Сайн дурын шүдний эмч', admin: 'Админ',
+  dentist: 'Шүдний эмч', follow_up: 'Эмчийн хяналтын самбар', admin: 'Админ',
 }
 const ROLE_OPTS: DropdownOption<UserRole>[] = [
   { value: 'teacher',       label: 'Багш',           Icon: AcademicCapIcon },

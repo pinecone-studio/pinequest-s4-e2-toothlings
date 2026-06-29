@@ -211,6 +211,8 @@ export type VolunteerDentist = {
   org: string | null
   area: string | null
   avatarUrl: string | null
+  experienceYears: number | null
+  licenseNo: string | null
   lat: number | null
   lng: number | null
   isAvailable: boolean
@@ -219,6 +221,33 @@ export type VolunteerDentist = {
 
 export const getVolunteerDentists = () =>
   apiFetch<VolunteerDentist[]>('/api/help/volunteers')
+
+export type Appointment = {
+  id: string
+  dentistId: string
+  childKey: string
+  schoolId: string
+  level: 'red' | 'yellow'
+  scheduledAt: number
+  roomName: string
+  status: string
+  createdById: string
+  createdAt: number
+  /** Full Jitsi room URL to open the video call (PII-free). */
+  roomUrl: string
+}
+
+/** Book a video call with a volunteer dentist for a flagged child. */
+export const createAppointment = (
+  dentistId: string,
+  childKey: string,
+  scheduledAt: string,
+  level: 'red' | 'yellow' = 'red',
+) =>
+  apiFetch<Appointment>('/api/appointments', {
+    method: 'POST',
+    body: JSON.stringify({ dentistId, childKey, scheduledAt, level }),
+  })
 
 export type AnalyzeMeta = {
   childKey: string

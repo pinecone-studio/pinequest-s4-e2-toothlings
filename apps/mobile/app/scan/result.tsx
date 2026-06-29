@@ -89,7 +89,7 @@ export default function ResultScreen() {
         <ResultDetectionList detections={allDetections} />
         <ResultSummary summary={summary} level={level} />
         {level === 'yellow' && <ResultYellowAdvice />}
-        {level === 'red' && <ResultRedAdvice guardianPhone={params.guardianPhone} />}
+        {level === 'red' && <ResultRedAdvice guardianPhone={params.guardianPhone} childKey={params.childKey} />}
         <ResultBottomActions
           screeningId={screeningId}
           onRetake={() => router.replace({

@@ -53,7 +53,7 @@ export const HOME_FEATURES: Array<{
   {
     id: 'doctor',
     href: ROUTES.doctor.root,
-    label: 'Тусламж',
+    label: 'Дуудлага',
     desc: 'Эмч, чат, ойрын эмнэлэг',
     emoji: '🩺',
   },

@@ -27,7 +27,9 @@ const STATUS_CLS: Record<FollowUpStatus, string> = {
   season_cleared:    'bg-triage-green-bg text-triage-green',
 }
 
-export const FollowUpRow = ({ row }: { row: Row }) => {
+type RowProps = { row: Row; onSelect?: () => void; selected?: boolean }
+
+export const FollowUpRow = ({ row, onSelect, selected }: RowProps) => {
   const update = useUpdateFollowUp()
   const notify = useNotify()
 
@@ -41,8 +43,16 @@ export const FollowUpRow = ({ row }: { row: Row }) => {
   const st = (row.status as FollowUpStatus) ?? 'flagged'
 
   return (
-    <tr className="border-b border-border last:border-0">
-      <td className="px-4 py-3 text-sm text-text-base">{row.childName ?? row.childKey}</td>
+    <tr className={`border-b border-border last:border-0 ${selected ? 'bg-primary-subtle' : ''}`}>
+      <td className="px-4 py-3 text-sm text-text-base">
+        {onSelect ? (
+          <button onClick={onSelect} className={`text-left hover:underline ${selected ? 'font-semibold text-primary' : ''}`}>
+            {row.childName ?? row.childKey}
+          </button>
+        ) : (
+          row.childName ?? row.childKey
+        )}
+      </td>
       <td className="px-4 py-3 text-sm">
         {row.guardianPhone ? (
           <button onClick={onSms} disabled={notify.isPending} className="font-mono text-xs text-primary hover:underline disabled:opacity-50">

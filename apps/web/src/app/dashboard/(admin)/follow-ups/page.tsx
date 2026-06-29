@@ -5,6 +5,7 @@ import type { FollowUpStatus } from '@pinequest/types'
 import { useBoardStudents, useSendToParent, useSetFollowUpStatus, type BoardStudent } from '@/hooks/useBoard'
 import KanbanColumn from '@/components/admin/follow-up/KanbanColumn'
 import FollowUpEditModal from '@/components/admin/follow-up/FollowUpEditModal'
+import BoardDentistPanel from '@/components/admin/help/BoardDentistPanel'
 import EmptyState from '@/components/ui/EmptyState'
 import { SkeletonKanban } from '@/components/ui/Skeleton'
 import Button from '@/components/ui/Button'
@@ -117,28 +118,31 @@ const FollowUpBoard = () => {
       ) : flagged.length === 0 ? (
         <EmptyState Icon={ClipboardDocumentListIcon} title="Хяналт шаардлагатай сурагч алга" hint="Улаан/шар төлөвтэй сурагч гарвал энд харагдана." />
       ) : (
-        <div className="flex gap-5 overflow-x-auto px-0.5 pb-2">
-          {COLUMNS.map((col) => (
-            <KanbanColumn
-              key={col.status}
-              col={col}
-              cards={byStatus[col.status] ?? []}
-              limit={colPages[col.status] ?? PAGE_SIZE}
-              pageSize={PAGE_SIZE}
-              isOver={dragOverCol === col.status}
-              draggingKey={draggingKey}
-              onDragOver={() => setDragOverCol(col.status)}
-              onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverCol(null) }}
-              onDrop={() => onDrop(col.status)}
-              onSend={(s) => { void send(s).catch(() => {}) }}
-              onStatus={(childKey, st) => setStatus.mutate({ childKey, status: st })}
-              onEdit={setEditing}
-              onDragStart={setDraggingKey}
-              onDragEnd={() => { setDraggingKey(null); setDragOverCol(null) }}
-              onShowMore={() => setColPages((p) => ({ ...p, [col.status]: (p[col.status] ?? PAGE_SIZE) + PAGE_SIZE }))}
-              onCollapse={() => setColPages((p) => ({ ...p, [col.status]: PAGE_SIZE }))}
-            />
-          ))}
+        <div className="flex min-h-0 flex-col gap-5 lg:flex-row lg:items-start">
+          <div className="flex min-w-0 flex-1 gap-5 overflow-x-auto px-0.5 pb-2">
+            {COLUMNS.map((col) => (
+              <KanbanColumn
+                key={col.status}
+                col={col}
+                cards={byStatus[col.status] ?? []}
+                limit={colPages[col.status] ?? PAGE_SIZE}
+                pageSize={PAGE_SIZE}
+                isOver={dragOverCol === col.status}
+                draggingKey={draggingKey}
+                onDragOver={() => setDragOverCol(col.status)}
+                onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverCol(null) }}
+                onDrop={() => onDrop(col.status)}
+                onSend={(s) => { void send(s).catch(() => {}) }}
+                onStatus={(childKey, st) => setStatus.mutate({ childKey, status: st })}
+                onEdit={setEditing}
+                onDragStart={setDraggingKey}
+                onDragEnd={() => { setDraggingKey(null); setDragOverCol(null) }}
+                onShowMore={() => setColPages((p) => ({ ...p, [col.status]: (p[col.status] ?? PAGE_SIZE) + PAGE_SIZE }))}
+                onCollapse={() => setColPages((p) => ({ ...p, [col.status]: PAGE_SIZE }))}
+              />
+            ))}
+          </div>
+          <BoardDentistPanel students={flagged} />
         </div>
       )}
 

@@ -2,8 +2,7 @@
 import { LazyMotion, domAnimation } from 'framer-motion'
 import { LenisProvider } from './LenisProvider'
 import { Header } from './Header'
-import { HeroWordmark } from './HeroWordmark'
-import { Hero } from './hero/Hero'
+import { MouthOpenIntro } from './intro/MouthOpenIntro'
 import { TeamSection } from './TeamSection'
 import { StatsSection } from './StatsSection'
 import { VideoSection } from './VideoSection'
@@ -26,8 +25,7 @@ export const Landing = () => (
       <LenisProvider>
         <div className="landing-wrap">
           <Header />
-          <HeroWordmark />
-          <Hero />
+          <MouthOpenIntro />
           <TeamSection />
           <StatsSection />
           <VideoSection />

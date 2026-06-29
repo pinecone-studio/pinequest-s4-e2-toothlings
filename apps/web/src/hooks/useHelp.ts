@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
 import { useSession } from '@/components/providers'
+import { useToast } from '@/components/ui/Toast'
 
 export type HelpRequestRow = {
   id: string
@@ -24,12 +25,30 @@ export type VolunteerDentist = {
   org: string | null
   area: string | null
   avatarUrl: string | null
+  experienceYears: number | null
+  licenseNo: string | null
   lat: number | null
   lng: number | null
   isAvailable: boolean
+  phone: string | null
 }
 
 export type VolunteerProfile = VolunteerDentist | null
+
+export type Appointment = {
+  id: string
+  dentistId: string
+  childKey: string
+  schoolId: string
+  level: 'red' | 'yellow'
+  scheduledAt: number
+  roomName: string
+  status: string
+  createdById: string
+  createdAt: number
+  /** Full Jitsi room URL for the video call (PII-free). */
+  roomUrl: string
+}
 
 export const useHelpRequests = () => {
   const { token } = useSession()
@@ -56,6 +75,34 @@ export const useVolunteerDentists = () => {
     queryFn: () => apiFetch<VolunteerDentist[]>('/api/help/volunteers/red', { token }),
     enabled: !!token,
     staleTime: 60_000,
+  })
+}
+
+// Full volunteer list incl. busy ones — so the picker can SHOW availability status.
+export const useAllVolunteerDentists = () => {
+  const { token } = useSession()
+  return useQuery({
+    queryKey: ['help-volunteers-all'],
+    queryFn: () => apiFetch<VolunteerDentist[]>('/api/help/volunteers', { token }),
+    enabled: !!token,
+    staleTime: 60_000,
+  })
+}
+
+// Book a video-call appointment between a flagged child and a volunteer dentist.
+export const useCreateAppointment = () => {
+  const { token } = useSession()
+  const qc = useQueryClient()
+  const toast = useToast()
+  return useMutation({
+    mutationFn: (body: { dentistId: string; childKey: string; scheduledAt: string; level: 'red' | 'yellow' }) =>
+      apiFetch<Appointment>('/api/appointments', { token, method: 'POST', body }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['help-requests'] })
+      qc.invalidateQueries({ queryKey: ['appointments'] })
+      toast.success('Видео дуудлагын цаг амжилттай товлогдлоо')
+    },
+    onError: () => toast.error('Цаг товлоход алдаа гарлаа. Дахин оролдоно уу.'),
   })
 }
 

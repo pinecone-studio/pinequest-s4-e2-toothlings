@@ -4,7 +4,7 @@ import { WelcomeDisclaimer } from '@/components/auth/WelcomeDisclaimer'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Toothlings — Админ самбар',
+  title: 'Toothlings',
   description: 'Шүдний цоорол илрүүлэх скрининг — ростер ба хяналтын самбар',
 }
 

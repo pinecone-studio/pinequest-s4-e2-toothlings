@@ -73,7 +73,7 @@ const ScheduleCalendar = () => {
 
       <div className="mt-3 border-t border-border-muted pt-3">
         {selEvents.length === 0 ? (
-          <p className="text-[11px] text-text-muted">Энэ өдөр товлогоо алга.</p>
+          <p className="text-[11px] text-text-muted">Энэ өдөр төлөвлөгөө алга.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {selEvents.map((e) => (
@@ -83,7 +83,7 @@ const ScheduleCalendar = () => {
                   <p className="truncate text-[12px] font-medium text-text-base">{e.title}</p>
                   <p className="text-[10px] text-text-muted">
                     {new Date(e.date).toLocaleTimeString('mn-MN', { hour: '2-digit', minute: '2-digit' })}
-                    {e.kind === 'visit' ? ' · Үзүүлэлт айлчлал' : ' · Дагалт'}
+                    {e.kind === 'visit' ? 'Дараагийн хяналт' : 'Хяналт'}
                   </p>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { users, schools, schoolClasses, type DB } from '@pinequest/db/d1'
 import { seedDemo } from './seedDemo.js'
+import { seedDentists } from './seedDentists.js'
 
 // Idempotent dev seed. Login: admin@screener.mn / admin123
 export const runSeed = async (db: DB): Promise<{ adminId: string }> => {
@@ -13,6 +14,7 @@ export const runSeed = async (db: DB): Promise<{ adminId: string }> => {
   await db.insert(schoolClasses).values({ id: 'class-demo', schoolId: 'school-demo', name: '3А', seasonId: '2026-spring', gradeLevel: 3 }).onConflictDoNothing()
 
   await seedDemo(db, adminId) // children + screenings + findings + reviews + follow-ups
+  await seedDentists(db, passwordHash) // 3 volunteer dentists for the mobile picker
 
   return { adminId }
 }

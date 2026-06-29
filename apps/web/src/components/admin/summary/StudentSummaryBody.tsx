@@ -6,6 +6,7 @@ import type { BoardStudent } from '@/hooks/useBoard'
 import type { ChildSummaryPayload } from '@/hooks/useChildSummary'
 import { childSummaryNarrative } from '@pinequest/core'
 import { ImageGallery, QuestionnairePanel, HospitalGuidePanel, TRIAGE_BADGE, TRIAGE_LABEL } from './SummaryPanels'
+import Skeleton from '@/components/ui/Skeleton'
 import { formatSeason } from '@/lib/season'
 
 type Props = {
@@ -38,7 +39,7 @@ const StudentSummaryBody = ({ student, detail, isLoading, statusSlot }: Props) =
         )}
       </div>
 
-      {isLoading && <div className="skeleton h-28 rounded-2xl" />}
+      {isLoading && <Skeleton className="h-28 rounded-2xl" />}
       {detail?.questionnaire && <QuestionnairePanel q={detail.questionnaire} />}
 
       <div className="rounded-2xl bg-surface-raised px-4">

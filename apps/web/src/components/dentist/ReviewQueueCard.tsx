@@ -29,18 +29,12 @@ const ReviewQueueCard = ({ row }: { row: QueueRow }) => {
       <span className="font-mono text-[12px] text-text-muted">{row.childKey.slice(0, 16)}…</span>
 
       <div className="mt-1 flex items-center gap-2">
-        <button
-          onClick={() => submit.mutate({ confirmedLevel: lvl })}
-          disabled={submit.isPending || submit.isSuccess}
-          className="btn flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2 text-[12px] font-semibold text-text-on-primary transition-all duration-150 hover:bg-primary-hover disabled:opacity-60"
-        >
-          {submit.isPending ? <Spinner /> : submit.isSuccess ? <><CheckIcon className="size-4" /> Батлагдсан</> : 'Батлах'}
-        </button>
+     
         <Link
           href={`/dashboard/dentist/screenings/${row.id}`}
           className="btn rounded-full border border-border px-3 py-2 text-[12px] font-medium text-text-muted transition-colors hover:border-primary hover:text-primary"
         >
-          Хянах
+          Холбогдох
         </Link>
       </div>
     </div>

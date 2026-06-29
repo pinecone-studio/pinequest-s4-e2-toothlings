@@ -9,6 +9,9 @@ import { classRoutes } from './routes/classes.js'
 import { teacherRoutes } from './routes/teacher.js'
 import { boardRoutes } from './routes/board.js'
 import { helpRoutes } from './routes/help.js'
+import { appointmentRoutes } from './routes/appointments.js'
+import { callRoutes } from './routes/calls.js'
+import { availabilityRoutes } from './routes/availability.js'
 import { childRoutes } from './routes/children.js'
 import { analyzeRoutes } from './routes/analyze.js'
 import { inferencePublicRoutes } from './routes/inferencePublic.js'
@@ -35,6 +38,9 @@ app.route('/api', classRoutes)
 app.route('/api/teacher', teacherRoutes)
 app.route('/api/board', boardRoutes)
 app.route('/api/help', helpRoutes)
+app.route('/api/appointments', appointmentRoutes)
+app.route('/api/calls', callRoutes)
+app.route('/api/availability', availabilityRoutes)
 app.route('/api', childRoutes)
 app.route('/api/screenings', analyzeRoutes) // /analyze literal before /:id param
 app.route('/api/inference', inferencePublicRoutes)

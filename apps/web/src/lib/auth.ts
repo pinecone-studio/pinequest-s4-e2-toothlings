@@ -27,7 +27,7 @@ type JwtPayload = { sub: string; role: UserRole; schoolId?: string; exp?: number
 /** Landing route for a role after login/registration. */
 export const homeForRole = (role: UserRole | string | null): string => {
   if (role === 'parent') return '/dashboard/child'
-  if (role === 'dentist') return '/dashboard/dentist'
+  if (role === 'dentist') return '/dashboard/dentist/help'
   if (role === 'follow_up') return '/dashboard/follow-up'
   return '/dashboard'
 }

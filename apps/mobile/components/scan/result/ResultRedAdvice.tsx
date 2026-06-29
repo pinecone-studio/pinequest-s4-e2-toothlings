@@ -1,10 +1,11 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useTheme } from '@/lib/ThemeContext'
+import VolunteerDentistPanel from './VolunteerDentistPanel'
 
-type Props = { guardianPhone?: string }
+type Props = { guardianPhone?: string; childKey?: string }
 
-export default function ResultRedAdvice({ guardianPhone }: Props) {
+export default function ResultRedAdvice({ guardianPhone, childKey }: Props) {
   const { colors } = useTheme()
   const router = useRouter()
 
@@ -40,6 +41,7 @@ export default function ResultRedAdvice({ guardianPhone }: Props) {
       <TouchableOpacity style={[s.hospitalBtn, { backgroundColor: colors.triageRedBg }]} onPress={() => router.push('/(tabs)/hospital' as never)}>
         <Text style={[s.hospitalBtnText, { color: colors.triageRedText }]}>Ойр эмнэлэг хайх</Text>
       </TouchableOpacity>
+      {!!childKey && <VolunteerDentistPanel childKey={childKey} />}
     </View>
   )
 }
