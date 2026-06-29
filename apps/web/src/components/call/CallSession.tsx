@@ -51,7 +51,7 @@ const CallSession = ({ roomId }: { roomId: string }) => {
 
       <div className="absolute inset-x-0 top-0 flex justify-center p-4">
         <span className="flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-[13px] font-medium text-white">
-          <span className="size-2 rounded-full bg-green-400" /> {status === 'connected' ? fmt(secs) : 'Холбогдож байна'}
+          <span className="size-2 rounded-full bg-triage-green" /> {status === 'connected' ? fmt(secs) : 'Холбогдож байна'}
         </span>
       </div>
 
@@ -60,7 +60,7 @@ const CallSession = ({ roomId }: { roomId: string }) => {
 
       <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-4 p-8">
         <button onClick={toggleMic} aria-label="Микрофон" className={`flex size-14 items-center justify-center rounded-full transition ${micOn ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-white text-[#10141c]'}`}><MicrophoneIcon className="size-6" /></button>
-        <button onClick={() => { hangUp(); leave() }} aria-label="Таслах" className="flex size-16 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700"><PhoneXMarkIcon className="size-7" /></button>
+        <button onClick={() => { hangUp(); leave() }} aria-label="Таслах" className="flex size-16 items-center justify-center rounded-full bg-triage-red text-white transition hover:opacity-90"><PhoneXMarkIcon className="size-7" /></button>
         <button onClick={toggleCam} aria-label="Камер" className={`flex size-14 items-center justify-center rounded-full transition ${camOn ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-white text-[#10141c]'}`}>{camOn ? <VideoCameraIcon className="size-6" /> : <VideoCameraSlashIcon className="size-6" />}</button>
       </div>
     </div>

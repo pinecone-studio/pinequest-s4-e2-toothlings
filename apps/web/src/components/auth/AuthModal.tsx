@@ -67,7 +67,7 @@ const AuthModal = ({ open, onClose, initialMode = 'login' }: Props) => {
         </div>
 
         {/* top toggle tabs */}
-        <div className="mb-5 flex rounded-xl bg-surface-raised p-1">
+        <div className="mb-5 flex rounded-full bg-surface-raised p-1">
           {(['login', 'register'] as AuthMode[]).map((m) => (
             <button
               key={m}

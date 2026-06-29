@@ -56,7 +56,7 @@ const InstructionsPanel = () => (
           className="size-full border-0"
         />
       </div>
-      <div className="border-t border-[#E8E4DA]/60 px-5 py-4">
+      <div className="border-t border-[#E0E0E0]/60 px-5 py-4">
         <p className="text-[15px] font-semibold text-slate-900">Видео заавар</p>
         <p className="mt-1 text-[13px] text-text-muted">Bass угаалгын техник — 2 минут</p>
         <a
@@ -187,7 +187,7 @@ const MonitorPanel = () => {
             {String(activeSeconds % 60).padStart(2, '0')}
           </p>
           <p className="text-[13px] text-slate-500">Зорилт 02:00 (бодит хөдөлгөөн)</p>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#F0EBE3]">
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#E8E8E8]">
             <div
               className="h-full rounded-full bg-[#F3B900] transition-all"
               style={{ width: `${Math.min(100, (activeSeconds / SESSION_TARGET_SECONDS) * 100)}%` }}

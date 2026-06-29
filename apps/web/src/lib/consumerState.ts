@@ -173,6 +173,12 @@ export const addChildName = (name: string): string[] => {
   return next
 }
 
+export const removeChildName = (name: string): string[] => {
+  const next = getChildNames().filter((n) => n !== name)
+  write(CHILD_NAMES_KEY, next)
+  return next
+}
+
 export const getAppointment = (): Appointment =>
   read(APPOINTMENT_KEY) ?? {
     doctorName: 'Dr. Batbold',
@@ -180,6 +186,9 @@ export const getAppointment = (): Appointment =>
     datetime: new Date(Date.now() + 3 * 86400000).toISOString(),
     address: 'БЗД, 15-р хороо, Smile Dental',
   }
+
+/** Parent self-books a visit time (infra-free; no server). Last write wins. */
+export const saveAppointment = (appt: Appointment): void => write(APPOINTMENT_KEY, appt)
 
 export const DEMO_SCAN_RESULT = (imageUrl: string): ScanResult => ({
   id: `scan-${Date.now()}`,

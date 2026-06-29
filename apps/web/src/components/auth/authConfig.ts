@@ -13,12 +13,12 @@ export const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
 // Padding + text size mirror Dropdown's `md` trigger (px-3 py-2 text-[13px])
 // so inputs and dropdown buttons render at the same height.
 export const inputCls =
-  'w-full rounded-xl border border-border bg-surface px-3 py-2 text-[13px] text-text-base placeholder:text-text-muted transition-all duration-150 hover:border-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40'
+  'w-full rounded-full border border-border bg-surface px-3 py-2 text-[13px] text-text-base placeholder:text-text-muted transition-all duration-150 hover:border-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40'
 
 export const selectCls = `${inputCls} cursor-pointer appearance-none pr-9`
 
 export const submitCls =
-  'btn mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-[14px] font-semibold text-text-on-primary shadow-(--shadow-card) transition-all duration-150 hover:bg-primary-hover active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50'
+  'btn mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-3 py-2.5 text-[14px] font-semibold text-text-on-primary shadow-(--shadow-card) transition-all duration-150 hover:bg-primary-hover active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50'
 
 /** Map a server/validation error code to Mongolian copy. Covers login + register. */
 export const authErrorText = (msg: string): string => {

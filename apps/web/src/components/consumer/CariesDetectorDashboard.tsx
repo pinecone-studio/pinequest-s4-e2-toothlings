@@ -1,12 +1,16 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Plus, RotateCcw, Upload, Stethoscope, MapPin, AlertTriangle } from '@/lib/icons'
+import { Plus, Trash, RotateCcw, Upload, Video, MapPin, AlertTriangle } from '@/lib/icons'
 import Link from 'next/link'
-import { DetectedRow, FilterPill, FlatCard, PillButton } from '@/components/consumer/warm/WarmUI'
+import { FilterPill, FlatCard } from '@/components/consumer/warm/WarmUI'
 import { TriageHeroCard } from '@/components/consumer/MobilePatterns'
+import { ScreeningOverlay } from '@/components/consumer/ScreeningOverlay'
+import { ScanConfidencePanel } from '@/components/consumer/ScanConfidencePanel'
+import { ScheduleAppointmentModal } from '@/components/consumer/ScheduleAppointmentModal'
 import {
   addChildName,
+  removeChildName,
   getChildNames,
   getLastScanResult,
   getQuestionnaire,
@@ -27,7 +31,6 @@ const DETECTION_LABEL: Record<string, string> = {
 const formatLabel = (d: ScanDetection) => DETECTION_LABEL[d.label] ?? d.label
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-
 
 const fileToDataUrl = (file: File, maxEdge = 640): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -54,32 +57,42 @@ const fileToDataUrl = (file: File, maxEdge = 640): Promise<string> =>
 const IntraoralImageView = ({
   imageUrl,
   detections,
+  scanning = false,
 }: {
   imageUrl: string
   detections: ScanDetection[]
+  scanning?: boolean
 }) => (
-  <div className="relative overflow-hidden rounded-2xl bg-surface-raised">
-    <img src={imageUrl} alt="Шүдний ойрын зураг" className="w-full object-contain" />
-    {detections.map((d, i) => (
-      <div
-        key={i}
-        className="absolute rounded-lg border border-[#F3B900]/70 bg-[#F3B900]/10"
-        style={{
-          left: `${d.box.x}%`,
-          top: `${d.box.y}%`,
-          width: `${d.box.w}%`,
-          height: `${d.box.h}%`,
-        }}
-      >
-        <span className="absolute -top-6 left-0 max-w-[160px] truncate rounded-full bg-slate-900/85 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
-          {formatLabel(d)} {(d.confidence * 100).toFixed(0)}%
-        </span>
-      </div>
-    ))}
+  <div className="flex min-h-[320px] w-full flex-1 items-center justify-center overflow-hidden rounded-2xl bg-surface-raised">
+    <div className="relative inline-flex max-h-full overflow-hidden rounded-xl">
+      <img
+        src={imageUrl}
+        alt="Шүдний ойрын зураг"
+        className="max-h-full w-auto max-w-full object-contain"
+      />
+      {scanning ? <ScreeningOverlay /> : null}
+      {detections.map((d, i) => (
+        <div
+          key={i}
+          className="absolute rounded-lg border border-[#F3B900]/70 bg-[#F3B900]/10"
+          style={{
+            left: `${d.box.x}%`,
+            top: `${d.box.y}%`,
+            width: `${d.box.w}%`,
+            height: `${d.box.h}%`,
+          }}
+        >
+          <span className="absolute -top-6 left-0 max-w-[160px] truncate rounded-full bg-slate-900/85 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+            {formatLabel(d)} {(d.confidence * 100).toFixed(0)}%
+          </span>
+        </div>
+      ))}
+    </div>
   </div>
 )
 
 const ResultsPanel = ({ result }: { result: ScanResult }) => {
+  const [scheduleOpen, setScheduleOpen] = useState(false)
   const urgent =
     result.urgent || result.triage === 'red' || (result.needsDoctor && result.triage === 'yellow')
   const triageLevel =
@@ -98,9 +111,7 @@ const ResultsPanel = ({ result }: { result: ScanResult }) => {
     <div className="flex flex-col gap-5">
       <div>
         <h2 className="text-[22px] font-bold tracking-tight text-text-base">Дүгнэлт</h2>
-        <p className="mt-1 text-[13px] text-text-muted">
-        YOLOv8 шүдний цоорол таних модел
-        </p>
+        <p className="mt-1 text-[13px] text-text-muted">YOLOv8 шүдний цоорол таних модел</p>
       </div>
 
       <TriageHeroCard level={triageLevel} label={triageLabel} summary={triageSummary} />
@@ -114,31 +125,49 @@ const ResultsPanel = ({ result }: { result: ScanResult }) => {
         <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-text-muted">
           Таньсан цооролтой шүд ({result.detections.length})
         </p>
-        <div className="space-y-2">
-          {result.detections.map((d) => (
-            <DetectedRow
-              key={d.label + d.confidence}
-              label={formatLabel(d)}
-              value={`${(d.confidence * 100).toFixed(1)}%`}
-            />
-          ))}
-        </div>
+        <ScanConfidencePanel
+          items={result.detections.map((d) => ({
+            label: formatLabel(d),
+            confidence: d.confidence,
+          }))}
+        />
       </div>
 
-      <Link href={ROUTES.doctor.chat}>
-        <PillButton variant="primary" className="w-full">
-          <Stethoscope className="size-4" strokeWidth={2} />
-          Бүртгэлтэй шүдний эмчтэй холбогдон зөвөлгөө авах
-        </PillButton>
-      </Link>
+      {triageLevel === 'red' && (
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface-raised p-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+            <Video className="size-5" strokeWidth={2} />
+          </span>
+          <p className="min-w-0 flex-1 text-[13px] font-medium leading-snug text-text-base">
+            Шүдний эмчтэй видео дуудлага хийж зөвөлгөө авах
+          </p>
+          <button
+            type="button"
+            onClick={() => setScheduleOpen(true)}
+            className="btn shrink-0 rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-text-on-primary transition hover:bg-primary-hover active:scale-[0.98]"
+          >
+            Цаг авах
+          </button>
+        </div>
+      )}
+
+      <ScheduleAppointmentModal open={scheduleOpen} onClose={() => setScheduleOpen(false)} />
 
       {(triageLevel === 'red' || triageLevel === 'yellow') && (
-        <Link href={ROUTES.doctor.map}>
-          <PillButton variant="secondary" className="w-full">
-            <MapPin className="size-4" strokeWidth={2} />
-            Өөрт хамгийн ойр шүдний эмнэлэг 
-          </PillButton>
-        </Link>
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface-raised p-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface text-text-muted">
+            <MapPin className="size-5" strokeWidth={2} />
+          </span>
+          <p className="min-w-0 flex-1 text-[13px] font-medium leading-snug text-text-base">
+            Санал болгох хамгийн ойр шүдний эмнэлэг
+          </p>
+          <Link
+            href={ROUTES.doctor.map}
+            className="btn shrink-0 rounded-full border border-border bg-surface px-4 py-2 text-[13px] font-semibold text-text-base transition hover:border-primary"
+          >
+            Харах
+          </Link>
+        </div>
       )}
 
       <p className="flex items-start gap-2 text-[12px] leading-relaxed text-text-muted">
@@ -178,6 +207,12 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
     addChildName(trimmed)
     setChildNames((prev) => [...prev, trimmed])
     setActiveFilter(trimmed)
+  }
+
+  const handleRemoveChild = (name: string) => {
+    const next = removeChildName(name)
+    setChildNames(next)
+    if (activeFilter === name) setActiveFilter(next[0] ?? '')
   }
 
   useEffect(() => {
@@ -240,7 +275,6 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
     <div className="flex h-full flex-col gap-8">
       {/* Child selector — add a child by name */}
       <div className="flex flex-wrap items-center gap-2">
-       
         {childNames.map((name) => (
           <FilterPill
             key={name}
@@ -265,9 +299,19 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
             className="btn flex items-center justify-center rounded-full border border-border bg-surface p-2 text-text-base transition-all duration-150 hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus className="size-5" strokeWidth={2} />
-          
           </button>
         </form>
+        {activeFilter && (
+          <button
+            type="button"
+            onClick={() => handleRemoveChild(activeFilter)}
+            aria-label={`${activeFilter}-г устгах`}
+            title={`${activeFilter}-г устгах`}
+            className="btn flex items-center justify-center rounded-full border border-border bg-surface p-2 text-text-muted transition-all duration-150 hover:border-triage-red hover:text-triage-red"
+          >
+            <Trash className="size-5" strokeWidth={2} />
+          </button>
+        )}
       </div>
 
       <div className="grid min-h-0 flex-1 gap-8 xl:grid-cols-[1.15fr_0.85fr]">
@@ -281,7 +325,6 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
               className="hidden"
               onChange={(e) => onFile(e.target.files?.[0] ?? null)}
             />
-          
 
             {!displayImage ? (
               <button
@@ -319,32 +362,34 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
             ) : null}
 
             {analysisError ? (
-              <p className="mt-4 text-[13px] text-red-600">{analysisError}</p>
+              <p className="mt-4 text-[13px] text-triage-red">{analysisError}</p>
             ) : null}
 
             {displayImage ? (
-              <div className="mt-6">
-                {displayImage && (
-                  <IntraoralImageView imageUrl={displayImage} detections={displayDetections} />
-                )}
+              <div className="mt-6 flex min-h-0 flex-1 flex-col">
+                <IntraoralImageView
+                  imageUrl={displayImage}
+                  detections={displayDetections}
+                  scanning={analyzing}
+                />
               </div>
             ) : null}
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <PillButton
-                variant="primary"
-                className="min-w-[160px]"
+              <button
+                type="button"
                 disabled={!file || !preview || analyzing}
                 onClick={runAnalysis}
+                className="btn inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-[13px] font-semibold text-text-on-primary transition-all duration-150 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {analyzing ? 'Уншиж байна...' : 'Эхлэх'}
-              </PillButton>
+              </button>
               <button
                 type="button"
                 onClick={clearAll}
                 aria-label="Дахин эхлэх"
                 title="Дахин эхлэх"
-                className="inline-flex size-12 shrink-0 items-center justify-center rounded-full text-text-muted transition-all duration-200 hover:bg-surface-raised hover:text-text-base active:scale-[0.96]"
+                className="btn flex shrink-0 items-center justify-center rounded-full border border-border bg-surface p-2 text-text-base transition-all duration-150 hover:border-primary"
               >
                 <RotateCcw className="size-5" strokeWidth={2} />
               </button>
@@ -363,7 +408,6 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
               glass
               className="flex h-full min-h-[420px] flex-col items-center justify-center p-10 text-center"
             >
-              
               <p className="mt-5 text-[17px] font-bold text-text-base">Дүгнэлт энд харагдана</p>
               <p className="mt-2 max-w-xs text-[14px] leading-relaxed text-text-muted">
                 Зураг оруулсны дараа эхлэх товчийг дарна уу.

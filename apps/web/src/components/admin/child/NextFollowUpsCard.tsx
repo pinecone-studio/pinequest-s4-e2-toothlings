@@ -4,9 +4,12 @@ import { CalendarDaysIcon } from '@heroicons/react/24/solid'
 import { useFollowUps } from '@/hooks/useFollowUps'
 import PlayCard from '@/components/ui/PlayCard'
 import { SkeletonCard } from '@/components/ui/Skeleton'
-import EmptyState from '@/components/ui/EmptyState'
 
 const startOfDay = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x }
+
+// Mongolian short weekday names, indexed by getDay() (0 = Sunday).
+// mn-MN `toLocaleDateString({ weekday: 'short' })` falls back to English in most runtimes.
+const WD_MN = ['Ня', 'Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя']
 
 // Today + next 2 days strip, plus the follow-ups scheduled in that window.
 const NextFollowUpsCard = () => {
@@ -23,22 +26,28 @@ const NextFollowUpsCard = () => {
     .slice(0, 3)
 
   return (
-    <PlayCard tone="surface" delay={3}>
+    <PlayCard tone="surface" delay={3} className="flex flex-col xl:min-h-0">
       <h2 className="mb-3 text-[15px] font-semibold text-text-base">Дараагийн хяналт</h2>
 
       <div className="mb-3 flex gap-2">
         {tiles.map((d, i) => (
           <div key={i} className={`tap flex-1 rounded-2xl py-2 text-center transition-transform ${i === 0 ? 'bg-primary text-text-on-primary shadow-(--shadow-glow-gold)' : 'bg-surface-raised hover:-translate-y-0.5'}`}>
             <p className="text-[17px] font-bold leading-none tabular-nums">{d.getDate()}</p>
-            <p className={`mt-1 text-[10px] ${i === 0 ? 'opacity-80' : 'text-text-muted'}`}>{d.toLocaleDateString('mn-MN', { weekday: 'short' })}</p>
+            <p className={`mt-1 text-[10px] ${i === 0 ? 'opacity-80' : 'text-text-muted'}`}>{WD_MN[d.getDay()]}</p>
           </div>
         ))}
       </div>
 
       {upcoming.length === 0 ? (
-        <EmptyState Icon={CalendarDaysIcon} title="Товлосон хяналт алга" hint="Ойрын 3 хоногт товлосон хяналт байхгүй." compact />
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden text-center">
+          <div className="mb-2 flex size-10 items-center justify-center rounded-2xl bg-primary-subtle">
+            <CalendarDaysIcon className="size-5 text-primary" />
+          </div>
+          <p className="text-[13px] font-semibold text-text-base">Товлосон хяналт алга</p>
+          <p className="mt-1 max-w-50 text-[11px] leading-relaxed text-text-muted">Ойрын 3 хоногт товлосон хяналт байхгүй.</p>
+        </div>
       ) : (
-        <div className="flex flex-col">
+        <div className="flex min-h-0 flex-1 flex-col xl:overflow-y-auto">
           {upcoming.map((f) => (
             <div key={f.id ?? f.childKey} className="flex items-start gap-2.5 border-t border-border-muted py-2.5 first:border-t-0">
               <span className="mt-0.5 h-8 w-0.5 shrink-0 rounded-full bg-primary" />

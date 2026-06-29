@@ -12,17 +12,17 @@
   --color-brand-accent: #FFD24D;
   --color-brand-muted: #FFF0BF;
 
-  /* semantic surfaces — warm minimalist healthcare UI */
-  --color-bg: #FAF8F5;
+  /* semantic surfaces — clean neutral light-gray canvas, white cards pop */
+  --color-bg: #EDEDED;
   --color-surface: #FFFFFF;
-  --color-surface-raised: #FAF8F5;
-  --color-sidebar-bg: #F0EBE3;
-  --color-consumer-chrome: #F0EBE3;
-  --color-consumer-canvas: #FAF8F5;
+  --color-surface-raised: #F5F5F5;
+  --color-sidebar-bg: #E8E8E8;
+  --color-consumer-chrome: #E8E8E8;
+  --color-consumer-canvas: #EDEDED;
 
-  /* borders — warm-tinted separators */
-  --color-border: #E8E4DA;
-  --color-border-muted: #EFECE3;
+  /* borders — neutral-gray separators */
+  --color-border: #E0E0E0;
+  --color-border-muted: #EAEAEA;
 
   /* text (Apple label hierarchy) */
   --color-text-base: #1D1D1F;
@@ -36,9 +36,9 @@
   --color-primary-hover: #D99E00;
   --color-primary-subtle: #FFF6DC;
 
-  /* accent — lime/chartreuse for positive indicators (coverage, resolved, growth) */
-  --color-accent: #C5F135;
-  --color-accent-fg: #3A5C00;
+  /* accent — soft muted sage for positive indicators (coverage, resolved, growth) */
+  --color-accent: #D2E1C8;
+  --color-accent-fg: #41603C;
 
   /* chart neutrals — calm 3-tone palette for generic volume charts (NOT triage).
      Triage green/yellow/red stay reserved for clinical-signal surfaces only. */
@@ -46,15 +46,15 @@
   --color-chart-2: #C9B98A; /* muted gold-gray */
   --color-chart-3: #C2CAD2; /* neutral gray */
 
-  /* triage — warm-earth clinical signal. Priority, not panic.
-     Green = sage calm. Orange = gentle attention (avoids honey-gold collision).
-     Red = dusty clay — "time to visit a dentist", not "emergency". */
-  --color-triage-green: #3B8C5E;
-  --color-triage-green-bg: #EEF9F3;
-  --color-triage-yellow: #A8580A;
-  --color-triage-yellow-bg: #FEF3E7;
-  --color-triage-red: #A84545;
-  --color-triage-red-bg: #FBF1F0;
+  /* triage — smooth muted clinical signal. Soft, desaturated, calm — never loud.
+     Green = quiet sage. Yellow = muted amber-ochre (avoids honey-gold collision).
+     Red = soft dusty clay — "time to visit a dentist", not "emergency". */
+  --color-triage-green: #477C61;
+  --color-triage-green-bg: #EBF2EE;
+  --color-triage-yellow: #946A2B;
+  --color-triage-yellow-bg: #F5EEE1;
+  --color-triage-red: #A05A5A;
+  --color-triage-red-bg: #F4EAEA;
 
   /* follow-up lifecycle status colors */
   --color-fu-flagged:      #78716c;
@@ -63,13 +63,13 @@
   --color-fu-contacted-bg: #e0f2fe;
   --color-fu-doctor:       #7c3aed;
   --color-fu-doctor-bg:    #ede9fe;
-  --color-fu-done:         #059669;
-  --color-fu-done-bg:      #d1fae5;
+  --color-fu-done:         #477C61;
+  --color-fu-done-bg:      #EBF2EE;
 
-  /* neutral button fill — warm stone for secondary / cancel actions.
-     Clearly distinct from both white surface (#FFF) and cream canvas (#F3F1EA). */
-  --color-btn-fill: #E4DFD7;
-  --color-btn-fill-hover: #D9D4CB;
+  /* neutral button fill — gray for secondary / cancel actions.
+     Clearly distinct from both white surface (#FFF) and gray canvas (#EDEDED). */
+  --color-btn-fill: #E2E2E2;
+  --color-btn-fill-hover: #D6D6D6;
 
   /* Apple-style card elevation (light = subtle shadow) */
   --shadow-card: 0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
@@ -103,17 +103,17 @@
   --color-primary-hover: #FFD45E;
   --color-primary-subtle: #2A2310;
 
-  /* triage dark — warm-earth, same system. Slightly brighter for dark canvas readability. */
-  --color-triage-green: #62D094;
-  --color-triage-green-bg: #0C2818;
-  --color-triage-yellow: #E8924A;
-  --color-triage-yellow-bg: #261500;
-  --color-triage-red: #D97878;
-  --color-triage-red-bg: #250C0C;
+  /* triage dark — same muted system, softly lifted for near-black readability. */
+  --color-triage-green: #7FB698;
+  --color-triage-green-bg: #17271F;
+  --color-triage-yellow: #C6A062;
+  --color-triage-yellow-bg: #28200F;
+  --color-triage-red: #C28686;
+  --color-triage-red-bg: #2A1818;
 
-  /* accent dark */
-  --color-accent: #B5E020;
-  --color-accent-fg: #4A7800;
+  /* accent dark — muted sage tile */
+  --color-accent: #33482B;
+  --color-accent-fg: #BFD4B4;
 
   /* chart neutrals — dark (calm, distinguishable on near-black) */
   --color-chart-1: #FFC93C; /* honey gold highlight (brand) */
@@ -126,8 +126,8 @@
   --color-fu-contacted-bg: #0c2a38;
   --color-fu-doctor:       #a78bfa;
   --color-fu-doctor-bg:    #2e1a5c;
-  --color-fu-done:         #34d399;
-  --color-fu-done-bg:      #052e1c;
+  --color-fu-done:         #7FB698;
+  --color-fu-done-bg:      #17271F;
 
   /* neutral button fill — dark mode (elevation via color) */
   --color-btn-fill: #3A3A3C;
@@ -452,9 +452,9 @@ button:disabled,
 .tooth-q--ll { bottom: 0; left: 0; border-radius: 0 0 0 100%; }
 .tooth-q--lr { bottom: 0; right: 0; border-radius: 0 0 100% 0; }
 
-.tooth-q--ok { background: #7BC67E; opacity: 0.55; }
-.tooth-q--warn { background: #F3B900; opacity: 0.6; }
-.tooth-q--miss { background: #FF6B6B; opacity: 0.5; }
+.tooth-q--ok { background: #6FA588; opacity: 0.6; }
+.tooth-q--warn { background: #C9A05A; opacity: 0.62; }
+.tooth-q--miss { background: #BE8585; opacity: 0.6; }
 .tooth-q--active { opacity: 0.85; outline: 2px solid #334155; outline-offset: -2px; z-index: 2; }
 
 .tooth-center {
@@ -517,8 +517,15 @@ button:disabled,
 }
 .stat-rise { animation: stat-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
+/* scan-line: scanner band sweeping down the screening image while analyzing */
+@keyframes scan-line {
+  0%   { top: -8%; }
+  100% { top: 108%; }
+}
+.scan-line { animation: scan-line 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .pop-in, .float, .shimmer::after, .stat-rise, .list-in, .loader-dot, .page-in-wrap > * { animation: none; }
+  .pop-in, .float, .shimmer::after, .stat-rise, .scan-line, .list-in, .loader-dot, .page-in-wrap > * { animation: none; }
   .grow:hover { transform: none; }
 }
 

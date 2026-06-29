@@ -53,7 +53,7 @@ export const VolunteerDentistSection = ({ student, detail }: Props) => {
   const headline = detail?.summary?.headline
 
   return (
-    <div className="mt-4 space-y-3 rounded-2xl border border-triage-red/30 bg-red-50/40 p-4">
+    <div className="mt-4 space-y-3 rounded-2xl border border-triage-red/30 bg-triage-red-bg/50 p-4">
       <div className="flex items-center gap-2">
         <span className="inline-flex h-5 items-center rounded-full bg-triage-red px-2.5 text-[11px] font-bold tracking-wide text-white">
           УЛААН
@@ -117,7 +117,7 @@ export const VolunteerDentistSection = ({ student, detail }: Props) => {
       </div>
 
       {requested && (
-        <p className="rounded-2xl bg-green-50 px-3 py-2 text-[12px] text-green-700">
+        <p className="rounded-2xl bg-triage-green-bg px-3 py-2 text-[12px] text-triage-green">
           Хүсэлт илгээгдлээ. Эмч нэвтэрсний дараа холбоо барих болно.
         </p>
       )}

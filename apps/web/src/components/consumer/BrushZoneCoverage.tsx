@@ -19,22 +19,22 @@ import {
 import type { BrushModelStatus, BrushLivePred } from '@/hooks/useBrushRecognizer'
 
 const STATUS_BAR: Record<ZoneStatus, string> = {
-  clean: 'bg-emerald-500',
-  partial: 'bg-amber-400',
+  clean: 'bg-triage-green',
+  partial: 'bg-triage-yellow',
   missed: 'bg-slate-300',
 }
 
 const STATUS_TEXT: Record<ZoneStatus, string> = {
-  clean: 'text-emerald-600',
-  partial: 'text-amber-600',
+  clean: 'text-triage-green',
+  partial: 'text-triage-yellow',
   missed: 'text-slate-400',
 }
 
 const MODEL_BADGE: Record<BrushModelStatus, { label: string; tone: string }> = {
   loading: { label: 'Загвар ачаалж байна…', tone: 'bg-slate-100 text-slate-500' },
-  model: { label: 'ML загвар идэвхтэй', tone: 'bg-emerald-100 text-emerald-700' },
-  heuristic: { label: 'Чиглэлийн heuristic (загвар сургаагүй)', tone: 'bg-amber-100 text-amber-700' },
-  error: { label: 'Загвар ачаалахад алдаа — heuristic', tone: 'bg-red-100 text-red-700' },
+  model: { label: 'ML загвар идэвхтэй', tone: 'bg-triage-green-bg text-triage-green' },
+  heuristic: { label: 'Чиглэлийн heuristic (загвар сургаагүй)', tone: 'bg-triage-yellow-bg text-triage-yellow' },
+  error: { label: 'Загвар ачаалахад алдаа — heuristic', tone: 'bg-triage-red-bg text-triage-red' },
 }
 
 type Props = {
@@ -62,7 +62,7 @@ const SurfaceRow = ({
       <span className={`w-12 text-[11px] ${active ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
         {surfaceLabelMn(surface)}
       </span>
-      <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[#F0EBE3]">
+      <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[#E8E8E8]">
         <div
           className={`h-full rounded-full transition-all duration-300 ${STATUS_BAR[status]} ${
             active ? 'ring-2 ring-[#F3B900] ring-offset-1' : ''
@@ -91,7 +91,7 @@ const QuadrantCard = ({
   return (
     <div
       className={`rounded-2xl border p-3 transition ${
-        isActiveQuadrant ? 'border-[#F3B900] bg-[#F3B900]/5' : 'border-[#E8E4DA] bg-white'
+        isActiveQuadrant ? 'border-[#F3B900] bg-[#F3B900]/5' : 'border-[#E0E0E0] bg-white'
       }`}
     >
       <div className="mb-2 flex items-center justify-between">
@@ -140,9 +140,9 @@ export const BrushZoneCoverage = ({ coverage, currentZone, modelStatus, livePred
       </div>
 
       <div className="mb-3 flex items-center gap-3">
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[#F0EBE3]">
+        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[#E8E8E8]">
           <div
-            className="h-full rounded-full bg-emerald-500 transition-all"
+            className="h-full rounded-full bg-triage-green transition-all"
             style={{ width: `${overall}%` }}
           />
         </div>

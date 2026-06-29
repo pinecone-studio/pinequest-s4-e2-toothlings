@@ -17,11 +17,11 @@ const IncomingCallOverlay = ({ invite, onAccept, onDecline }: Props) => (
     </div>
     <div className="flex items-center gap-12">
       <button onClick={onDecline} className="flex flex-col items-center gap-2">
-        <span className="flex size-16 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700"><PhoneXMarkIcon className="size-7" /></span>
+        <span className="flex size-16 items-center justify-center rounded-full bg-triage-red text-white transition hover:opacity-90"><PhoneXMarkIcon className="size-7" /></span>
         <span className="text-[12px] text-white/70">Татгалзах</span>
       </button>
       <button onClick={onAccept} className="flex flex-col items-center gap-2">
-        <span className="flex size-16 animate-bounce items-center justify-center rounded-full bg-green-600 text-white transition hover:bg-green-700"><PhoneIcon className="size-7" /></span>
+        <span className="flex size-16 animate-bounce items-center justify-center rounded-full bg-triage-green text-white transition hover:opacity-90"><PhoneIcon className="size-7" /></span>
         <span className="text-[12px] text-white/70">Хүлээж авах</span>
       </button>
     </div>

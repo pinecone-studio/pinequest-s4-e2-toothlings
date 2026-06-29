@@ -4,6 +4,7 @@ import { appointments, volunteerDentists, children, schoolClasses, dentistBlocks
 import { jitsiRoomName, jitsiRoomUrl } from '@pinequest/core'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { hasChildAccess } from '../lib/scopeFilter.js'
+import { loadChildSummary } from '../lib/childSummary.js'
 import type { AppEnv } from '../types.js'
 
 export const appointmentRoutes = new Hono<AppEnv>()
@@ -69,6 +70,26 @@ appointmentRoutes.get('/dentist/:dentistId/slots', authenticate, async (c) => {
   return c.json({ success: true, data })
 })
 
+// Full clinical summary for a booked call — screening photos, triage, AI advice,
+// questionnaire. The appointment IS the authorization grant: a dentist with a call
+// booked with this child may view their screening summary (dentists hold no class /
+// school scope of their own). Admin / follow-up workers see any.
+appointmentRoutes.get('/:id/summary', authenticate, async (c) => {
+  const db = c.get('db')
+  const payload = c.get('jwtPayload')
+  const appt = await db.query.appointments.findFirst({ where: eq(appointments.id, c.req.param('id')) })
+  if (!appt) return c.json({ success: false, data: null, message: 'not_found' }, 404)
+  if (payload.role !== 'admin' && payload.role !== 'follow_up') {
+    const vol = await db.query.volunteerDentists.findFirst({ where: eq(volunteerDentists.userId, payload.sub) })
+    if (!vol || vol.id !== appt.dentistId) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
+  }
+  const child = await db.query.children.findFirst({ where: eq(children.childKey, appt.childKey) })
+  if (!child) return c.json({ success: false, data: null, message: 'child_not_found' }, 404)
+  const data = await loadChildSummary(db, child.id)
+  if (!data) return c.json({ success: false, data: null }, 404)
+  return c.json({ success: true, data })
+})
+
 // A flagged child's screener (parent / teacher / school doctor) books a video call
 // with a volunteer dentist. Booking is additive — one new row per booking. The Jitsi
 // room is derived from the new row's UUID, so it carries no PII.
@@ -102,6 +123,8 @@ appointmentRoutes.post('/', authorize('parent', 'teacher', 'school_doctor', 'scr
 })
 
 // The booking dentist (or admin) records their post-call advice for the next step.
+// Saving a note IS the "call finished" signal: it flips status → 'completed' (real
+// status, not a time guess); clearing it reverts to 'scheduled'. Cancelled stays put.
 appointmentRoutes.patch('/:id', authorize('dentist', 'admin'), async (c) => {
   const db = c.get('db')
   const payload = c.get('jwtPayload')
@@ -112,6 +135,8 @@ appointmentRoutes.patch('/:id', authorize('dentist', 'admin'), async (c) => {
     const vol = await db.query.volunteerDentists.findFirst({ where: eq(volunteerDentists.userId, payload.sub) })
     if (!vol || vol.id !== appt.dentistId) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
   }
-  const [row] = await db.update(appointments).set({ dentistNote: note?.trim() || null }).where(eq(appointments.id, appt.id)).returning()
+  const trimmed = note?.trim() || null
+  const status = appt.status === 'cancelled' ? 'cancelled' : trimmed ? 'completed' : 'scheduled'
+  const [row] = await db.update(appointments).set({ dentistNote: trimmed, status }).where(eq(appointments.id, appt.id)).returning()
   return c.json({ success: true, data: row })
 })

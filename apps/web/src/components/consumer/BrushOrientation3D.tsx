@@ -30,16 +30,16 @@ const STATUS_MN: Record<Esp32ConnectionStatus, string> = {
 
 const STATUS_TONE: Record<Esp32ConnectionStatus, string> = {
   idle: 'bg-slate-400',
-  connecting: 'bg-amber-400 animate-pulse',
-  connected: 'bg-emerald-500',
+  connecting: 'bg-triage-yellow animate-pulse',
+  connected: 'bg-triage-green',
   disconnected: 'bg-slate-400',
-  error: 'bg-red-500',
+  error: 'bg-triage-red',
 }
 
 const AXIS_META = [
   { key: 'yaw', label: 'Yaw', mn: 'Эргэлт (Z)', color: '#3b82f6' },
-  { key: 'pitch', label: 'Pitch', mn: 'Хөдөлгөөн (Y)', color: '#22c55e' },
-  { key: 'roll', label: 'Roll', mn: 'Хээлтүүл (X)', color: '#ef4444' },
+  { key: 'pitch', label: 'Pitch', mn: 'Хөдөлгөөн (Y)', color: '#477C61' },
+  { key: 'roll', label: 'Roll', mn: 'Хээлтүүл (X)', color: '#A05A5A' },
 ] as const
 
 const AxisDial = ({
@@ -63,7 +63,7 @@ const AxisDial = ({
   const ny = cy - Math.cos(rad) * r * 0.78
 
   return (
-    <div className="rounded-2xl bg-[#FAF8F5] px-2 py-3 dark:bg-slate-800/80">
+    <div className="rounded-2xl bg-[#F5F5F5] px-2 py-3 dark:bg-slate-800/80">
       <p className="text-center text-[10px] font-semibold uppercase tracking-wide text-text-muted">
         {label}
       </p>
@@ -148,7 +148,7 @@ export const BrushOrientation3D = ({
 
   return (
     <div className="warm-card overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E8E4DA]/60 px-5 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E0E0E0]/60 px-5 py-4">
         <div>
           <p className="text-[12px] font-semibold uppercase tracking-wide text-text-muted">
             ESP32 · MPU6050
@@ -162,7 +162,7 @@ export const BrushOrientation3D = ({
       </div>
 
       <div className="grid gap-0 xl:grid-cols-[1fr_240px]">
-        <div className="border-b border-[#E8E4DA]/60 xl:border-b-0 xl:border-r">
+        <div className="border-b border-[#E0E0E0]/60 xl:border-b-0 xl:border-r">
           <div className="relative h-[min(52vh,420px)] min-h-[360px] w-full">
             <BrushImuScene trackerRef={trackerRef} />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 to-transparent px-4 pb-3 pt-8 text-center text-[11px] text-white/70">
@@ -172,12 +172,12 @@ export const BrushOrientation3D = ({
 
           <div className="flex items-center justify-between gap-2 px-4 pb-2">
             <p className="text-[11px] text-text-muted">
-              Fusion: <span className="font-semibold text-emerald-700">{FUSION_MN[fusionMode]}</span>
+              Fusion: <span className="font-semibold text-triage-green">{FUSION_MN[fusionMode]}</span>
             </p>
             <button
               type="button"
               onClick={onCalibrate}
-              className="rounded-full border border-[#E8E4DA] bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-900 transition hover:bg-[#FAF8F5]"
+              className="rounded-full border border-[#E0E0E0] bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-900 transition hover:bg-[#F5F5F5]"
             >
               Тэгшлэх (0°)
             </button>
@@ -200,22 +200,22 @@ export const BrushOrientation3D = ({
             <p className="text-center text-[12px] text-text-muted">ESP32-оос өгөгдөл хүлээж байна…</p>
           )}
 
-          <div className="rounded-2xl bg-[#FAF8F5] px-3 py-3 dark:bg-slate-800/80">
+          <div className="rounded-2xl bg-[#F5F5F5] px-3 py-3 dark:bg-slate-800/80">
             <p className="mb-2 text-[11px] font-semibold text-text-muted">Тэнхлэгийн тайлбар</p>
             <ul className="space-y-1.5 text-[11px] leading-relaxed text-text-muted">
               <li>
                 <span className="font-semibold text-blue-600">Z · Yaw</span> — цагийн зүүний эргэлт
               </li>
               <li>
-                <span className="font-semibold text-emerald-600">Y · Pitch</span> — урд/хойд хөдөлгөөн
+                <span className="font-semibold text-triage-green">Y · Pitch</span> — урд/хойд хөдөлгөөн
               </li>
               <li>
-                <span className="font-semibold text-red-600">X · Roll</span> — хажуу тийш хээлтүүл
+                <span className="font-semibold text-triage-red">X · Roll</span> — хажуу тийш хээлтүүл
               </li>
             </ul>
             {reading && (!hasQuaternion || !hasRaw) ? (
               <details className="mt-3">
-                <summary className="cursor-pointer text-[11px] font-semibold text-amber-700">
+                <summary className="cursor-pointer text-[11px] font-semibold text-triage-yellow">
                   Илүү сайн дагах — ESP32 код (DMP + gyro/accel)
                 </summary>
                 <pre className="mt-2 max-h-48 overflow-auto rounded-2xl bg-slate-900 p-2 text-[9px] leading-relaxed text-emerald-300">
@@ -223,7 +223,7 @@ export const BrushOrientation3D = ({
                 </pre>
               </details>
             ) : (
-              <p className="mt-2 text-[10px] font-medium text-emerald-600">
+              <p className="mt-2 text-[10px] font-medium text-triage-green">
                 I2Cdevlib DMP + Mahony идэвхтэй
               </p>
             )}
@@ -236,18 +236,18 @@ export const BrushOrientation3D = ({
               value={wsUrl}
               onChange={(e) => onWsUrlChange(e.target.value)}
               placeholder="ws://172.27.221.251:81"
-              className="w-full rounded-xl border border-[#E8E4DA] bg-white px-3 py-2 font-mono text-[11px] text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#F3B900]"
+              className="w-full rounded-xl border border-[#E0E0E0] bg-white px-3 py-2 font-mono text-[11px] text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#F3B900]"
               spellCheck={false}
             />
             <button
               type="button"
               onClick={onReconnect}
-              className="w-full rounded-full border border-[#E8E4DA] bg-white py-2 text-[12px] font-semibold text-slate-900 transition hover:bg-[#FAF8F5]"
+              className="w-full rounded-full border border-[#E0E0E0] bg-white py-2 text-[12px] font-semibold text-slate-900 transition hover:bg-[#F5F5F5]"
             >
               Дахин холбох
             </button>
             {error ? (
-              <p className="text-[11px] leading-relaxed text-red-600">{error}</p>
+              <p className="text-[11px] leading-relaxed text-triage-red">{error}</p>
             ) : (
               <p className="text-[11px] leading-relaxed text-text-muted">
                 ESP32 «Redmi 13c» Wi‑Fi-д холбогдсон. Компьютерыг тэр сүлжээнд оруулна уу.

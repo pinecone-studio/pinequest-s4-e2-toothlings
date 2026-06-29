@@ -2,8 +2,8 @@ import { cn } from '@/lib/utils'
 
 /** Warm minimalist design tokens */
 export const WARM = {
-  bg: '#FAF8F5',
-  chrome: '#F0EBE3',
+  bg: '#EDEDED',
+  chrome: '#E8E8E8',
   accent: '#F3B900',
   cardShadow: 'shadow-[0_4px_20px_rgba(0,0,0,0.02)]',
 } as const
@@ -92,7 +92,7 @@ export const PillButton = ({
 }) => {
   const variants = {
     primary:
-      'bg-[#F3B900] text-slate-900 font-semibold shadow-[0_2px_8px_rgba(243,185,0,0.25)] hover:bg-[#E5AD00] active:scale-[0.98]',
+      'bg-primary text-text-on-primary font-semibold shadow-[0_2px_8px_rgba(242,183,5,0.25)] hover:bg-primary-hover active:scale-[0.98]',
     secondary:
       'border border-border bg-surface-raised text-text-base font-semibold hover:bg-surface hover:border-border',
     ghost: 'text-text-muted font-medium hover:bg-surface-raised hover:text-text-base',
@@ -129,7 +129,7 @@ export const FilterPill = ({
     className={cn(
       'rounded-full px-5 py-2 text-[13px] font-semibold transition-all duration-200',
       active
-        ? 'bg-[#F3B900] text-slate-900 shadow-[0_2px_8px_rgba(243,185,0,0.2)]'
+        ? 'bg-primary text-text-on-primary shadow-[0_2px_8px_rgba(242,183,5,0.25)]'
         : 'bg-surface-raised text-text-muted ring-1 ring-border hover:text-text-base',
     )}
   >

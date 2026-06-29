@@ -7,7 +7,7 @@ import { SPECIALTY_LABEL } from '@/components/admin/help/DentistProfileCard'
 import { useUpsertVolunteer } from '@/hooks/useHelp'
 
 const SPECIALTIES = Object.entries(SPECIALTY_LABEL)
-const inp = 'rounded-xl border border-border bg-surface px-3 py-2 text-sm text-text-base placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary'
+const inp = 'rounded-full border border-border bg-surface px-3 py-2 text-sm text-text-base placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary'
 
 // Volunteer registration form, shown until the dentist has a profile.
 const DentistRegisterForm = () => {

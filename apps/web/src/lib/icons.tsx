@@ -80,6 +80,13 @@ export const Camera = ({ size, strokeWidth, className, ...rest }: IconProps) => 
   </svg>
 )
 
+export const Video = ({ size, strokeWidth, className, ...rest }: IconProps) => (
+  <svg {...base(size, strokeWidth, className)} {...rest}>
+    <path d="m22 8-6 4 6 4V8Z" />
+    <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+  </svg>
+)
+
 export const Upload = ({ size, strokeWidth, className, ...rest }: IconProps) => (
   <svg {...base(size, strokeWidth, className)} {...rest}>
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -150,6 +157,15 @@ export const Plus = ({ size, strokeWidth, className, ...rest }: IconProps) => (
   </svg>
 )
 
+export const Trash = ({ size, strokeWidth, className, ...rest }: IconProps) => (
+  <svg {...base(size, strokeWidth, className)} {...rest}>
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <line x1="10" x2="10" y1="11" y2="17" />
+    <line x1="14" x2="14" y1="11" y2="17" />
+  </svg>
+)
+
 export const RotateCcw = ({ size, strokeWidth, className, ...rest }: IconProps) => (
   <svg {...base(size, strokeWidth, className)} {...rest}>
     <polyline points="1 4 1 10 7 10" />
@@ -185,6 +201,17 @@ export const ToothBrush = ({ size, strokeWidth, className, ...rest }: IconProps)
     <rect x="16" y="9" width="6" height="6" rx="1" />
     <path d="M18 9V6" />
     <path d="M21 9V6" />
+  </svg>
+)
+
+export const CalendarPlus = ({ size, strokeWidth, className, ...rest }: IconProps) => (
+  <svg {...base(size, strokeWidth, className)} {...rest}>
+    <path d="M8 2v4" />
+    <path d="M16 2v4" />
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <path d="M3 10h18" />
+    <path d="M12 14v4" />
+    <path d="M10 16h4" />
   </svg>
 )
 

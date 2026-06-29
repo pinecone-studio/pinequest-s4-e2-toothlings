@@ -20,12 +20,12 @@ const KIDS = [
 
 // Current season — exactly 3 red, 3 yellow, 3 green. `d` spread feeds the area chart.
 const SPRING_SCR = [
-  { id: 'scr-1', key: 'ck-001', season: SPRING, level: 'red',    score: 0.91, reason: 'Цооролт сэжиглэгдэж байна', d: 2,  fdi: 36, conf: 0.86, reviewed: false },
-  { id: 'scr-2', key: 'ck-002', season: SPRING, level: 'red',    score: 0.88, reason: 'Буйлны хаван',             d: 5,  fdi: 46, conf: 0.80, reviewed: false },
-  { id: 'scr-3', key: 'ck-003', season: SPRING, level: 'red',    score: 0.84, reason: 'Гүн цооролт',              d: 12, fdi: 26, conf: 0.78, reviewed: true  },
-  { id: 'scr-4', key: 'ck-004', season: SPRING, level: 'yellow', score: 0.55, reason: 'Өнгө өөрчлөгдсөн',         d: 4,  fdi: 26, conf: 0.54, reviewed: false },
-  { id: 'scr-5', key: 'ck-005', season: SPRING, level: 'yellow', score: 0.48, reason: 'Бага зэргийн цооролт',     d: 18, fdi: 75, conf: 0.61, reviewed: true  },
-  { id: 'scr-6', key: 'ck-006', season: SPRING, level: 'yellow', score: 0.50, reason: 'Цагаан толбо ажиглав',     d: 26, fdi: 16, conf: 0.52, reviewed: true  },
+  { id: 'scr-1', key: 'ck-001', season: SPRING, level: 'red',    score: 0.91, reason: 'Цооролтой 3 байнгын шүд байна.', d: 2,  fdi: 36, conf: 0.86, reviewed: false },
+  { id: 'scr-2', key: 'ck-002', season: SPRING, level: 'red',    score: 0.88, reason: 'Цооролтой 1 шүд байна',             d: 5,  fdi: 46, conf: 0.80, reviewed: false },
+  { id: 'scr-3', key: 'ck-003', season: SPRING, level: 'red',    score: 0.84, reason: 'Гүн цоорол',              d: 12, fdi: 26, conf: 0.78, reviewed: true  },
+  { id: 'scr-4', key: 'ck-004', season: SPRING, level: 'yellow', score: 0.55, reason: 'Харьцангуй эрүүл',         d: 4,  fdi: 26, conf: 0.54, reviewed: false },
+  { id: 'scr-5', key: 'ck-005', season: SPRING, level: 'yellow', score: 0.48, reason: 'Цооролтой 3 шүд байна',     d: 18, fdi: 75, conf: 0.61, reviewed: true  },
+  { id: 'scr-6', key: 'ck-006', season: SPRING, level: 'yellow', score: 0.50, reason: 'Цоорлын том хөндийтэй 2 шүд байна',     d: 26, fdi: 16, conf: 0.52, reviewed: true  },
   { id: 'scr-7', key: 'ck-007', season: SPRING, level: 'green',  score: 0.08, reason: null,                       d: 9,  fdi: 0,  conf: 0,    reviewed: true  },
   { id: 'scr-8', key: 'ck-008', season: SPRING, level: 'green',  score: 0.06, reason: null,                       d: 33, fdi: 0,  conf: 0,    reviewed: true  },
   { id: 'scr-9', key: 'ck-009', season: SPRING, level: 'green',  score: 0.05, reason: null,                       d: 41, fdi: 0,  conf: 0,    reviewed: true  },
@@ -38,12 +38,12 @@ const SPRING_SCR = [
 const FALL_SCR = [
   { id: 'scr-f1', key: 'ck-001', season: FALL, level: 'green',  score: 0.06, reason: null,                   d: 250, fdi: 0,  conf: 0,    reviewed: true },
   { id: 'scr-f2', key: 'ck-002', season: FALL, level: 'yellow', score: 0.50, reason: 'Цагаан толбо',          d: 249, fdi: 26, conf: 0.55, reviewed: true },
-  { id: 'scr-f3', key: 'ck-003', season: FALL, level: 'red',    score: 0.80, reason: 'Цооролт илэрсэн',       d: 248, fdi: 36, conf: 0.80, reviewed: true },
+  { id: 'scr-f3', key: 'ck-003', season: FALL, level: 'red',    score: 0.80, reason: 'Цоорсон',       d: 248, fdi: 36, conf: 0.80, reviewed: true },
   { id: 'scr-f4', key: 'ck-004', season: FALL, level: 'green',  score: 0.09, reason: null,                   d: 246, fdi: 0,  conf: 0,    reviewed: true },
-  { id: 'scr-f5', key: 'ck-005', season: FALL, level: 'red',    score: 0.82, reason: 'Цооролт илэрсэн',       d: 244, fdi: 46, conf: 0.82, reviewed: true },
-  { id: 'scr-f6', key: 'ck-006', season: FALL, level: 'yellow', score: 0.46, reason: 'Эрт шатны цооролт',     d: 242, fdi: 75, conf: 0.60, reviewed: true },
-  { id: 'scr-f7', key: 'ck-007', season: FALL, level: 'yellow', score: 0.52, reason: 'Цагаан толбо ажиглав',  d: 240, fdi: 16, conf: 0.52, reviewed: true },
-  { id: 'scr-f8', key: 'ck-008', season: FALL, level: 'red',    score: 0.84, reason: 'Цооролт илэрсэн',       d: 238, fdi: 46, conf: 0.84, reviewed: true },
+  { id: 'scr-f5', key: 'ck-005', season: FALL, level: 'red',    score: 0.82, reason: 'Цоорсон',       d: 244, fdi: 46, conf: 0.82, reviewed: true },
+  { id: 'scr-f6', key: 'ck-006', season: FALL, level: 'yellow', score: 0.46, reason: 'Цоорсон',     d: 242, fdi: 75, conf: 0.60, reviewed: true },
+  { id: 'scr-f7', key: 'ck-007', season: FALL, level: 'yellow', score: 0.52, reason: 'Цагаан толбо',  d: 240, fdi: 16, conf: 0.52, reviewed: true },
+  { id: 'scr-f8', key: 'ck-008', season: FALL, level: 'red',    score: 0.84, reason: 'Цоорсон',       d: 238, fdi: 46, conf: 0.84, reviewed: true },
   { id: 'scr-f9', key: 'ck-009', season: FALL, level: 'green',  score: 0.04, reason: null,                   d: 236, fdi: 0,  conf: 0,    reviewed: true },
 ]
 

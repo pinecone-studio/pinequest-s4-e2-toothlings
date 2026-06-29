@@ -43,8 +43,8 @@ const AxisArrow = ({
 
 const WorldAxes = () => (
   <group>
-    <AxisArrow end={[1.15, 0, 0]} color="#ef4444" label="X · Roll" />
-    <AxisArrow end={[0, 1.15, 0]} color="#22c55e" label="Y · Pitch" />
+    <AxisArrow end={[1.15, 0, 0]} color="#A05A5A" label="X · Roll" />
+    <AxisArrow end={[0, 1.15, 0]} color="#477C61" label="Y · Pitch" />
     <AxisArrow end={[0, 0, 1.15]} color="#3b82f6" label="Z · Yaw" />
   </group>
 )
@@ -87,7 +87,7 @@ const BrushBody = () => (
 
     <mesh position={[0, 0, 0.3]}>
       <sphereGeometry args={[0.028, 20, 20]} />
-      <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.9} />
+      <meshStandardMaterial color="#A05A5A" emissive="#A05A5A" emissiveIntensity={0.9} />
     </mesh>
   </>
 )

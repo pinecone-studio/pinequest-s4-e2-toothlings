@@ -35,14 +35,14 @@ export const VolunteerDentistsMap = ({ dentists, selectedId, onSelect, onDistanc
 
   const pinHtml = (d: VolunteerDentist, active: boolean) => {
     const size = active ? 42 : 34
-    const border = active ? '3px solid #ef4444' : '2.5px solid #fff'
+    const border = active ? '3px solid #A05A5A' : '2.5px solid #fff'
     const shadow = 'box-shadow:0 2px 8px rgba(0,0,0,0.35)'
     const base = `width:${size}px;height:${size}px;border-radius:50%;border:${border};${shadow};overflow:hidden;display:flex;align-items:center;justify-content:center;`
     if (d.avatarUrl) {
       return `<div style="${base}"><img src="${d.avatarUrl}" style="width:100%;height:100%;object-fit:cover;" /></div>`
     }
     const initials = d.displayName.split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2)
-    const bg = active ? '#ef4444' : '#6b7280'
+    const bg = active ? '#A05A5A' : '#6b7280'
     return `<div style="${base}background:${bg};color:#fff;font-size:${active ? 14 : 11}px;font-weight:700;">${initials}</div>`
   }
 

@@ -20,22 +20,27 @@ const AdminDashboardPage = () => {
   return (
     <div className="flex flex-col gap-5">
 
-      {/* Top row — [left: profile + review queue] [center chart] [right: calendar + next schedule] */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_1fr_300px]">
-        <div className="flex flex-col gap-5">
-          <ProfileCard />
-          <DentistReviewQueueCard />
+      {/* First screen — overview grid + disclaimer, together capped to the viewport
+          height so the disclaimer always stays visible. The grid flexes to fill;
+          tall columns scroll within themselves. The worklist below scrolls in main. */}
+      <div className="flex flex-col gap-5 xl:h-[calc(100dvh-8rem)] xl:min-h-0">
+        {/* [left: profile + review queue] [center chart] [right: calendar + next schedule] */}
+        <div className="grid grid-cols-1 gap-5 xl:min-h-0 xl:flex-1 xl:grid-cols-[280px_1fr_300px]">
+          <div className="flex flex-col gap-5 xl:min-h-0 xl:overflow-y-auto">
+            <ProfileCard />
+            <DentistReviewQueueCard />
+          </div>
+
+          <ScreeningBarChart />
+
+          <div className="flex flex-col gap-5 xl:min-h-0">
+            <ScheduleCalendar className="xl:shrink-0 xl:grow-0" />
+            <NextFollowUpsCard />
+          </div>
         </div>
 
-        <ScreeningBarChart />
-
-        <div className="flex flex-col gap-5">
-          <ScheduleCalendar />
-          <NextFollowUpsCard />
-        </div>
+        <Disclaimer />
       </div>
-
-      <Disclaimer />
 
       {/* Full-width prioritized worklist */}
       <RecentScreeningsTable screenings={screenings} loading={screeningsLoading} />

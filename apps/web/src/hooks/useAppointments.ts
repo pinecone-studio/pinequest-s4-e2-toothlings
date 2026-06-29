@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
 import { useSession } from '@/components/providers'
+import type { ChildSummaryPayload } from './useChildSummary'
 
 export type AppointmentRow = {
   id: string
@@ -65,6 +66,18 @@ export const useToggleBlock = () => {
       qc.invalidateQueries({ queryKey: ['my-blocks'] })
       qc.invalidateQueries({ queryKey: ['dentist-slots'] })
     },
+  })
+}
+
+// Full clinical summary (photos, triage, advice, questionnaire) for a booked call.
+// Authorized by appointment ownership, so a dentist with no class/school scope still sees it.
+export const useAppointmentSummary = (apptId: string | null) => {
+  const { token } = useSession()
+  return useQuery({
+    queryKey: ['appointment-summary', apptId],
+    queryFn: () => apiFetch<ChildSummaryPayload>(`/api/appointments/${apptId}/summary`, { token }),
+    enabled: !!token && !!apptId,
+    staleTime: 60_000,
   })
 }
 
