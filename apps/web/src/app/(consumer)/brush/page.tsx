@@ -1,28 +1,23 @@
 'use client'
 
-import { useEffect, useRef, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AppShell, StatusPill } from '@/components/consumer/AppShell'
-import { BrushArchMonitor } from '@/components/consumer/BrushArchMonitor'
+import { AppShell } from '@/components/consumer/AppShell'
 import { BrushOrientation3D } from '@/components/consumer/BrushOrientation3D'
+import { BrushZoneCoverage } from '@/components/consumer/BrushZoneCoverage'
 import { ToothModel } from '@/components/consumer/ToothModel'
 import { useEsp32Imu } from '@/hooks/useEsp32Imu'
+import { useBrushRecognizer } from '@/hooks/useBrushRecognizer'
 import { FilterPill } from '@/components/consumer/warm/WarmUI'
 import Button from '@/components/ui/Button'
+import { DEFAULT_ESP32_WS_URL, isValidEsp32WsUrl } from '@/lib/esp32Imu'
 import {
-  createBrushMlState,
-  processSensorFrame,
-  synthesizeSensorFrame,
-  teethToCoverageMap,
-  type BrushMlState,
-} from '@/lib/brushMl'
-import {
-  DEFAULT_ESP32_WS_URL,
-  imuToSensorFrame,
-  inferZoneFromImu,
-  isValidEsp32WsUrl,
-} from '@/lib/esp32Imu'
+  overallProgress,
+  quadrantProgress,
+  totalBrushSeconds,
+} from '@/lib/brush/coverage'
+import { SESSION_TARGET_SECONDS } from '@/lib/brush/config'
 import {
   getBrushSession,
   saveBrushSession,
@@ -42,13 +37,6 @@ const STEPS = [
   '4 бүс × 30 сек — дээд/доод зүүн/баруун',
   '45° өнцөг — сойзны үзүүр шүд, гуурст хүрэлцэх',
   'Гадна, дотор, жевхэн тал бүгдийг давтах',
-]
-
-const ZONES: { id: BrushZone; label: string }[] = [
-  { id: 'UL', label: 'Дээд зүүн' },
-  { id: 'UR', label: 'Дээд баруун' },
-  { id: 'LL', label: 'Доод зүүн' },
-  { id: 'LR', label: 'Доод баруун' },
 ]
 
 const BRUSH_VIDEO_ID = 'gAODutgIIVQ'
@@ -102,91 +90,64 @@ const InstructionsPanel = () => (
 const WS_URL_STORAGE_KEY = 'esp32.wsUrl'
 
 const MonitorPanel = () => {
-  const [activeZone, setActiveZone] = useState<BrushZone>('UL')
-  const [seconds, setSeconds] = useState<Record<BrushZone, number>>({ UL: 0, UR: 0, LL: 0, LR: 0 })
-  const [pressure, setPressure] = useState<'low' | 'ok' | 'high'>('ok')
   const [running, setRunning] = useState(false)
-  const [mlState, setMlState] = useState<BrushMlState>(() => createBrushMlState())
   const [wsUrl, setWsUrl] = useState(DEFAULT_ESP32_WS_URL)
   const [wsReady, setWsReady] = useState(false)
-  const tickRef = useRef(0)
-  const mlRef = useRef(mlState)
-  const secondsRef = useRef(seconds)
 
-  const { status, reading, liveReadingRef, trackerRef, fusionMode, error, reconnect, calibrate } =
-    useEsp32Imu(wsUrl, wsReady)
+  const recognizer = useBrushRecognizer()
+  const { status, reading, trackerRef, fusionMode, error, reconnect, calibrate } = useEsp32Imu(
+    wsUrl,
+    wsReady,
+    recognizer.handleSample,
+  )
 
-  mlRef.current = mlState
-  secondsRef.current = seconds
+  const { coverage, currentZone, modelStatus, livePred } = recognizer
 
   useEffect(() => {
     const savedUrl = localStorage.getItem(WS_URL_STORAGE_KEY)?.trim()
-    if (savedUrl && isValidEsp32WsUrl(savedUrl)) {
-      setWsUrl(savedUrl)
-    }
+    if (savedUrl && isValidEsp32WsUrl(savedUrl)) setWsUrl(savedUrl)
     setWsReady(true)
   }, [])
 
   useEffect(() => {
-    const saved = getBrushSession()
-    if (saved) {
-      setSeconds(saved.zones)
-      setPressure(saved.pressure)
-      if (saved.teeth) setMlState(createBrushMlState(saved.teeth))
-    }
+    getBrushSession() // keep last session for history; live coverage starts fresh
   }, [])
-
-  useEffect(() => {
-    if (!reading) return
-    setActiveZone(inferZoneFromImu(reading))
-    if (!running) return
-    setMlState((prev) => processSensorFrame(prev, imuToSensorFrame(reading)))
-  }, [reading, running])
-
-  useEffect(() => {
-    if (!running) return
-    const id = window.setInterval(() => {
-      const zone = liveReadingRef.current
-        ? inferZoneFromImu(liveReadingRef.current)
-        : activeZone
-      setSeconds((s) => ({ ...s, [zone]: s[zone] + 1 }))
-    }, 1000)
-    return () => window.clearInterval(id)
-  }, [running, activeZone])
-
-  useEffect(() => {
-    if (!running || status === 'connected') return
-    const id = window.setInterval(() => {
-      tickRef.current += 1
-      const r = Math.random()
-      const nextPressure = r > 0.85 ? 'high' : r < 0.1 ? 'low' : 'ok'
-      setPressure(nextPressure)
-      const frame = synthesizeSensorFrame(activeZone, tickRef.current, nextPressure)
-      setMlState((prev) => processSensorFrame(prev, frame))
-    }, 800)
-    return () => window.clearInterval(id)
-  }, [running, activeZone, status])
 
   const handleWsUrlChange = (next: string) => {
     setWsUrl(next)
-    if (isValidEsp32WsUrl(next)) {
-      localStorage.setItem(WS_URL_STORAGE_KEY, next.trim())
-    }
+    if (isValidEsp32WsUrl(next)) localStorage.setItem(WS_URL_STORAGE_KEY, next.trim())
   }
 
-  const total = Object.values(seconds).reduce((a, b) => a + b, 0)
+  const handleCalibrate = () => {
+    calibrate()
+    recognizer.calibrate()
+  }
+
+  const activeSeconds = Math.round(totalBrushSeconds(coverage))
+  const overall = overallProgress(coverage)
+
   const start = () => {
-    tickRef.current = 0
+    recognizer.resetCoverage()
+    recognizer.setRunning(true)
     setRunning(true)
   }
   const stop = () => {
+    recognizer.setRunning(false)
     setRunning(false)
+    const zones: Record<BrushZone, number> = {
+      UL: Math.round(quadrantProgress(coverage, 'UL') * 100),
+      UR: Math.round(quadrantProgress(coverage, 'UR') * 100),
+      LL: Math.round(quadrantProgress(coverage, 'LL') * 100),
+      LR: Math.round(quadrantProgress(coverage, 'LR') * 100),
+    }
     saveBrushSession({
       startedAt: new Date().toISOString(),
-      zones: secondsRef.current,
-      pressure,
-      teeth: teethToCoverageMap(mlRef.current.teeth),
-      overallCoverage: mlRef.current.overallCoverage,
+      zones,
+      pressure: 'ok',
+      teeth: Object.fromEntries(
+        Object.entries(coverage.seconds).map(([k, v]) => [k, Math.round((v / 20) * 100)]),
+      ),
+      overallCoverage: overall,
     })
   }
 
@@ -201,10 +162,16 @@ const MonitorPanel = () => {
           wsUrl={wsUrl}
           onWsUrlChange={handleWsUrlChange}
           onReconnect={reconnect}
-          onCalibrate={calibrate}
+          onCalibrate={handleCalibrate}
           error={error}
         />
 
+        <BrushZoneCoverage
+          coverage={coverage}
+          currentZone={currentZone}
+          modelStatus={modelStatus}
+          livePred={livePred}
+        />
         <BrushArchMonitor mlState={mlState} running={running} />
 
         <div className="warm-card p-4">
@@ -236,37 +203,32 @@ const MonitorPanel = () => {
 
       <aside className="space-y-4">
         <div className="warm-card p-6 text-center">
-          <p className="warm-section-label">Duration</p>
+          <p className="warm-section-label">Идэвхтэй угаалга</p>
           <p className="mt-2 font-mono text-[42px] font-bold tabular-nums text-slate-900">
-            {String(Math.floor(total / 60)).padStart(2, '0')}:{String(total % 60).padStart(2, '0')}
+            {String(Math.floor(activeSeconds / 60)).padStart(2, '0')}:
+            {String(activeSeconds % 60).padStart(2, '0')}
           </p>
-          <p className="text-[13px] text-slate-500">Зорилт 02:00</p>
+          <p className="text-[13px] text-slate-500">Зорилт 02:00 (бодит хөдөлгөөн)</p>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#F0EBE3]">
             <div
               className="h-full rounded-full bg-[#F3B900] transition-all"
-              style={{ width: `${Math.min(100, (total / 120) * 100)}%` }}
+              style={{ width: `${Math.min(100, (activeSeconds / SESSION_TARGET_SECONDS) * 100)}%` }}
             />
           </div>
         </div>
 
         <div className="warm-card p-6">
-          <p className="text-[14px] font-semibold text-text-base">Хамралт</p>
-          <p className="mt-2 text-[32px] font-bold text-text-base">{mlState.overallCoverage}%</p>
-          <p className="mt-1 text-[12px] text-text-muted">32 шүд · гадна/дотор/жевхэн гадаргуу</p>
-        </div>
-
-        <div className="warm-card p-6">
-          <p className="text-[14px] font-semibold text-slate-900">Сойзны даралт</p>
-          <div className="mt-3">
-            <StatusPill
-              label={pressure === 'ok' ? 'Зөв' : pressure === 'high' ? 'Хэт их' : 'Дутуу'}
-              tone={pressure === 'ok' ? 'green' : 'red'}
-            />
-          </div>
+          <p className="text-[14px] font-semibold text-text-base">Нийт хамралт</p>
+          <p className="mt-2 text-[32px] font-bold text-text-base">{overall}%</p>
+          <p className="mt-1 text-[12px] text-text-muted">12 бүс · гадна/дотор/зажлах гадаргуу</p>
         </div>
 
         {!running ? (
-          <Button size="lg" className="w-full rounded-full bg-[#F3B900] text-slate-900 hover:bg-[#E5AD00]" onClick={start}>
+          <Button
+            size="lg"
+            className="w-full rounded-full bg-[#F3B900] text-slate-900 hover:bg-[#E5AD00]"
+            onClick={start}
+          >
             Эхлэх
           </Button>
         ) : (

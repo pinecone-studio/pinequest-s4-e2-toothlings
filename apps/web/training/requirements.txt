@@ -1,0 +1,4 @@
+# Brushing-zone trainer + recorder (Python 3.9–3.11).
+numpy>=1.26,<2.0
+tensorflow>=2.15,<2.20
+websocket-client>=1.7   # record.py — ESP32 WebSocket stream

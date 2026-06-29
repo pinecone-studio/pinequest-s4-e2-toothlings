@@ -1,0 +1,16 @@
+# Brushing zone labels — MUST match apps/web/src/lib/brush/zones.ts BRUSH_LABELS.
+# 12 zones = 4 quadrants (UL/UR/LL/LR) × 3 surfaces (outer/inner/occlusal) + idle.
+# Order matters: it defines the model output index order.
+гадна-баруун
+гадна-зүүн
+гадна-урд
+дунд-баруун-дээд
+дунд-баруун-доод
+дунд-зүүн-дээд
+дунд-зүүн-доод
+дотор-баруун-дээд
+дотор-баруун-доод
+дотор-урд-дээд
+дотор-урд-доод
+дотор-зүүн-дээд
+дотор-зүүн-доод
