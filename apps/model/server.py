@@ -14,6 +14,12 @@ from PIL import Image
 
 PORT = int(os.environ.get("INFERENCE_PORT", "8765"))
 CONFIDENCE = float(os.environ.get("INFERENCE_CONF", "0.25"))
+# Inference resolution. The model is trained on close-up crops; on a wide
+# full-mouth photo each lesion shrinks below the detail YOLO needs once the
+# image is letterboxed to imgsz, so confidence collapses (e.g. a lesion that
+# scores 0.82 close-up scores ~0.31 in a 2386px frame at imgsz=640). Running at
+# 1280 keeps lesions ~2x larger so genuine caries clear the triage thresholds.
+IMGSZ = int(os.environ.get("INFERENCE_IMGSZ", "1280"))
 MODEL_PATH = Path(__file__).resolve().parent / "best.pt"
 ONNX_PATH = Path(__file__).resolve().parent / "best.onnx"
 
@@ -67,6 +73,7 @@ async def analyze(image: UploadFile = File(...)) -> dict:
     results = yolo.predict(
         source=pil_image,
         conf=CONFIDENCE,
+        imgsz=IMGSZ,
         verbose=False,
     )
 
@@ -104,6 +111,7 @@ async def analyze(image: UploadFile = File(...)) -> dict:
         "image_height": height,
         "model_info": {
             "name": "yolov8_caries_detector (intraoral)",
+            "imgsz": IMGSZ,
             "classes": [
                 str(names.get(i, f"class_{i}")).lower()
                 for i in sorted(DISEASE_CLASS_IDS)
