@@ -4,11 +4,14 @@ import { useTheme } from '@/lib/ThemeContext'
 type Props = { subtitle: string }
 
 const AuthBrand = ({ subtitle }: Props) => {
-  const { colors } = useTheme()
+  const { colors, dark } = useTheme()
+  const logo = dark
+    ? require('../../assets/logoYellow.png')
+    : require('../../assets/logoBlack.png')
   return (
     <View style={s.root}>
       <View style={s.nameCol}>
-        <Image source={require('../../assets/smilo.png')} style={s.mark} resizeMode="contain" />
+        <Image source={logo} style={s.mark} resizeMode="contain" />
         <Text style={[s.name, { color: colors.textBase }]}>TOOTHLINGS</Text>
       </View>
       <Text style={[s.subtitle, { color: colors.textMuted }]}>{subtitle}</Text>

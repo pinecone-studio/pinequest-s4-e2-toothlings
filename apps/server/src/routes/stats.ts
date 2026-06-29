@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { and, count, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { and, count, eq, inArray, ne } from 'drizzle-orm'
 import { screenings, children, followUps, screeningReviews } from '@pinequest/db/d1'
 import { authenticate } from '../middleware/auth.js'
 import { resolveScope, scopeWhere } from '../lib/scopeFilter.js'
@@ -69,6 +69,14 @@ statsRoutes.get('/timeseries', authenticate, async (c) => {
   return c.json({ success: true, data: { range: r, buckets: bucketize(rows, r) } })
 })
 
+// A child is the unit of coverage (identity = child_key × season). One child may
+// produce several screening EVENTS in a season (upper + lower photos, re-captures,
+// corrections), so we MUST aggregate by childKey — counting raw screening rows would
+// report a single child as 2+. Per child we keep the worst triage severity seen
+// (red > yellow > green): never under-report a danger signal.
+const SEVERITY: Record<string, number> = { green: 1, yellow: 2, red: 3 }
+const worse = (a: string, b: string) => ((SEVERITY[b] ?? 0) > (SEVERITY[a] ?? 0) ? b : a)
+
 statsRoutes.get('/', authenticate, async (c) => {
   const db = c.get('db')
   const { seasonId, schoolId: querySchoolId } = c.req.query()
@@ -81,23 +89,45 @@ statsRoutes.get('/', authenticate, async (c) => {
     ? (querySchoolId ? eq(followUps.schoolId, querySchoolId) : undefined)
     : inArray(followUps.schoolId, scope.schoolIds.length ? scope.schoolIds : ['__no_scope__'])
 
-  const [triageGroups, childRow, pendingRow, flaggedRow, resolvedRow] = await Promise.all([
-    db.select({ triageLevel: screenings.triageLevel, c: count() }).from(screenings).where(and(scSc, seasonCond, querySchool)).groupBy(screenings.triageLevel),
+  const [eventRows, childRow, flaggedRow, resolvedRow] = await Promise.all([
+    // One row per screening event, with whether that event was dentist-reviewed.
+    db.select({ childKey: screenings.childKey, triageLevel: screenings.triageLevel, reviewId: screeningReviews.id })
+      .from(screenings).leftJoin(screeningReviews, eq(screeningReviews.screeningId, screenings.id))
+      .where(and(scSc, seasonCond, querySchool)),
     db.select({ c: count() }).from(children).where(and(chSc, eq(children.isActive, true), querySchoolId ? eq(children.schoolId, querySchoolId) : undefined)),
-    db.select({ c: count() }).from(screenings).leftJoin(screeningReviews, eq(screeningReviews.screeningId, screenings.id)).where(and(scSc, seasonCond, querySchool, isNull(screeningReviews.id))),
     db.select({ c: count() }).from(followUps).where(and(fuSchool, eq(followUps.status, 'flagged'))),
     db.select({ c: count() }).from(followUps).where(and(fuSchool, ne(followUps.status, 'flagged'))),
   ])
 
-  const byLevel = Object.fromEntries(triageGroups.map((g) => [g.triageLevel, g.c]))
-  const totalScreened = (byLevel.green ?? 0) + (byLevel.yellow ?? 0) + (byLevel.red ?? 0)
+  // Collapse events → children. perChild.level = worst seen; reviewed = any event reviewed.
+  const perChild = new Map<string, { level: string; reviewed: boolean }>()
+  for (const r of eventRows) {
+    const prev = perChild.get(r.childKey)
+    if (prev) {
+      prev.level = worse(prev.level, r.triageLevel)
+      prev.reviewed = prev.reviewed || r.reviewId != null
+    } else {
+      perChild.set(r.childKey, { level: r.triageLevel, reviewed: r.reviewId != null })
+    }
+  }
+
+  const triage = { green: 0, yellow: 0, red: 0 }
+  // "Эмчийн хяналт хүлээж буй" = children with a danger signal (red/yellow) that
+  // a dentist has NOT yet confirmed. Green (no danger seen) children are not
+  // surfaced as awaiting review — only those that actually need a human look.
+  let pendingReview = 0
+  for (const v of perChild.values()) {
+    if (v.level in triage) triage[v.level as keyof typeof triage] += 1
+    if (!v.reviewed && (v.level === 'red' || v.level === 'yellow')) pendingReview += 1
+  }
+  const totalScreened = perChild.size
   return c.json({
     success: true,
     data: {
       totalScreened,
-      triage: { green: byLevel.green ?? 0, yellow: byLevel.yellow ?? 0, red: byLevel.red ?? 0 },
+      triage,
       coverage: { screened: totalScreened, total: childRow[0]?.c ?? 0 },
-      pendingReview: pendingRow[0]?.c ?? 0,
+      pendingReview,
       flaggedFollowUps: flaggedRow[0]?.c ?? 0,
       resolvedFollowUps: resolvedRow[0]?.c ?? 0,
     },

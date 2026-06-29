@@ -6,11 +6,16 @@ import { useFocusEffect } from 'expo-router'
 import { seasonLabelMn } from '@pinequest/core'
 import { useTheme } from '@/lib/ThemeContext'
 import { getMyClasses, updateSchedule, type TeacherClass } from '@/lib/api'
+import { scheduleScreeningReminder, syncScreeningReminders } from '@/lib/notifications'
 import { toMongolian } from '@/lib/errorMessages'
 import MonthCalendar from '@/components/teacher/MonthCalendar'
 
 const startOfDay = (d: string | Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x }
-const fmt = (iso: string) => new Date(iso).toLocaleDateString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric' })
+// Standard numeric date: YYYY.MM.DD (device-independent, no verbose month names).
+const fmt = (iso: string) => {
+  const d = new Date(iso)
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+}
 
 const CalendarScreen = () => {
   const { colors } = useTheme()
@@ -21,13 +26,20 @@ const CalendarScreen = () => {
 
   const load = useCallback(() => {
     setError(null)
-    getMyClasses().then(setClasses).catch((e) => setError(toMongolian(e)))
+    getMyClasses()
+      .then((list) => { setClasses(list); void syncScreeningReminders(list) })
+      .catch((e) => setError(toMongolian(e)))
   }, [])
   useFocusEffect(useCallback(() => { load() }, [load]))
 
   const pick = async (k: TeacherClass, date: Date) => {
     setSavingId(k.id); setOpenId(null)
-    try { await updateSchedule(k.id, date.toISOString(), k.reminderPhone); load() }
+    try {
+      await updateSchedule(k.id, date.toISOString(), k.reminderPhone)
+      // Local reminder the day before at 15:00 — fires even with no signal.
+      await scheduleScreeningReminder({ id: k.id, name: k.name, scheduledAt: date.toISOString() })
+      load()
+    }
     catch (e) { setError(toMongolian(e)) } finally { setSavingId(null) }
   }
 

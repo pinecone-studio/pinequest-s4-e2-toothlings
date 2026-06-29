@@ -8,19 +8,24 @@ type Action = { id: string; icon: IoniconsName; label: string; onPress: () => vo
 
 type Props = { actions: Action[] }
 
-const QuickActionGrid = ({ actions }: Props) => (
-  <View style={s.grid}>
-    {actions.slice(0, 4).map((a) => (
-      <View key={a.id} style={s.cell}>
-        <QuickActionCard icon={a.icon} label={a.label} onPress={a.onPress} />
-      </View>
-    ))}
-  </View>
-)
+const QuickActionGrid = ({ actions }: Props) => {
+  const rows = [actions.slice(0, 2), actions.slice(2, 4)]
+  return (
+    <View style={s.grid}>
+      {rows.map((row, i) => (
+        <View key={i} style={s.row}>
+          {row.map((a) => (
+            <QuickActionCard key={a.id} icon={a.icon} label={a.label} onPress={a.onPress} />
+          ))}
+        </View>
+      ))}
+    </View>
+  )
+}
 
 const s = StyleSheet.create({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  cell: { width: '48%', flexGrow: 1 },
+  grid: { flex: 1, gap: 10 },
+  row: { flex: 1, flexDirection: 'row', gap: 10 },
 })
 
 export default QuickActionGrid

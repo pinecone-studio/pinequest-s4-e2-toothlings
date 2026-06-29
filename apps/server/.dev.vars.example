@@ -10,9 +10,11 @@ JWT_SECRET=dev-secret-change-me-in-production
 # Allowed browser origin for CORS (overrides wrangler.toml [vars] locally).
 CORS_ORIGIN=http://localhost:3000
 
-# Where the Worker proxies image analysis. Local YOLO server defaults to
-# http://127.0.0.1:8765/analyze; a hosted model (e.g. HF Spaces) uses :7860.
-INFERENCE_URL=http://127.0.0.1:8765/analyze
+# Where the Worker proxies image analysis. Default is the always-on hosted model
+# (HF Spaces) so no local Python server is needed. For local model dev instead,
+# run apps/model and use http://127.0.0.1:8765/analyze.
+# NOTE: the deployed Worker already has this set via `wrangler secret put INFERENCE_URL`.
+INFERENCE_URL=https://nerunnee-toothlings-inference.hf.space/analyze
 
 # Enables POST /api/dev/seed (admin + demo data). Leave unset in production.
 SEED_ENABLED=true

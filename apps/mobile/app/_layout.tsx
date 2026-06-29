@@ -61,6 +61,7 @@ const RootStack = () => {
       <Stack.Screen name="hospital" options={{ headerShown: false }} />
       <Stack.Screen name="stats" options={{ title: 'Статистик', headerBackTitle: 'Буцах' }} />
       <Stack.Screen name="class" options={{ headerShown: false }} />
+      <Stack.Screen name="screening" options={{ headerShown: false }} />
     </Stack>
   )
 }

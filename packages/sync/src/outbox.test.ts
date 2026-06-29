@@ -56,11 +56,14 @@ describe('Outbox', () => {
     expect(all[0].lastError).toBe('conflict')
   })
 
-  it('skips entries that exceeded MAX_ATTEMPTS', async () => {
+  it('does not send entries that exceeded MAX_ATTEMPTS (they become stuck)', async () => {
+    const fetchMock = vi.fn()
+    global.fetch = fetchMock
     await outbox.add(makeScreening())
     for (let i = 0; i < 5; i++) await store.markFailed('sc-1', 'err')
     const stats = await outbox.sync('http://api', 'tok')
-    expect(stats.skipped).toBe(1)
     expect(stats.sent).toBe(0)
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(await outbox.getStuck()).toHaveLength(1)
   })
 })

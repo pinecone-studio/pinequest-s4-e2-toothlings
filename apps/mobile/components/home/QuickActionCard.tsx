@@ -19,7 +19,7 @@ const QuickActionCard = ({ icon, label, onPress }: Props) => {
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={[s.iconWrap, { backgroundColor: colors.surface }]}>
+      <View style={[s.iconWrap, { backgroundColor: colors.primarySoft }]}>
         <Ionicons name={icon} size={22} color={colors.primary} />
       </View>
       <Text style={[s.label, { color: colors.textBase }]}>{label}</Text>
@@ -29,7 +29,7 @@ const QuickActionCard = ({ icon, label, onPress }: Props) => {
 
 const s = StyleSheet.create({
   card: {
-    width: '100%', aspectRatio: 1,
+    flex: 1,
     borderRadius: 16, borderWidth: 1,
     alignItems: 'flex-start', justifyContent: 'space-between',
     padding: 14,
@@ -40,7 +40,7 @@ const s = StyleSheet.create({
     width: 40, height: 40, borderRadius: 10,
     alignItems: 'center', justifyContent: 'center',
   },
-  label: { fontSize: 13, fontFamily: 'Inter_600SemiBold', lineHeight: 18 },
+  label: { fontSize: 14, fontFamily: 'Inter_600SemiBold', lineHeight: 18 },
 })
 
 export default QuickActionCard

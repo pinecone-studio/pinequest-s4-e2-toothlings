@@ -15,6 +15,9 @@ COPY --chown=user . .
 
 RUN python download_model.py
 
+# Export ONNX so /model.onnx can serve the on-device model to the mobile app.
+RUN python -c "from ultralytics import YOLO; YOLO('best.pt').export(format='onnx', imgsz=640)"
+
 EXPOSE 7860
 
 ENV INFERENCE_PORT=7860

@@ -1,5 +1,12 @@
 import { useCallback, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFocusEffect } from 'expo-router'
 import { seasonLabelMn } from '@pinequest/core'
@@ -9,7 +16,14 @@ import { toMongolian } from '@/lib/errorMessages'
 import TriageBar from '@/components/charts/TriageBar'
 import TrendBars from '@/components/charts/TrendBars'
 
-type KpiProps = { label: string; value: number; tone: string; surface: string; border: string; muted: string }
+type KpiProps = {
+  label: string
+  value: number
+  tone: string
+  surface: string
+  border: string
+  muted: string
+}
 
 const KpiCard = ({ label, value, tone, surface, border, muted }: KpiProps) => (
   <View style={[s.kpi, { backgroundColor: surface, borderColor: border }]}>
@@ -30,8 +44,11 @@ const StatsScreen = () => {
   const loadData = useCallback((sid?: string) => {
     setLoading(true)
     setError(null)
-    Promise.all([getStats(sid), getTimeseries('W', sid)])
-      .then(([s, t]) => { setStats(s); setTrend(t) })
+    Promise.all([getStats(sid), getTimeseries('D', sid)])
+      .then(([s, t]) => {
+        setStats(s)
+        setTrend(t)
+      })
       .catch((e: unknown) => setError(toMongolian(e)))
       .finally(() => setLoading(false))
   }, [])
@@ -49,57 +66,110 @@ const StatsScreen = () => {
     }, [loadData]),
   )
 
-  const changeSeason = (sid: string) => { setSeasonId(sid); loadData(sid) }
+  const changeSeason = (sid: string) => {
+    setSeasonId(sid)
+    loadData(sid)
+  }
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
+    <SafeAreaView
+      edges={['left', 'right', 'bottom']}
+      style={[s.safe, { backgroundColor: colors.bg }]}
+    >
       <View style={s.header}>
-        <Text style={[s.title, { color: colors.textBase }]}>Статистик</Text>
+        <Text style={[s.title, { color: colors.textBase }]}>Улирал</Text>
       </View>
 
       {seasons.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.seasonRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.seasonRow}
+        >
           {seasons.map((sid) => (
             <TouchableOpacity
               key={sid}
               onPress={() => changeSeason(sid)}
               activeOpacity={0.85}
-              style={[s.seasonBtn, { backgroundColor: sid === seasonId ? colors.primary : colors.surface, borderColor: colors.border }]}
+              style={[
+                s.seasonBtn,
+                {
+                  backgroundColor: sid === seasonId ? colors.primary : colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
             >
-              <Text style={[s.seasonText, { color: sid === seasonId ? colors.primaryText : colors.textBase }]}>{seasonLabelMn(sid)}</Text>
+              <Text
+                style={[
+                  s.seasonText,
+                  { color: sid === seasonId ? colors.primaryText : colors.textBase },
+                ]}
+              >
+                {seasonLabelMn(sid)}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       )}
 
       {loading ? (
-        <View style={s.center}><ActivityIndicator color={colors.primary} /></View>
+        <View style={s.center}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
       ) : error ? (
-        <View style={s.center}><Text style={[s.err]}>{error}</Text></View>
+        <View style={s.center}>
+          <Text style={[s.err]}>{error}</Text>
+        </View>
       ) : stats ? (
-        <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+        <View style={s.scroll}>
           <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[s.sectionLabel, { color: colors.textMuted }]}>ХАМРАГДАЛТ</Text>
             <Text style={[s.bigNum, { color: colors.textBase }]}>
               {stats.coverage.screened}
               <Text style={[s.bigSub, { color: colors.textMuted }]}> / {stats.coverage.total}</Text>
             </Text>
-            <TriageBar green={stats.triage.green} yellow={stats.triage.yellow} red={stats.triage.red} total={stats.coverage.total} />
+            <TriageBar
+              green={stats.triage.green}
+              yellow={stats.triage.yellow}
+              red={stats.triage.red}
+              total={stats.coverage.total}
+            />
           </View>
 
           <View style={s.row3}>
-            <KpiCard label="Нийт шалгасан" value={stats.totalScreened} tone={colors.triageGreenText} surface={colors.surface} border={colors.border} muted={colors.textMuted} />
-            <KpiCard label="Хяналт шаардлагатай" value={stats.flaggedFollowUps} tone={colors.triageYellowText} surface={colors.surface} border={colors.border} muted={colors.textMuted} />
-            <KpiCard label="Хянуулаагүй" value={stats.pendingReview} tone={colors.triageRedText} surface={colors.surface} border={colors.border} muted={colors.textMuted} />
+            <KpiCard
+              label="Нийт шалгасан"
+              value={stats.totalScreened}
+              tone={colors.triageGreenText}
+              surface={colors.surface}
+              border={colors.border}
+              muted={colors.textMuted}
+            />
+            <KpiCard
+              label="Хяналт шаардлагатай"
+              value={stats.flaggedFollowUps}
+              tone={colors.triageYellowText}
+              surface={colors.surface}
+              border={colors.border}
+              muted={colors.textMuted}
+            />
+            <KpiCard
+              label="Эмчид үзүүлэх"
+              value={stats.pendingReview}
+              tone={colors.triageRedText}
+              surface={colors.surface}
+              border={colors.border}
+              muted={colors.textMuted}
+            />
           </View>
 
           {trend && trend.buckets.length > 0 && (
             <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[s.sectionLabel, { color: colors.textMuted }]}>7 ХОНОГИЙН ЧИГЛЭЛ</Text>
+              <Text style={[s.sectionLabel, { color: colors.textMuted }]}>7 хоногийн нэгтгэл</Text>
               <TrendBars buckets={trend.buckets} />
             </View>
           )}
-        </ScrollView>
+        </View>
       ) : null}
     </SafeAreaView>
   )
@@ -114,7 +184,7 @@ const s = StyleSheet.create({
   seasonText: { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
   err: { color: '#ef4444', textAlign: 'center' },
-  scroll: { padding: 20, gap: 14, paddingBottom: 32 },
+  scroll: { flex: 1, padding: 20, gap: 14, paddingBottom: 24 },
   card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 12 },
   sectionLabel: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
   bigNum: { fontSize: 32, fontFamily: 'Inter_700Bold', letterSpacing: -0.5 },

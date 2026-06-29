@@ -28,15 +28,15 @@ export default function AgeGroupSelector({ selected, onSelect }: Props) {
             style={[
               s.btn,
               {
-                backgroundColor: active ? colors.primary : colors.surface,
+                backgroundColor: active ? colors.primarySoft : colors.surface,
                 borderColor: active ? colors.primary : colors.border,
               },
             ]}
             onPress={() => onSelect(id)}
             activeOpacity={0.8}
           >
-            <Text style={[s.label, { color: active ? colors.primaryText : colors.textBase }]}>{label}</Text>
-            <Text style={[s.sub, { color: active ? 'rgba(26,20,7,0.6)' : colors.textMuted }]}>
+            <Text style={[s.label, { color: colors.textBase }]}>{label}</Text>
+            <Text style={[s.sub, { color: colors.textMuted }]}>
               {subtitle}
             </Text>
           </TouchableOpacity>

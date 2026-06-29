@@ -10,11 +10,15 @@ export const rosterImportRowSchema = z.object({
   rosterSlot: z.number().int().positive(),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
+  // Upper bound is checked lazily at parse() time, NOT at module load. On
+  // Cloudflare Workers the clock is frozen at epoch 0 during top-level module
+  // evaluation, so `new Date().getFullYear()` read here would be 1970 and reject
+  // every real birth year. A refine runs inside the request, where the clock is live.
   birthYear: z
     .number()
     .int()
     .gte(2000)
-    .lte(new Date().getFullYear()),
+    .refine((y) => y <= new Date().getFullYear(), { message: 'birthYear cannot be in the future' }),
   gender: z.enum(['M', 'F']).optional(),
   guardianPhone: z.string().min(6).optional(),
 })
@@ -35,6 +39,12 @@ export const teacherClassCreateSchema = z.object({
   students: z.array(teacherRosterRowSchema).max(100),
 })
 export type TeacherClassCreateInput = z.infer<typeof teacherClassCreateSchema>
+
+/** Teacher appends students to an existing class — roster slots are assigned server-side. */
+export const teacherRosterAppendSchema = z.object({
+  students: z.array(teacherRosterRowSchema.omit({ rosterSlot: true })).min(1).max(100),
+})
+export type TeacherRosterAppendInput = z.infer<typeof teacherRosterAppendSchema>
 
 // MUST mirror FollowUpStatus in @pinequest/types/common.ts — this validates the
 // /api/followups PATCH boundary, and a divergence silently 400s valid UI values.

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { seasonForDate } from '@pinequest/core'
@@ -72,8 +72,14 @@ const NewClassScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={[s.safe, { backgroundColor: colors.bg }]}>
+      <KeyboardAvoidingView style={s.safe} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        contentContainerStyle={s.scroll}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        showsVerticalScrollIndicator={false}
+      >
         <ScreenHeader title="Шинэ анги" subtitle="Анги болон сурагчдын бүртгэл" />
 
         <TextField label="АНГИЙН НЭР" value={name} onChange={setName} placeholder="ж: 3A" autoCapitalize="characters" />
@@ -103,6 +109,7 @@ const NewClassScreen = () => {
         {error ? <Text style={s.error}>{error}</Text> : null}
         <PrimaryButton label="Анги үүсгэх" onPress={onSubmit} loading={loading} disabled={!name.trim()} />
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }

@@ -11,7 +11,7 @@ const ScanHeroCard = ({ onScan }: Props) => {
     <View style={[s.card, { backgroundColor: colors.primary }]}>
       <View style={s.textCol}>
         <Text style={[s.title, { color: colors.primaryText }]}>Амны хөндийн байдал</Text>
-        <Text style={[s.sub, { color: colors.primaryText }]}>Асуумж・Үнэлгээ・Дүгнэлт</Text>
+        <Text style={[s.sub, { color: colors.primaryText }]}>Асуумж ・ Үнэлгээ ・ Дүгнэлт</Text>
       </View>
 
       <TouchableOpacity

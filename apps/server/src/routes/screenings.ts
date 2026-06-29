@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 import { screeningCreateSchema, triage } from '@pinequest/core'
-import { screenings, screeningReviews } from '@pinequest/db/d1'
+import { screenings, screeningReviews, children, schoolClasses } from '@pinequest/db/d1'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { writeAudit } from '../lib/audit.js'
 import { persistScreening } from '../lib/persistScreening.js'
@@ -37,7 +37,20 @@ screeningRoutes.get('/', authenticate, async (c) => {
     orderBy: desc(screenings.capturedAt),
     with: { findings: true, review: { columns: { confirmedLevel: true } } },
   })
-  return c.json({ success: true, data })
+
+  // Resolve roster names for display. PII stays in the roster, but the requester
+  // is already scope-limited to their own classes/school, so attaching names here
+  // is consistent with the board's roster-status view. Non-roster keys (parent /
+  // direct screenings) simply resolve to null.
+  const keys = [...new Set(data.map((s) => s.childKey))]
+  const kids = keys.length
+    ? await db.select({ childKey: children.childKey, classId: children.classId, firstName: children.firstName, lastName: children.lastName })
+        .from(children).where(inArray(children.childKey, keys))
+    : []
+  const nameByKey = new Map(kids.map((k) => [`${k.classId}::${k.childKey}`, `${k.lastName} ${k.firstName}`.trim()]))
+  const withNames = data.map((s) => ({ ...s, childName: nameByKey.get(`${s.classId}::${s.childKey}`) ?? null }))
+
+  return c.json({ success: true, data: withNames })
 })
 
 screeningRoutes.get('/:id', authenticate, async (c) => {
@@ -48,7 +61,19 @@ screeningRoutes.get('/:id', authenticate, async (c) => {
   })
   if (!screening) return c.json({ success: false, data: null }, 404)
   if (!(await hasChildAccess(db, c.get('jwtPayload'), screening))) return c.json({ success: false, data: null, message: 'forbidden' }, 403)
-  return c.json({ success: true, data: screening })
+  const kid = await db.query.children.findFirst({
+    where: and(eq(children.classId, screening.classId), eq(children.childKey, screening.childKey)),
+    columns: { firstName: true, lastName: true, birthYear: true },
+  })
+  const childName = kid ? `${kid.lastName} ${kid.firstName}`.trim() : null
+  const klass = await db.query.schoolClasses.findFirst({
+    where: eq(schoolClasses.id, screening.classId),
+    columns: { name: true },
+  })
+  return c.json({
+    success: true,
+    data: { ...screening, childName, childBirthYear: kid?.birthYear ?? null, className: klass?.name ?? null },
+  })
 })
 
 screeningRoutes.put('/:id/review', authorize('dentist', 'admin'), async (c) => {

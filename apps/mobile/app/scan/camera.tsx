@@ -12,7 +12,7 @@ import CameraHintBanner from '@/components/scan/camera/CameraHintBanner'
 import CameraFrameOverlay from '@/components/scan/camera/CameraFrameOverlay'
 import CameraShutterBar from '@/components/scan/camera/CameraShutterBar'
 import { PriorLevelBanner } from '@/components/scan/camera/PriorLevelBanner'
-import { s } from './cameraStyles'
+import { s } from '@/components/scan/camera/cameraStyles'
 
 export default function CameraScreen() {
   const params = useLocalSearchParams<{
@@ -42,22 +42,25 @@ export default function CameraScreen() {
     })
   }, [])
 
-  // Show mode-transition interstitial after upper photo is captured
+  // Show mode-transition interstitial after upper photo is captured.
+  // The capture hook already switches mode (upper -> lower); this is a purely
+  // visual cue, so it must NOT toggle mode again (double-toggle bug) and must
+  // mark prevUpperRef before returning so it fires exactly once.
   const prevUpperRef = useRef(false)
   useEffect(() => {
     if (!prevUpperRef.current && !!photos.upper && !photos.lower) {
+      prevUpperRef.current = true
       setShowTransition(true)
       transitionOpacity.setValue(1)
       const t = setTimeout(() => {
         Animated.timing(transitionOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => {
           setShowTransition(false)
-          toggleMode()
         })
       }, 1400)
       return () => clearTimeout(t)
     }
     prevUpperRef.current = !!photos.upper
-  }, [photos.upper, photos.lower, transitionOpacity, toggleMode])
+  }, [photos.upper, photos.lower, transitionOpacity])
 
   if (!permission) return <View style={s.root} />
   if (!permission.granted) return <CameraPermission onRequest={requestPermission} />

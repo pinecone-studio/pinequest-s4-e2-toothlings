@@ -14,7 +14,7 @@ const buildBody = (childName: string, s: ChildScreeningSummary): string =>
   [
     'Эрхэм эцэг эх,',
     '',
-    `${childName}-ийн шүдний урьдчилсан скринингийн дүн (${new Date(s.capturedAt).toLocaleDateString('mn-MN')}):`,
+    `${childName}-ийн шүдний урьдчилсан дүгнэлт (${new Date(s.capturedAt).toLocaleDateString('mn-MN')}):`,
     '',
     `• Дүгнэлт: ${LEVEL_MN[s.effectiveLevel] ?? s.effectiveLevel}`,
     `• ${s.headline}`,
@@ -30,7 +30,7 @@ const buildBody = (childName: string, s: ChildScreeningSummary): string =>
   ].join('\n')
 
 export const openParentEmail = (childName: string, toEmail: string | null, s: ChildScreeningSummary): void => {
-  const subject = `Шүдний скринингийн дүн — ${childName}`
+  const subject = `Шүдний дүгнэлт - ${childName}`
   const body = encodeURIComponent(buildBody(childName, s))
   void Linking.openURL(`mailto:${toEmail ?? ''}?subject=${encodeURIComponent(subject)}&body=${body}`)
 }

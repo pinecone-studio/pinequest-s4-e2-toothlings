@@ -7,22 +7,38 @@ const LEVEL_MN: Record<string, string> = {
   red: 'Яаралтай эмчилгээ шаардлагатай',
 }
 const STAGE_MN: Record<string, string> = {
-  primary: 'сүүн шүдний нас', mixed: 'холимог шүдний нас', permanent: 'байнгын шүдний нас',
+  primary: 'сүүн шүдний нас',
+  mixed: 'холимог шүдний нас',
+  permanent: 'байнгын шүдний нас',
 }
 const LEVEL_COLOR: Record<string, { bg: string; fg: string; border: string }> = {
-  red:    { bg: '#FBF1F0', fg: '#A84545', border: '#A8454530' },
+  red: { bg: '#FBF1F0', fg: '#A84545', border: '#A8454530' },
   yellow: { bg: '#FEF3E7', fg: '#A8580A', border: '#A8580A30' },
-  green:  { bg: '#EEF9F3', fg: '#3B8C5E', border: '#3B8C5E30' },
+  green: { bg: '#EEF9F3', fg: '#3B8C5E', border: '#3B8C5E30' },
 }
 
-export const printChildSummary = (childName: string, s: ChildScreeningSummary, imageRefs: string[], hospital?: HospitalGuide | null): void => {
+export const printChildSummary = (
+  childName: string,
+  s: ChildScreeningSummary,
+  imageRefs: string[],
+  hospital?: HospitalGuide | null,
+): void => {
   const col = LEVEL_COLOR[s.effectiveLevel] ?? { bg: '#F5F5F4', fg: '#78716C', border: '#78716C30' }
   const levelLabel = LEVEL_MN[s.effectiveLevel] ?? s.effectiveLevel
-  const date = new Date(s.capturedAt).toLocaleDateString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric' })
+  const date = new Date(s.capturedAt).toLocaleDateString('mn-MN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
   const realImages = imageRefs.filter((r) => r.startsWith('http'))
 
   const imgsHtml = realImages.length
-    ? realImages.map((src) => `<img src="${src}" alt="Зураг" style="max-width:100%;border-radius:8px;margin:6px 0;" />`).join('')
+    ? realImages
+        .map(
+          (src) =>
+            `<img src="${src}" alt="Зураг" style="max-width:100%;border-radius:8px;margin:6px 0;" />`,
+        )
+        .join('')
     : `<div style="background:#F5F5F4;border-radius:8px;padding:24px;text-align:center;color:#9CA3AF;font-size:13px;">Синк хийгдсэн зураг байхгүй</div>`
 
   const stepsHtml = s.homeSteps
@@ -62,7 +78,7 @@ export const printChildSummary = (childName: string, s: ChildScreeningSummary, i
   ${s.homeSteps.length ? `<div style="margin-bottom:16px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6B7280;margin-bottom:8px;">Гэрийн арчилгаа</div><ul style="padding-left:18px;">${stepsHtml}</ul></div>` : ''}
   ${hospitalHtml}
   <div style="margin-top:24px;padding-top:14px;border-top:1px solid #E5E7EB;font-size:11px;color:#9CA3AF;line-height:1.6;">
-    АНХААР: Энэ бол урьдчилсан скринингийн дүн бөгөөд <strong>ОНОШ БИШ</strong>.<br>
+    АНХААР: Энэ бол урьдчилсан дүгнэлт бөгөөд <strong>ОНОШ БИШ</strong>.<br>
     Эцсийн дүгнэлтийг мэргэжлийн шүдний эмч баталгаажуулна.
   </div>
   <div class="no-print" style="margin-top:24px;text-align:center;">

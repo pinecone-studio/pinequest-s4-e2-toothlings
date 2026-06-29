@@ -1,6 +1,7 @@
 export type ColorTokens = {
   primary: string
   primaryText: string
+  primarySoft: string
   sidebar: string
   bg: string
   surface: string
@@ -25,6 +26,7 @@ export type ColorTokens = {
 export const lightColors: ColorTokens = {
   primary: '#F2B705',        // Honey Gold — matches web brand primary
   primaryText: '#1A1407',    // dark text on gold button
+  primarySoft: 'rgba(242,183,5,0.12)', // soft gold chip behind icons (works on white)
   sidebar: '#2A2418',        // web brand-sidebar
   bg: '#FFFFFF',             // all-white canvas on phone
   surface: '#FFFFFF',
@@ -49,6 +51,7 @@ export const lightColors: ColorTokens = {
 export const darkColors: ColorTokens = {
   primary: '#FFC93C',        // brighter gold for dark mode — matches web dark primary
   primaryText: '#1A1407',
+  primarySoft: 'rgba(255,201,60,0.16)', // soft gold chip behind icons (dark)
   sidebar: '#1C1C1E',
   bg: '#000000',
   surface: '#1C1C1E',

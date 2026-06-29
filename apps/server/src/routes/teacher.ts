@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { and, asc, count, desc, eq, inArray, ne } from 'drizzle-orm'
-import { childKey, teacherClassCreateSchema } from '@pinequest/core'
+import { childKey, teacherClassCreateSchema, teacherRosterAppendSchema } from '@pinequest/core'
 import { schoolClasses, children, screenings, screeningReviews, toothFindings, userScopes, users } from '@pinequest/db/d1'
 import type { LongitudinalFlag, TriageLevel } from '@pinequest/types'
 import { authorize } from '../middleware/auth.js'
@@ -70,6 +70,36 @@ teacherRoutes.post('/classes', authorize('teacher', 'admin'), async (c) => {
       .onConflictDoNothing()
   }
   return c.json({ success: true, data: { ...klass, enrolled: body.students.length, screened: 0 } }, 201)
+})
+
+// Append students to an existing class. Roster slots continue from the current max
+// (counting inactive children too, so childKeys never collide). Scoped to class owners.
+teacherRoutes.post('/classes/:classId/students', authorize('teacher', 'admin'), async (c) => {
+  const db = c.get('db')
+  const classId = c.req.param('classId')
+  if (!(await hasClassScope(db, c.get('jwtPayload'), classId))) {
+    return c.json({ success: false, data: null, message: 'forbidden' }, 403)
+  }
+
+  const klass = await db.query.schoolClasses.findFirst({ where: eq(schoolClasses.id, classId) })
+  if (!klass) return c.json({ success: false, data: null, message: 'not_found' }, 404)
+
+  const body = teacherRosterAppendSchema.parse(await c.req.json())
+
+  const existing = await db.select({ rosterSlot: children.rosterSlot }).from(children).where(eq(children.classId, classId))
+  let slot = existing.reduce((m, r) => Math.max(m, r.rosterSlot), 0)
+
+  const rows = body.students.map((s) => {
+    slot += 1
+    return {
+      classId, schoolId: klass.schoolId,
+      childKey: childKey({ schoolId: klass.schoolId, className: klass.name, rosterSlot: slot, birthYear: s.birthYear }),
+      firstName: s.firstName, lastName: s.lastName, birthYear: s.birthYear, rosterSlot: slot,
+      gender: s.gender ?? null, guardianPhone: s.guardianPhone ?? null, guardianEmail: s.guardianEmail ?? null,
+    }
+  })
+  await inChunks(rows, (b) => db.insert(children).values(b))
+  return c.json({ success: true, data: { added: rows.length } }, 201)
 })
 
 // Per-child status for one class: roster PII + latest triage level. Powers the class

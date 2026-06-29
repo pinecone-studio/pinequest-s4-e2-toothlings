@@ -20,7 +20,7 @@ export const buildParentEmailBody = (childName: string, s: ChildScreeningSummary
     ``,
     `${childName}-ийн шүдний урьдчилсан үзүүлэлтийн дүн (${new Date(s.capturedAt).toLocaleDateString('mn-MN')}):`,
     ``,
-    `── СКРИНИНГИЙН ДҮН ──────────────────────────────`,
+    `── Дүгнэлт ──────────────────────────────`,
     `• Дүгнэлт: ${LEVEL_MN[s.effectiveLevel] ?? s.effectiveLevel}`,
     `• ${s.headline}`,
     `• Шүдний эмчээр шалгуулах хэсэг: ${s.flaggedAreas}`,

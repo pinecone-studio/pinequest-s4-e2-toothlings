@@ -53,23 +53,31 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
     return c.json({ success: false, data: null, message: 'forbidden' }, 403)
   }
 
-  // Run inference on whichever images were provided; combine all detections
-  const rawResults: RawInference[] = []
+  // Run inference on each provided arch, keeping its detections attributed to the
+  // arch so the result UI can draw boxes per photo. All detections still feed ONE
+  // screening — never split a two-shot capture across separate screening records.
+  const shots: { arch: 'upper' | 'lower'; image: File }[] = []
+  if (imageUpper) shots.push({ arch: 'upper', image: imageUpper })
+  if (imageLower) shots.push({ arch: 'lower', image: imageLower })
+  if (!shots.length && imageSingle) shots.push({ arch: 'upper', image: imageSingle })
+
+  const photos: { arch: 'upper' | 'lower'; detections: ReturnType<typeof normalizeInference>['detections'] }[] = []
   try {
-    if (imageUpper) rawResults.push(await runInference(inferenceUrl, imageUpper))
-    if (imageLower) rawResults.push(await runInference(inferenceUrl, imageLower))
-    if (!rawResults.length && imageSingle) rawResults.push(await runInference(inferenceUrl, imageSingle))
+    for (const shot of shots) {
+      const raw = await runInference(inferenceUrl, shot.image)
+      photos.push({ arch: shot.arch, detections: normalizeInference(raw, 'server').detections })
+    }
   } catch {
     return c.json({ success: false, data: null, message: 'inference_failed' }, 502)
   }
 
-  const allDetections = rawResults.flatMap((raw) => normalizeInference(raw, 'server').detections)
+  const allDetections = photos.flatMap((p) => p.detections)
   const findings = detectionsToFindings(allDetections, () => crypto.randomUUID())
   const symptoms = parseSymptoms(body['symptoms'])
   const triageResult = triage(findings, symptoms)
   const screeningId = crypto.randomUUID()
 
-  const imageCount = rawResults.length
+  const imageCount = photos.length
   await persistScreening(
     c.get('db'),
     {
@@ -90,6 +98,7 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
       triageLevel: triageResult.level,
       triageScore: triageResult.score,
       detections: allDetections,
+      photos,
       modelVersion: c.env.MODEL_VERSION ?? 'yolov8-server',
     },
   }, 201)

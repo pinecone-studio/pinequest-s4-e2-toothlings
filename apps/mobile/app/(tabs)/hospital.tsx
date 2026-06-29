@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { Text, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import * as Location from 'expo-location'
@@ -25,6 +25,7 @@ const HospitalScreen = () => {
 
   return (
     <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
+      <Text style={[s.pageTitle, { color: colors.textBase }]}>Тусламж</Text>
       <SegmentTabs active={segment} onChange={setSegment} />
       {segment === 'doctors' ? (
         <DoctorList />
@@ -39,6 +40,7 @@ const HospitalScreen = () => {
 
 const s = StyleSheet.create({
   root: { flex: 1 },
+  pageTitle: { fontSize: 24, fontFamily: 'Inter_700Bold', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12 },
 })
 
 export default HospitalScreen
