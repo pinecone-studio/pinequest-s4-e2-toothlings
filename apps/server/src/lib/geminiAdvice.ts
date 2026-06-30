@@ -9,6 +9,9 @@ import { GUIDANCE_SCHEMA, arrayBufferToBase64, extractGeminiResponseText, parseG
 
 export { fallbackAdvice } from './geminiPrompt.js'
 
+// Gemini зөвлөмж зөвхөн нэмэлт текст учир хэт удвал таслаад fallback руу шилжинэ.
+const GEMINI_TIMEOUT_MS = 20_000
+
 /**
  * Gemini дүгнэлт (advice) + нас тохирсон дэлгэрэнгүй зөвлөмж (guidance) гаргана
  * (зураг + илрүүлэлт + асуумж дээр тулгуурлан). Тохиргоо/сүлжээ алдаа гарвал null
@@ -55,11 +58,17 @@ export const runGeminiAdvice = async (params: {
     },
   }
 
+  // Cap how long we wait on Gemini: it is advice-only, so if it stalls we abort
+  // and let the caller fall back to triage-level boilerplate rather than hanging
+  // the whole analyze request (and the mobile capture screen) behind it.
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS)
   try {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: controller.signal,
     })
     if (!res.ok) {
       console.error('Gemini advice request failed:', await res.text().catch(() => ''))
@@ -70,5 +79,7 @@ export const runGeminiAdvice = async (params: {
   } catch (err) {
     console.error('Gemini advice error:', err)
     return null
+  } finally {
+    clearTimeout(timer)
   }
 }

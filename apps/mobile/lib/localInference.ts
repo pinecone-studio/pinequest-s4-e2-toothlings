@@ -5,14 +5,22 @@
  */
 import * as FileSystem from 'expo-file-system/legacy'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'
+import { Platform } from 'react-native'
+import Constants from 'expo-constants'
 import type { InferenceSession } from 'onnxruntime-react-native'
 import jpeg from 'jpeg-js'
 import type { RawInference } from '@pinequest/core'
 
 // onnxruntime-react-native is a custom native module that is NOT bundled in Expo Go.
-// Import it lazily so the app boots in Expo Go (server-inference path works fine);
-// the native module is only touched when on-device inference actually runs, which
-// requires a dev/native build (build-order step 7).
+// In Expo Go (executionEnvironment 'storeClient') the native binding is null, so
+// importing the package throws "Cannot read property 'install' of null" at module
+// eval. We therefore never even attempt the import there — the server-inference
+// path covers Expo Go fully, and on-device inference requires a dev/native build
+// (build-order step 7).
+export const isOnnxAvailable = Constants.executionEnvironment !== 'storeClient'
+
+// Import lazily so the native module is only touched when on-device inference
+// actually runs (and only in a build that contains it).
 const loadOnnx = () => import('onnxruntime-react-native')
 
 const MODEL_FILENAME = 'screener_model.onnx'
@@ -38,6 +46,8 @@ export const downloadModel = async (
   modelUrl: string,
   onProgress?: (pct: number) => void,
 ): Promise<void> => {
+  // No native runtime to load the file into (e.g. Expo Go) — skip the download.
+  if (!isOnnxAvailable) return
   if (await isModelCached()) return
   const dl = FileSystem.createDownloadResumable(
     modelUrl,
@@ -51,11 +61,39 @@ export const downloadModel = async (
   _session = null
 }
 
+// Hardware-accelerated execution providers: NNAPI (GPU/NPU) on Android, CoreML on
+// iOS, each with a CPU fallback so unsupported ops still run. This is the single
+// biggest win for on-device inference latency over the default CPU-only path.
+const EXECUTION_PROVIDERS = Platform.OS === 'ios' ? ['coreml', 'cpu'] : ['nnapi', 'cpu']
+
 const getSession = async (): Promise<InferenceSession> => {
   if (_session) return _session
   const { InferenceSession } = await loadOnnx()
-  _session = await InferenceSession.create(MODEL_FS_PATH)
+  _session = await InferenceSession.create(MODEL_FS_PATH, {
+    executionProviders: EXECUTION_PROVIDERS,
+    graphOptimizationLevel: 'all',
+  })
   return _session
+}
+
+/**
+ * Pre-build the session and compile the execution-provider graph by running one
+ * throwaway inference on zeros. Call this after the model is cached (e.g. on the
+ * camera screen) so the FIRST real capture isn't stalled by cold session init.
+ * Safe to call repeatedly — getSession() memoizes the session.
+ */
+export const warmupModel = async (): Promise<void> => {
+  if (!isOnnxAvailable) return
+  if (!(await isModelCached())) return
+  try {
+    const sess = await getSession()
+    const { Tensor } = await loadOnnx()
+    const zeros = new Float32Array(3 * INPUT_SIZE * INPUT_SIZE)
+    const input = new Tensor('float32', zeros, [1, 3, INPUT_SIZE, INPUT_SIZE])
+    await sess.run({ [sess.inputNames[0]]: input })
+  } catch {
+    // Warmup is best-effort; a failure here must never block capture.
+  }
 }
 
 const preprocessImage = async (uri: string): Promise<Float32Array> => {
@@ -117,6 +155,9 @@ const nms = (boxes: number[][], scores: number[]): number[] => {
  * normalizeInference() from @pinequest/core.
  */
 export const runLocalInference = async (imageUri: string): Promise<RawInference> => {
+  if (!isOnnxAvailable) {
+    throw new Error('On-device inference unavailable in this build (Expo Go)')
+  }
   const sess = await getSession()
   const pixels = await preprocessImage(imageUri)
 

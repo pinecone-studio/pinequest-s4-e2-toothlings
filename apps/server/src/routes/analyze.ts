@@ -35,12 +35,22 @@ const parseRawAnswers = (raw: unknown): QuestionnaireAnswer[] => {
   }
 }
 
+// Per-image inference deadline so one slow/stalled region can't hang the whole
+// analyze request (which the mobile capture screen blocks on).
+const INFERENCE_TIMEOUT_MS = 20_000
+
 const runInference = async (inferenceUrl: string, image: File): Promise<RawInference> => {
   const form = new FormData()
   form.append('image', new Blob([await image.arrayBuffer()], { type: 'image/jpeg' }), 'capture.jpg')
-  const res = await fetch(inferenceUrl, { method: 'POST', body: form })
-  if (!res.ok) throw new Error('inference_failed')
-  return res.json() as Promise<RawInference>
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), INFERENCE_TIMEOUT_MS)
+  try {
+    const res = await fetch(inferenceUrl, { method: 'POST', body: form, signal: controller.signal })
+    if (!res.ok) throw new Error('inference_failed')
+    return (await res.json()) as RawInference
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 analyzeRoutes.post('/analyze', authenticate, async (c) => {
@@ -78,12 +88,16 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
   // Run inference on each region, keeping its detections attributed to the
   // quadrant so the result UI can draw boxes per photo. All detections still feed
   // ONE screening — never split a multi-shot capture across separate records.
-  const photos: { quadrant: Quadrant; detections: ReturnType<typeof normalizeInference>['detections'] }[] = []
+  // Run all regions in parallel — they are independent, so sequential awaits just
+  // stacked their latencies. Promise.all preserves quadrant order in the result.
+  let photos: { quadrant: Quadrant; detections: ReturnType<typeof normalizeInference>['detections'] }[]
   try {
-    for (const shot of shots) {
-      const raw = await runInference(inferenceUrl, shot.image)
-      photos.push({ quadrant: shot.quadrant, detections: normalizeInference(raw, 'server').detections })
-    }
+    photos = await Promise.all(
+      shots.map(async (shot) => ({
+        quadrant: shot.quadrant,
+        detections: normalizeInference(await runInference(inferenceUrl, shot.image), 'server').detections,
+      })),
+    )
   } catch {
     return c.json({ success: false, data: null, message: 'inference_failed' }, 502)
   }
