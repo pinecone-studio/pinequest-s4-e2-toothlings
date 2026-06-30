@@ -55,7 +55,7 @@ const TabLayout = () => {
           shadowRadius: 20,
           elevation: 16,
         },
-        tabBarItemStyle: { paddingTop: 2 },
+        tabBarItemStyle: { paddingVertical: 0 }, // center icon+label evenly (no top offset)
         tabBarLabelStyle: { fontFamily: 'Inter_500Medium', fontSize: 11 },
       }}
     >

@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
-import { CLINICS, distanceKm, type Clinic } from './clinics'
+import { distanceKm, type Clinic } from './clinics'
 
 // Real dental clinics near the user, from OpenStreetMap via the Overpass API
-// (free, no API key). Offline-first: if the network fails or OSM has no
-// coverage nearby (common rurally), we fall back to the curated CLINICS list.
+// (free, no API key). Only genuine nearby clinics are shown — the 5 closest
+// within the search radius. No curated/default list and no offline fallback.
 
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
 ]
-const RADIUS_M = 25_000 // 25 km search radius around the user
+const RADIUS_M = 20_000 // 20 km search radius around the user
+const MAX_RESULTS = 5 // show at most the 5 closest clinics
 const REQUEST_TIMEOUT_MS = 20_000
 
 type OverpassElement = {
@@ -81,11 +82,10 @@ const fetchOverpass = async (lat: number, lng: number, signal: AbortSignal): Pro
   throw lastErr ?? new Error('overpass unavailable')
 }
 
-type State = { clinics: Clinic[]; loading: boolean; live: boolean }
+type State = { clinics: Clinic[]; loading: boolean }
 
 export const useNearbyClinics = (userLat: number, userLng: number): State => {
-  // Start from the curated list so the map/list always have something to show.
-  const [state, setState] = useState<State>({ clinics: CLINICS, loading: true, live: false })
+  const [state, setState] = useState<State>({ clinics: [], loading: true })
 
   useEffect(() => {
     let cancelled = false
@@ -95,20 +95,16 @@ export const useNearbyClinics = (userLat: number, userLng: number): State => {
     fetchOverpass(userLat, userLng, controller.signal)
       .then((osmClinics) => {
         if (cancelled) return
-        if (osmClinics.length === 0) {
-          // No OSM coverage nearby → curated list only.
-          setState({ clinics: CLINICS, loading: false, live: false })
-          return
-        }
-        // Merge curated + live: keep all curated (they carry ratings/hours), then
-        // add OSM results that aren't the same physical clinic (< ~150 m away).
-        const fresh = osmClinics.filter(
-          (o) => !CLINICS.some((c) => distanceKm(c, o.lat, o.lng) < 0.15),
-        )
-        setState({ clinics: [...CLINICS, ...fresh], loading: false, live: true })
+        // Keep only the closest few.
+        const nearest = osmClinics
+          .map((c) => ({ c, d: distanceKm(c, userLat, userLng) }))
+          .sort((a, b) => a.d - b.d)
+          .slice(0, MAX_RESULTS)
+          .map((x) => x.c)
+        setState({ clinics: nearest, loading: false })
       })
       .catch(() => {
-        if (!cancelled) setState({ clinics: CLINICS, loading: false, live: false })
+        if (!cancelled) setState({ clinics: [], loading: false })
       })
       .finally(() => clearTimeout(timer))
 

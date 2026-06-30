@@ -35,6 +35,7 @@ const NearbyClinicCard = ({ clinic, distance, isSelected, onPress }: Props) => {
             clinic.rating != null ? `⭐ ${clinic.rating}` : null,
             `${distance.toFixed(1)} км`,
             clinic.hours || null,
+            clinic.phone || null, // contact, when available
           ]
             .filter(Boolean)
             .join(' · ')}

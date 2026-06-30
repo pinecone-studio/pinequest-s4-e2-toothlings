@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useMemo } from 'react'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import { distanceKm, type Clinic } from '@/lib/clinics'
 import type { VolunteerDentist } from '@/lib/api'
 import NearbyClinicCard from './NearbyClinicCard'
@@ -18,6 +19,7 @@ type Props = {
 
 const NearbyClinicList = ({ userLat, userLng, clinics, loading, selectedId, onSelect, dentists = [] }: Props) => {
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
 
   const sortedClinics = useMemo(
     () => clinics.map((c) => ({ ...c, dist: distanceKm(c, userLat, userLng) })).sort((a, b) => a.dist - b.dist),
@@ -36,7 +38,10 @@ const NearbyClinicList = ({ userLat, userLng, clinics, loading, selectedId, onSe
   return (
     <View style={[s.sheet, { backgroundColor: colors.surface }]}>
       <View style={[s.handle, { backgroundColor: colors.border }]} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: tabBarPad }}
+      >
         {sortedDentists.length > 0 && (
           <>
             <Text style={[s.sectionTitle, { color: colors.textMuted }]}>Сайн дурын эмч нар</Text>
@@ -64,6 +69,11 @@ const NearbyClinicList = ({ userLat, userLng, clinics, loading, selectedId, onSe
             onPress={() => onSelect(c.id, 'clinic')}
           />
         ))}
+        {!loading && sortedClinics.length === 0 && (
+          <Text style={[s.empty, { color: colors.textMuted }]}>
+            Ойролцоо (20 км) бүртгэлтэй шүдний эмнэлэг олдсонгүй
+          </Text>
+        )}
       </ScrollView>
     </View>
   )
@@ -88,6 +98,7 @@ const s = StyleSheet.create({
   sectionRow: { flexDirection: 'row', alignItems: 'center' },
   sectionTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 12, paddingHorizontal: 16, paddingVertical: 6 },
   sectionSpinner: { marginLeft: -8 },
+  empty: { fontFamily: 'Inter_400Regular', fontSize: 13, paddingHorizontal: 16, paddingVertical: 14, textAlign: 'center' },
 })
 
 export default NearbyClinicList
