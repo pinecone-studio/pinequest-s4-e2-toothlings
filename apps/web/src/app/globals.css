@@ -3,83 +3,85 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial,
+    sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
 
   /* brand raw — Honey Gold (same hue in light and dark) */
-  --color-brand-primary: #F2B705;
-  --color-brand-sidebar: #2A2418;
-  --color-brand-accent: #FFD24D;
-  --color-brand-muted: #FFF0BF;
+  --color-brand-primary: #f2b705;
+  --color-brand-sidebar: #2a2418;
+  --color-brand-accent: #ffd24d;
+  --color-brand-muted: #fff0bf;
 
   /* semantic surfaces — clean neutral light-gray canvas, white cards pop */
-  --color-bg: #EDEDED;
-  --color-surface: #FFFFFF;
-  --color-surface-raised: #F5F5F5;
-  --color-sidebar-bg: #E8E8E8;
-  --color-consumer-chrome: #E8E8E8;
-  --color-consumer-canvas: #EDEDED;
+  --color-bg: #ededed;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f5f5f5;
+  --color-sidebar-bg: #e8e8e8;
+  --color-consumer-chrome: #e8e8e8;
+  --color-consumer-canvas: #ededed;
 
   /* borders — neutral-gray separators */
-  --color-border: #E0E0E0;
-  --color-border-muted: #EAEAEA;
+  --color-border: #e0e0e0;
+  --color-border-muted: #eaeaea;
 
   /* text (Apple label hierarchy) */
-  --color-text-base: #1D1D1F;
-  --color-text-secondary: #3C3C43;   /* mid-hierarchy: subheadings, secondary labels */
-  --color-text-muted: #5E6066;       /* raised from #6E6E73 → clears 4.5:1 on cream */
-  --color-text-on-primary: #1A1407;
-  --color-text-on-sidebar: #1D1D1F;
+  --color-text-base: #1d1d1f;
+  --color-text-secondary: #3c3c43; /* mid-hierarchy: subheadings, secondary labels */
+  --color-text-muted: #5e6066; /* raised from #6E6E73 → clears 4.5:1 on cream */
+  --color-text-on-primary: #1a1407;
+  --color-text-on-sidebar: #1d1d1f;
 
   /* interactive — Honey Gold (carries near-black text, never white) */
-  --color-primary: #F2B705;
-  --color-primary-hover: #D99E00;
-  --color-primary-subtle: #FFF6DC;
+  --color-primary: #f2b705;
+  --color-primary-hover: #d99e00;
+  --color-primary-subtle: #fff6dc;
 
   /* accent — soft muted sage for positive indicators (coverage, resolved, growth) */
-  --color-accent: #D2E1C8;
-  --color-accent-fg: #41603C;
+  --color-accent: #d2e1c8;
+  --color-accent-fg: #41603c;
 
   /* chart neutrals — calm 3-tone palette for generic volume charts (NOT triage).
      Triage green/yellow/red stay reserved for clinical-signal surfaces only. */
-  --color-chart-1: #F2B705; /* honey gold highlight (brand) */
-  --color-chart-2: #C9B98A; /* muted gold-gray */
-  --color-chart-3: #C2CAD2; /* neutral gray */
+  --color-chart-1: #f2b705; /* honey gold highlight (brand) */
+  --color-chart-2: #c9b98a; /* muted gold-gray */
+  --color-chart-3: #c2cad2; /* neutral gray */
 
   /* triage — smooth muted clinical signal. Soft, desaturated, calm — never loud.
      Green = quiet sage. Yellow = muted amber-ochre (avoids honey-gold collision).
      Red = soft dusty clay — "time to visit a dentist", not "emergency". */
-  --color-triage-green: #477C61;
-  --color-triage-green-bg: #EBF2EE;
-  --color-triage-yellow: #946A2B;
-  --color-triage-yellow-bg: #F5EEE1;
-  --color-triage-red: #A05A5A;
-  --color-triage-red-bg: #F4EAEA;
+  --color-triage-green: #477c61;
+  --color-triage-green-bg: #ebf2ee;
+  --color-triage-yellow: #946a2b;
+  --color-triage-yellow-bg: #f5eee1;
+  --color-triage-red: #a05a5a;
+  --color-triage-red-bg: #f4eaea;
 
   /* follow-up lifecycle status colors */
-  --color-fu-flagged:      #78716c;
-  --color-fu-flagged-bg:   #f5f5f4;
-  --color-fu-contacted:    #0284c7;
+  --color-fu-flagged: #78716c;
+  --color-fu-flagged-bg: #f5f5f4;
+  --color-fu-contacted: #0284c7;
   --color-fu-contacted-bg: #e0f2fe;
-  --color-fu-doctor:       #7c3aed;
-  --color-fu-doctor-bg:    #ede9fe;
-  --color-fu-done:         #477C61;
-  --color-fu-done-bg:      #EBF2EE;
+  --color-fu-doctor: #7c3aed;
+  --color-fu-doctor-bg: #ede9fe;
+  --color-fu-done: #477c61;
+  --color-fu-done-bg: #ebf2ee;
 
   /* neutral button fill — gray for secondary / cancel actions.
      Clearly distinct from both white surface (#FFF) and gray canvas (#EDEDED). */
-  --color-btn-fill: #E2E2E2;
-  --color-btn-fill-hover: #D6D6D6;
+  --color-btn-fill: #e2e2e2;
+  --color-btn-fill-hover: #d6d6d6;
 
   /* Apple-style card elevation (light = subtle shadow) */
-  --shadow-card: 0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-card-lg: 0 4px 16px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05);
-  --shadow-float: 0 8px 32px rgba(0,0,0,0.11), 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card-lg: 0 4px 16px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.11), 0 2px 8px rgba(0, 0, 0, 0.05);
 
   /* playful tone-card glow — colored ambient shadow on hover (light) */
-  --shadow-glow-gold: 0 12px 30px -8px rgba(242,183,5,0.45), 0 4px 10px rgba(0,0,0,0.06);
-  --shadow-glow-lime: 0 12px 30px -8px rgba(151,191,13,0.40), 0 4px 10px rgba(0,0,0,0.06);
-  --shadow-glow-dark: 0 14px 34px -10px rgba(42,36,24,0.55), 0 4px 10px rgba(0,0,0,0.08);
+  --shadow-glow-gold: 0 12px 30px -8px rgba(242, 183, 5, 0.45), 0 4px 10px rgba(0, 0, 0, 0.06);
+  --shadow-glow-lime: 0 12px 30px -8px rgba(151, 191, 13, 0.4), 0 4px 10px rgba(0, 0, 0, 0.06);
+  --shadow-glow-dark: 0 14px 34px -10px rgba(42, 36, 24, 0.55), 0 4px 10px rgba(0, 0, 0, 0.08);
 
   /* unified card radius — matches Tailwind rounded-2xl (16px) */
   --radius-blob: 1rem;
@@ -89,49 +91,50 @@
 .dark {
   /* Apple dark mode system colors */
   --color-bg: #000000;
-  --color-surface: #1C1C1E;
-  --color-surface-raised: #2C2C2E;
-  --color-sidebar-bg: #1C1C1E;
+  --color-surface: #1c1c1e;
+  --color-surface-raised: #2c2c2e;
+  --color-sidebar-bg: #1c1c1e;
   --color-consumer-chrome: #141416;
-  --color-consumer-canvas: #0A0A0B;
-  --color-border: #38383A;
-  --color-border-muted: #2C2C2E;
-  --color-text-base: #F5F5F7;
-  --color-text-muted: #8E8E93;
-  --color-text-on-sidebar: #F5F5F7;
-  --color-primary: #FFC93C;
-  --color-primary-hover: #FFD45E;
-  --color-primary-subtle: #2A2310;
+  --color-consumer-canvas: #0a0a0b;
+  --color-border: #38383a;
+  --color-border-muted: #2c2c2e;
+  --color-text-base: #f5f5f7;
+  --color-text-muted: #8e8e93;
+  --color-text-on-sidebar: #f5f5f7;
+  --color-primary: #ffc93c;
+  --color-primary-hover: #ffd45e;
+  --color-primary-subtle: #2a2310;
+  --color-text-secondary: #aeaeb2;
 
   /* triage dark — same muted system, softly lifted for near-black readability. */
-  --color-triage-green: #7FB698;
-  --color-triage-green-bg: #17271F;
-  --color-triage-yellow: #C6A062;
-  --color-triage-yellow-bg: #28200F;
-  --color-triage-red: #C28686;
-  --color-triage-red-bg: #2A1818;
+  --color-triage-green: #7fb698;
+  --color-triage-green-bg: #17271f;
+  --color-triage-yellow: #c6a062;
+  --color-triage-yellow-bg: #28200f;
+  --color-triage-red: #c28686;
+  --color-triage-red-bg: #2a1818;
 
   /* accent dark — muted sage tile */
-  --color-accent: #33482B;
-  --color-accent-fg: #BFD4B4;
+  --color-accent: #33482b;
+  --color-accent-fg: #bfd4b4;
 
   /* chart neutrals — dark (calm, distinguishable on near-black) */
-  --color-chart-1: #FFC93C; /* honey gold highlight (brand) */
-  --color-chart-2: #8A7C52; /* muted gold-gray */
-  --color-chart-3: #5A5A5E; /* neutral gray */
+  --color-chart-1: #ffc93c; /* honey gold highlight (brand) */
+  --color-chart-2: #8a7c52; /* muted gold-gray */
+  --color-chart-3: #5a5a5e; /* neutral gray */
 
-  --color-fu-flagged:      #a8a29e;
-  --color-fu-flagged-bg:   #292524;
-  --color-fu-contacted:    #38bdf8;
+  --color-fu-flagged: #a8a29e;
+  --color-fu-flagged-bg: #292524;
+  --color-fu-contacted: #38bdf8;
   --color-fu-contacted-bg: #0c2a38;
-  --color-fu-doctor:       #a78bfa;
-  --color-fu-doctor-bg:    #2e1a5c;
-  --color-fu-done:         #7FB698;
-  --color-fu-done-bg:      #17271F;
+  --color-fu-doctor: #a78bfa;
+  --color-fu-doctor-bg: #2e1a5c;
+  --color-fu-done: #7fb698;
+  --color-fu-done-bg: #17271f;
 
   /* neutral button fill — dark mode (elevation via color) */
-  --color-btn-fill: #3A3A3C;
-  --color-btn-fill-hover: #4A4A4E;
+  --color-btn-fill: #3a3a3c;
+  --color-btn-fill-hover: #4a4a4e;
 
   /* dark mode = elevation via color, not shadow */
   --shadow-card: none;
@@ -139,9 +142,9 @@
   --shadow-float: none;
 
   /* keep the colored glow in dark — it reads as a soft halo, not a drop shadow */
-  --shadow-glow-gold: 0 12px 34px -10px rgba(255,201,60,0.30);
-  --shadow-glow-lime: 0 12px 34px -10px rgba(181,224,32,0.26);
-  --shadow-glow-dark: 0 0 0 1px rgba(255,255,255,0.06);
+  --shadow-glow-gold: 0 12px 34px -10px rgba(255, 201, 60, 0.3);
+  --shadow-glow-lime: 0 12px 34px -10px rgba(181, 224, 32, 0.26);
+  --shadow-glow-dark: 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 body {
@@ -162,8 +165,14 @@ body {
    A global main selector created a z-index stacking context above the sidebar
    during the 180ms animation window, blocking nav clicks on page load. */
 @keyframes page-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .page-in-wrap > * {
   animation: page-in 0.18s ease-out both;
@@ -171,8 +180,13 @@ body {
 
 /* ── Skeleton pulse ── */
 @keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 .skeleton {
   animation: skeleton-pulse 1.6s ease-in-out infinite;
@@ -182,8 +196,16 @@ body {
 
 /* ── Branded route loader: three dots bouncing in sequence ── */
 @keyframes loader-dot {
-  0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
-  40%           { transform: translateY(-7px); opacity: 1; }
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-7px);
+    opacity: 1;
+  }
 }
 .loader-dot {
   animation: loader-dot 1.1s cubic-bezier(0.16, 1, 0.3, 1) infinite;
@@ -206,7 +228,7 @@ body {
 /* ── Pointer cursor for everything clickable ──
    Tailwind v4 preflight drops the button pointer; restore it project-wide. */
 button:not(:disabled),
-[role="button"]:not([aria-disabled="true"]),
+[role='button']:not([aria-disabled='true']),
 a[href],
 label[for],
 select:not(:disabled),
@@ -215,29 +237,59 @@ summary,
   cursor: pointer;
 }
 button:disabled,
-[role="button"][aria-disabled="true"],
+[role='button'][aria-disabled='true'],
 .btn:disabled {
   cursor: not-allowed;
 }
 
 /* ── Interaction utility classes ── */
-.interactive { transition: color 0.15s ease, background-color 0.15s ease; }
-.lift        { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.lift:hover  { transform: translateY(-1px); box-shadow: var(--shadow-card-lg); }
-.row-hover   { transition: background-color 0.12s ease; }
-.row-hover:hover { background-color: var(--color-surface-raised); }
+.interactive {
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+.lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.lift:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card-lg);
+}
+.row-hover {
+  transition: background-color 0.12s ease;
+}
+.row-hover:hover {
+  background-color: var(--color-surface-raised);
+}
 
 /* ── List entrance stagger ── */
 @keyframes list-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.list-in { animation: list-in 0.2s ease-out both; }
+.list-in {
+  animation: list-in 0.2s ease-out both;
+}
 
 /* ── Notification dot pulse ── */
 @keyframes notif-ping {
-  0%   { transform: scale(1); opacity: 1; }
-  75%, 100% { transform: scale(2); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 .notif-ping {
   animation: notif-ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -245,22 +297,44 @@ button:disabled,
 
 /* ── Toast: slide up from bottom-right ── */
 @keyframes toast-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
-.toast-in { animation: toast-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.toast-in {
+  animation: toast-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
 /* ── Modal: backdrop fade + dialog spring-in ── */
 @keyframes backdrop-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes dialog-in {
-  from { opacity: 0; transform: translateY(12px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
-.backdrop-in { animation: backdrop-in 0.18s ease-out both; }
-.dialog-in   { animation: dialog-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.backdrop-in {
+  animation: backdrop-in 0.18s ease-out both;
+}
+.dialog-in {
+  animation: dialog-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
 /* ── Consumer app (warm minimalist canvas) ── */
 .consumer-app {
@@ -337,12 +411,14 @@ button:disabled,
   padding: 12px 16px;
   font-size: 14px;
   color: var(--color-text-base);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .consumer-input:focus {
   outline: none;
-  border-color: #F3B900;
+  border-color: #f3b900;
   box-shadow: 0 0 0 3px rgba(243, 185, 0, 0.15);
 }
 
@@ -380,7 +456,13 @@ button:disabled,
 
 .warm-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-border) 12%, var(--color-border) 88%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-border) 12%,
+    var(--color-border) 88%,
+    transparent
+  );
 }
 
 .warm-inset {
@@ -443,19 +525,51 @@ button:disabled,
   position: absolute;
   width: 50%;
   height: 50%;
-  transition: background 0.35s ease, opacity 0.35s ease;
+  transition:
+    background 0.35s ease,
+    opacity 0.35s ease;
   opacity: 0.35;
 }
 
-.tooth-q--ul { top: 0; left: 0; border-radius: 100% 0 0 0; }
-.tooth-q--ur { top: 0; right: 0; border-radius: 0 100% 0 0; }
-.tooth-q--ll { bottom: 0; left: 0; border-radius: 0 0 0 100%; }
-.tooth-q--lr { bottom: 0; right: 0; border-radius: 0 0 100% 0; }
+.tooth-q--ul {
+  top: 0;
+  left: 0;
+  border-radius: 100% 0 0 0;
+}
+.tooth-q--ur {
+  top: 0;
+  right: 0;
+  border-radius: 0 100% 0 0;
+}
+.tooth-q--ll {
+  bottom: 0;
+  left: 0;
+  border-radius: 0 0 0 100%;
+}
+.tooth-q--lr {
+  bottom: 0;
+  right: 0;
+  border-radius: 0 0 100% 0;
+}
 
-.tooth-q--ok { background: #6FA588; opacity: 0.6; }
-.tooth-q--warn { background: #C9A05A; opacity: 0.62; }
-.tooth-q--miss { background: #BE8585; opacity: 0.6; }
-.tooth-q--active { opacity: 0.85; outline: 2px solid #334155; outline-offset: -2px; z-index: 2; }
+.tooth-q--ok {
+  background: #6fa588;
+  opacity: 0.6;
+}
+.tooth-q--warn {
+  background: #c9a05a;
+  opacity: 0.62;
+}
+.tooth-q--miss {
+  background: #be8585;
+  opacity: 0.6;
+}
+.tooth-q--active {
+  opacity: 0.85;
+  outline: 2px solid #334155;
+  outline-offset: -2px;
+  z-index: 2;
+}
 
 .tooth-center {
   position: absolute;
@@ -468,64 +582,135 @@ button:disabled,
    Squircle tone cards (gold / lime / dark / surface) that lift + glow on
    hover, with floating circular action buttons. Maps the reference deal-card
    look onto our honey-gold palette. */
-.blob       { border-radius: var(--radius-blob); }
-.blob-lg    { border-radius: var(--radius-blob-lg); }
+.blob {
+  border-radius: var(--radius-blob);
+}
+.blob-lg {
+  border-radius: var(--radius-blob-lg);
+}
 
 /* pop-in: spring entrance for cards/tiles (stagger via inline animation-delay) */
 @keyframes pop-in {
-  0%   { opacity: 0; transform: translateY(10px) scale(0.96); }
-  60%  { opacity: 1; transform: translateY(-2px) scale(1.01); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
-.pop-in { animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.pop-in {
+  animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
 
 /* float: gentle idle bob for hero icons/illustrations */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
-.float { animation: float 3.4s ease-in-out infinite; }
+.float {
+  animation: float 3.4s ease-in-out infinite;
+}
 
 /* shimmer: animated sheen sweeping across progress bars / rings */
 @keyframes shimmer {
-  0%   { transform: translateX(-120%); }
-  100% { transform: translateX(120%); }
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
 }
 .shimmer::after {
   content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.55) 50%, transparent 80%);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 80%
+  );
   animation: shimmer 2.4s ease-in-out infinite;
 }
 
 /* hover-grow: the universal card/tile micro-interaction (lift + scale + glow) */
-.grow { transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease; }
-.grow:hover { transform: translateY(-3px) scale(1.012); }
+.grow {
+  transition:
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.22s ease;
+}
+.grow:hover {
+  transform: translateY(-3px) scale(1.012);
+}
 
 /* spin-on-hover for circular action buttons */
-.icon-spin { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.group:hover .icon-spin, .icon-spin:hover { transform: rotate(12deg) scale(1.12); }
+.icon-spin {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.group:hover .icon-spin,
+.icon-spin:hover {
+  transform: rotate(12deg) scale(1.12);
+}
 
 /* press: stronger tactile squash for the playful buttons */
-.tap { transition: transform 0.12s ease; }
-.tap:active { transform: scale(0.93); }
+.tap {
+  transition: transform 0.12s ease;
+}
+.tap:active {
+  transform: scale(0.93);
+}
 
 /* count-up reveal for big stat numbers */
 @keyframes stat-rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.stat-rise { animation: stat-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.stat-rise {
+  animation: stat-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
 /* scan-line: scanner band sweeping down the screening image while analyzing */
 @keyframes scan-line {
-  0%   { top: -8%; }
-  100% { top: 108%; }
+  0% {
+    top: -8%;
+  }
+  100% {
+    top: 108%;
+  }
 }
-.scan-line { animation: scan-line 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.scan-line {
+  animation: scan-line 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .pop-in, .float, .shimmer::after, .stat-rise, .scan-line, .list-in, .loader-dot, .page-in-wrap > * { animation: none; }
-  .grow:hover { transform: none; }
+  .pop-in,
+  .float,
+  .shimmer::after,
+  .stat-rise,
+  .scan-line,
+  .list-in,
+  .loader-dot,
+  .page-in-wrap > * {
+    animation: none;
+  }
+  .grow:hover {
+    transform: none;
+  }
 }
-
