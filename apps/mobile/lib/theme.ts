@@ -90,3 +90,19 @@ export const homeMonoColors: ColorTokens = {
   surfaceRaised: 'rgba(255,255,255,0.09)',
   border: 'rgba(255,255,255,0.10)', // hairline glass edge
 }
+
+/**
+ * Light counterpart of the Home skin: a soft off-white canvas with clean white
+ * glassy cards, hairline edges, and the same teal accent. Used on Home when the
+ * phone is in light mode.
+ */
+export const homeLightColors: ColorTokens = {
+  ...lightColors,
+  primary: '#0E9594',
+  primaryText: '#FFFFFF',
+  primarySoft: 'rgba(14,149,148,0.12)',
+  bg: '#F4F5F7', // soft canvas so the white cards read as cards
+  surface: '#FFFFFF',
+  surfaceRaised: '#FFFFFF',
+  border: 'rgba(0,0,0,0.07)', // hairline edge
+}
