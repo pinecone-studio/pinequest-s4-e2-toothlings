@@ -87,9 +87,11 @@ export default function ResultScreen() {
         <ResultTriageCard level={level} score={score} />
         <ResultDisclaimer />
         {priorLevel && <ResultLongitudinalCard currentLevel={level} priorLevel={priorLevel} />}
-        <View style={s.photoRow}>
+        <View style={s.photoGrid}>
           {photos.map((photo, i) => (
-            <ResultPhotoCard key={`${photo.arch}-${i}`} photo={photo} />
+            <View key={`${photo.quadrant}-${i}`} style={s.photoCell}>
+              <ResultPhotoCard photo={photo} />
+            </View>
           ))}
         </View>
         <ResultDetectionList detections={allDetections} />
@@ -120,5 +122,7 @@ export default function ResultScreen() {
 const s = StyleSheet.create({
   root: { flex: 1 },
   content: { padding: 16, gap: 16, paddingBottom: 40 },
-  photoRow: { flexDirection: 'row', gap: 12 },
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  // Two cards per row (2×2 grid for the four region photos).
+  photoCell: { flexBasis: '47%', flexGrow: 1, flexDirection: 'row' },
 })

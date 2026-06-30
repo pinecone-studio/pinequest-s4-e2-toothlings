@@ -1,6 +1,12 @@
 import type { BoundingBox, FindingClass, SeasonId, TriageLevel } from './common.js'
 import type { ChildKey } from './child.js'
 
+/**
+ * The four intra-oral regions captured per screening (upper/lower jaw × right/left).
+ * Each region is one photo; all four feed ONE screening.
+ */
+export type Quadrant = 'upperRight' | 'upperLeft' | 'lowerRight' | 'lowerLeft'
+
 /** A single normalized YOLO detection (camelCase contract). */
 export interface InferenceDetection {
   classId: number

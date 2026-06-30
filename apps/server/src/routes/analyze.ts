@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
-import { detectionsToFindings, normalizeInference, symptomSetSchema, triage, type RawInference } from '@pinequest/core'
-import type { SymptomSet } from '@pinequest/types'
+import { detectionsToFindings, normalizeInference, QUADRANTS, symptomSetSchema, triage, type RawInference } from '@pinequest/core'
+import type { Quadrant, SymptomSet } from '@pinequest/types'
 import { persistScreening } from '../lib/persistScreening.js'
 import { fallbackAdvice, runGeminiAdvice } from '../lib/geminiAdvice.js'
 import { authenticate } from '../middleware/auth.js'
@@ -34,12 +34,18 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
 
   const body = await c.req.parseBody()
 
-  // Accept imageUpper + imageLower (two-shot flow) or legacy single image
-  const imageUpper = body['imageUpper'] instanceof File ? body['imageUpper'] : undefined
-  const imageLower = body['imageLower'] instanceof File ? body['imageLower'] : undefined
-  const imageSingle = body['image'] instanceof File ? body['image'] : undefined
-
-  if (!imageUpper && !imageSingle) {
+  // Each region photo arrives keyed by its quadrant (`image_<quadrant>`). Collect
+  // them in canonical order; fall back to a single legacy `image` field.
+  const shots: { quadrant: Quadrant; image: File }[] = []
+  for (const q of QUADRANTS) {
+    const f = body[`image_${q}`]
+    if (f instanceof File) shots.push({ quadrant: q, image: f })
+  }
+  if (!shots.length) {
+    const single = body['image']
+    if (single instanceof File) shots.push({ quadrant: 'upperRight', image: single })
+  }
+  if (!shots.length) {
     return c.json({ success: false, data: null, message: 'missing_image' }, 400)
   }
 
@@ -54,20 +60,19 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
     return c.json({ success: false, data: null, message: 'forbidden' }, 403)
   }
 
-  // Run inference on each provided arch, keeping its detections attributed to the
-  // arch so the result UI can draw boxes per photo. All detections still feed ONE
-  // screening — never split a two-shot capture across separate screening records.
-  const shots: { arch: 'upper' | 'lower'; image: File }[] = []
-  if (imageUpper) shots.push({ arch: 'upper', image: imageUpper })
-  if (imageLower) shots.push({ arch: 'lower', image: imageLower })
-  if (!shots.length && imageSingle) shots.push({ arch: 'upper', image: imageSingle })
-
-  const photos: { arch: 'upper' | 'lower'; detections: ReturnType<typeof normalizeInference>['detections'] }[] = []
+  // Run inference on each region, keeping its detections attributed to the
+  // quadrant so the result UI can draw boxes per photo. All detections still feed
+  // ONE screening — never split a multi-shot capture across separate records.
+  let photos: { quadrant: Quadrant; detections: ReturnType<typeof normalizeInference>['detections'] }[]
   try {
-    for (const shot of shots) {
-      const raw = await runInference(inferenceUrl, shot.image)
-      photos.push({ arch: shot.arch, detections: normalizeInference(raw, 'server').detections })
-    }
+    // Run each region's inference concurrently — they're independent, so awaiting
+    // them serially just multiplies the wall-clock latency on the critical path.
+    photos = await Promise.all(
+      shots.map(async (shot) => {
+        const raw = await runInference(inferenceUrl, shot.image)
+        return { quadrant: shot.quadrant, detections: normalizeInference(raw, 'server').detections }
+      }),
+    )
   } catch {
     return c.json({ success: false, data: null, message: 'inference_failed' }, 502)
   }
@@ -88,9 +93,8 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
           apiKey: geminiKey,
           model: c.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
           triageLevel: triageResult.level,
-          detections: allDetections,
+          photos,
           symptoms,
-          image: shots[0]?.image,
         })
       : null) ?? fallbackAdvice(triageResult.level, allDetections.length)
 

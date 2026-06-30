@@ -1,12 +1,12 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, Linking, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '@/lib/ThemeContext'
+import BackButton from '@/components/BackButton'
 
 const DoctorScreen = () => {
   const { colors } = useTheme()
-  const router = useRouter()
   const { name, specialty, clinic, area, avatarUrl, phone } =
     useLocalSearchParams<{ id: string; name: string; specialty: string; clinic: string; area: string; avatarUrl: string; phone: string }>()
 
@@ -19,9 +19,7 @@ const DoctorScreen = () => {
   return (
     <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
       <View style={[s.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color={colors.textBase} />
-        </TouchableOpacity>
+        <BackButton />
         <Text style={[s.headerTitle, { color: colors.textBase }]}>Эмчийн профайл</Text>
         <View style={s.placeholder} />
       </View>
@@ -82,7 +80,7 @@ const s = StyleSheet.create({
   root: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1 },
   headerTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 17 },
-  placeholder: { width: 24 },
+  placeholder: { width: 40 },
   content: { padding: 16, gap: 16 },
   card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 20, alignItems: 'center', gap: 10 },
   avatar: { width: 80, height: 80, borderRadius: 40 },

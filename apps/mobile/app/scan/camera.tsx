@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { View, Animated, ActivityIndicator, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Animated, ActivityIndicator, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { Ionicons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
+import { QUADRANTS, QUADRANT_LABEL_MN, isUpperQuadrant } from '@pinequest/core'
 import { isModelCached, downloadModel } from '@/lib/localInference'
 import { useCameraCapture } from '@/lib/useCameraCapture'
 import { usePriorLevel } from '@/lib/usePriorLevel'
@@ -25,7 +26,7 @@ export default function CameraScreen() {
   const [showTransition, setShowTransition] = useState(false)
   const transitionOpacity = useRef(new Animated.Value(0)).current
 
-  const { cameraRef, mode, photos, analyzing, capturing, error, capture, toggleMode } = useCameraCapture(params)
+  const { cameraRef, mode, photos, analyzing, capturing, error, capture, retry, toggleMode } = useCameraCapture(params)
   const priorLevel = usePriorLevel(params.childKey)
   useHistoryPrefetch(params.classId, params.seasonId)
 
@@ -42,14 +43,17 @@ export default function CameraScreen() {
     })
   }, [])
 
-  // Show mode-transition interstitial after upper photo is captured.
-  // The capture hook already switches mode (upper -> lower); this is a purely
-  // visual cue, so it must NOT toggle mode again (double-toggle bug) and must
-  // mark prevUpperRef before returning so it fires exactly once.
-  const prevUpperRef = useRef(false)
+  const photoCount = QUADRANTS.filter(q => photos[q]).length
+
+  // Show a region-transition interstitial each time a photo is captured and there
+  // is still a next region to shoot. The capture hook already advances `mode` to
+  // the next pending region, so this is a purely visual cue: it must NOT change
+  // mode, and must record the new count before returning so it fires exactly once
+  // per capture.
+  const prevCountRef = useRef(0)
   useEffect(() => {
-    if (!prevUpperRef.current && !!photos.upper && !photos.lower) {
-      prevUpperRef.current = true
+    if (photoCount > prevCountRef.current && photoCount < QUADRANTS.length) {
+      prevCountRef.current = photoCount
       setShowTransition(true)
       transitionOpacity.setValue(1)
       const t = setTimeout(() => {
@@ -59,13 +63,45 @@ export default function CameraScreen() {
       }, 1400)
       return () => clearTimeout(t)
     }
-    prevUpperRef.current = !!photos.upper
-  }, [photos.upper, photos.lower, transitionOpacity])
+    prevCountRef.current = photoCount
+  }, [photoCount, transitionOpacity])
 
   if (!permission) return <View style={s.root} />
   if (!permission.granted) return <CameraPermission onRequest={requestPermission} />
 
   const busy = analyzing || capturing
+
+  // While analyzing, show ONLY the loading screen — drop the live camera
+  // capture surface behind it. Capturing a photo no longer shows this screen.
+  if (analyzing) {
+    return (
+      <View style={s.root}>
+        <View style={s.camLoading}>
+          {/* eslint-disable-next-line @typescript-eslint/no-require-imports */}
+          <Image source={require('@/assets/logoYellow.png')} style={ts.loadingLogo} resizeMode="contain" />
+          <ActivityIndicator size="large" color="#fff" />
+          <Text style={s.overlayText}>Дүгнэлтийг боловсруулж байна</Text>
+        </View>
+      </View>
+    )
+  }
+
+  // Analysis failed after all four photos were captured — show a retry button that
+  // re-runs the model on the already-captured photos.
+  if (error && photoCount === QUADRANTS.length) {
+    return (
+      <View style={s.root}>
+        <View style={s.camLoading}>
+          <Ionicons name="alert-circle-outline" size={48} color="#fff" />
+          <Text style={s.overlayText}>{error}</Text>
+          <TouchableOpacity style={ts.retryBtn} onPress={retry}>
+            <Ionicons name="refresh" size={18} color="#000" />
+            <Text style={ts.retryTxt}>Дахин оролдох</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
 
   return (
     <View style={s.root}>
@@ -76,32 +112,26 @@ export default function CameraScreen() {
           <Text style={s.overlayText}>Уншиж байна...</Text>
         </View>
       )}
-      <CameraFrameOverlay mode={mode} />
-      <CameraHintBanner mode={mode} />
+      <CameraFrameOverlay mode={isUpperQuadrant(mode) ? 'upper' : 'lower'} />
+      <CameraHintBanner quadrant={mode} />
       {priorLevel && <PriorLevelBanner level={priorLevel} />}
 
-      {/* Labeled step pills: Дээд / Доод */}
+      {/* Labeled step pills for the four regions */}
       <View style={s.stepRow}>
-        <View style={[ts.stepPill, photos.upper ? ts.pillDone : mode === 'upper' ? ts.pillActive : ts.pillPending]}>
-          <Text style={ts.pillTxt}>{photos.upper ? '✓ Дээд' : 'Дээд'}</Text>
-        </View>
-        <View style={s.stepLine} />
-        <View style={[ts.stepPill, photos.lower ? ts.pillDone : mode === 'lower' ? ts.pillActive : ts.pillPending]}>
-          <Text style={ts.pillTxt}>{photos.lower ? '✓ Доод' : 'Доод'}</Text>
-        </View>
+        {QUADRANTS.map(q => (
+          <View
+            key={q}
+            style={[ts.stepPill, photos[q] ? ts.pillDone : mode === q ? ts.pillActive : ts.pillPending]}
+          >
+            <Text style={ts.pillTxt}>{photos[q] ? `✓ ${PILL_LABEL[q]}` : PILL_LABEL[q]}</Text>
+          </View>
+        ))}
       </View>
-
-      {busy && (
-        <View style={s.overlay}>
-          <ActivityIndicator size="large" color="#fff" />
-          <Text style={s.overlayText}>{analyzing ? 'Уншиж байна...' : 'Дүгнэлтийг гаргаж байна...'}</Text>
-        </View>
-      )}
 
       {showTransition && (
         <Animated.View style={[ts.interstitial, { opacity: transitionOpacity }]}>
           <Text style={ts.interstitialIcon}>🦷</Text>
-          <Text style={ts.interstitialText}>Одоо доод шүдийг авна уу</Text>
+          <Text style={ts.interstitialText}>Одоо «{QUADRANT_LABEL_MN[mode]}» хэсгийг авна уу</Text>
         </Animated.View>
       )}
 
@@ -120,12 +150,20 @@ export default function CameraScreen() {
   )
 }
 
+// Short labels for the compact step pills (full names live in the hint banner).
+const PILL_LABEL: Record<(typeof QUADRANTS)[number], string> = {
+  upperRight: 'Дээд Б',
+  upperLeft: 'Дээд З',
+  lowerRight: 'Доод Б',
+  lowerLeft: 'Доод З',
+}
+
 const ts = StyleSheet.create({
-  stepPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 16, minWidth: 64, alignItems: 'center' },
+  stepPill: { paddingHorizontal: 8, paddingVertical: 6, borderRadius: 14, minWidth: 52, alignItems: 'center' },
   pillActive: { backgroundColor: 'rgba(255,200,0,0.85)' },
   pillDone: { backgroundColor: '#22c55e' },
   pillPending: { backgroundColor: 'rgba(255,255,255,0.2)' },
-  pillTxt: { color: '#fff', fontSize: 14, fontFamily: 'Inter_600SemiBold' },
+  pillTxt: { color: '#fff', fontSize: 12, fontFamily: 'Inter_600SemiBold' },
   interstitial: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.75)',
@@ -135,4 +173,10 @@ const ts = StyleSheet.create({
   },
   interstitialIcon: { fontSize: 56 },
   interstitialText: { color: '#fff', fontSize: 22, fontFamily: 'Inter_700Bold', textAlign: 'center', paddingHorizontal: 32 },
+  retryBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8,
+    backgroundColor: '#fff', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 9999,
+  },
+  retryTxt: { color: '#000', fontSize: 16, fontFamily: 'Inter_600SemiBold' },
+  loadingLogo: { width: 140, height: 56, marginBottom: 12 },
 })

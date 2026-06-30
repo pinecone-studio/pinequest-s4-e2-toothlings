@@ -184,24 +184,25 @@ const runYolo = async (image: Blob, mimeType: string): Promise<RawInference> => 
   return res.json() as Promise<RawInference>
 }
 
-// ── Gemini advice (зураг + загварын илрүүлэлт дээр тулгуурлана) ────────────────
+// ── Gemini advice (ЗӨВХӨН загварын илрүүлэлт + triage дээр тулгуурлана) ─────────
+// Зураг явуулахгүй: зөвлөмж detection/triage текстээс гардаг тул зургийг нэмэх нь
+// чанарт нөлөөлөхгүй, зөвхөн саатал нэмнэ.
 
-const runGeminiAdvice = async (
-  promptText: string,
-  base64Image: string,
-  mimeType: string,
-): Promise<string | null> => {
+const runGeminiAdvice = async (promptText: string): Promise<string | null> => {
   const geminiBody = {
     contents: [
       {
         role: 'user',
-        parts: [{ text: promptText }, { inlineData: { mimeType, data: base64Image } }],
+        parts: [{ text: promptText }],
       },
     ],
     generationConfig: {
       temperature: 0,
-      maxOutputTokens: 2048,
+      maxOutputTokens: 512,
       responseMimeType: 'application/json',
+      // 3-4 өгүүлбэрийн энгийн зөвлөмжид "бодох" overhead шаардлагагүй —
+      // үүнийг унтраах нь 2.5-flash-ийн саатлыг мэдэгдэхүйц багасгана.
+      thinkingConfig: { thinkingBudget: 0 },
     },
   }
 
@@ -277,9 +278,6 @@ export async function POST(req: NextRequest) {
     }))
 
   // 3) Gemini зөвхөн зөвлөмжийн текст гаргана (илрүүлэлт/triage дээр тулгуурлан).
-  const base64Image = Buffer.from(await image.arrayBuffer()).toString('base64')
-  const mimeType = image.type || 'image/jpeg'
-
   let advice: string | null = null
   if (GEMINI_API_KEY) {
     const promptText = buildAdvicePrompt({
@@ -296,7 +294,7 @@ export async function POST(req: NextRequest) {
       triageLevel: level,
       detections,
     })
-    advice = await runGeminiAdvice(promptText, base64Image, mimeType)
+    advice = await runGeminiAdvice(promptText)
   }
 
   const result: AnalysisResult = {

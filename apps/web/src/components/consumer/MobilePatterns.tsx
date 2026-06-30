@@ -9,7 +9,7 @@ export const GreetingHeader = ({ name }: { name: string }) => {
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
-        <h2 className="text-[24px] font-bold tracking-tight text-text-base">Сайн уу, {name} 👋</h2>
+        <h2 className="text-[24px] font-bold tracking-tight text-text-base">Сайн уу, {name}</h2>
         <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-[12px] font-medium text-text-muted">
           <span className="size-1.5 rounded-full bg-triage-green" />
           Онлайн
@@ -53,7 +53,11 @@ export const ScanHeroCard = ({ href, label = 'Зураг авах' }: { href: st
   </Link>
 )
 
-const TRIAGE_DOT = { green: 'bg-triage-green', yellow: 'bg-triage-yellow', red: 'bg-triage-red' } as const
+const TRIAGE_DOT = {
+  green: 'bg-triage-green',
+  yellow: 'bg-triage-yellow',
+  red: 'bg-triage-red',
+} as const
 
 export const LastScreeningCard = ({
   date,

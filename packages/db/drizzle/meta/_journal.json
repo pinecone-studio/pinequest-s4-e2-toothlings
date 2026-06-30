@@ -78,6 +78,13 @@
       "when": 1783100000000,
       "tag": "0010_dentist_blocks",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1783200000000,
+      "tag": "0011_followup_open_unique",
+      "breakpoints": true
     }
   ]
 }

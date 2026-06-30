@@ -84,6 +84,7 @@ const StatsScreen = () => {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={s.seasonScroll}
           contentContainerStyle={s.seasonRow}
         >
           {seasons.map((sid) => (
@@ -183,7 +184,8 @@ const s = StyleSheet.create({
   safe: { flex: 1 },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4 },
   title: { fontSize: 24, fontFamily: 'Inter_700Bold', letterSpacing: -0.4 },
-  seasonRow: { paddingHorizontal: 20, paddingVertical: 10, gap: 8 },
+  seasonScroll: { flexGrow: 0 },
+  seasonRow: { paddingHorizontal: 20, paddingVertical: 10, gap: 8, alignItems: 'center' },
   seasonBtn: { borderRadius: 9999, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, paddingVertical: 7 },
   seasonText: { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },

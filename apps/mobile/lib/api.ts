@@ -1,4 +1,4 @@
-import type { ChildScreeningSummary, InferenceDetection, SymptomSet, UserRole, FollowUpStatus } from '@pinequest/types'
+import type { ChildScreeningSummary, InferenceDetection, Quadrant, SymptomSet, UserRole, FollowUpStatus } from '@pinequest/types'
 import { normalizeInference, detectionsToFindings, triage } from '@pinequest/core'
 import { getToken, type AuthUser } from './auth'
 import { runLocalInference, isModelCached } from './localInference'
@@ -267,6 +267,35 @@ export type VolunteerDentist = {
 export const getVolunteerDentists = () =>
   apiFetch<VolunteerDentist[]>('/api/help/volunteers')
 
+/** A booked video-call appointment with a volunteer dentist. The Jitsi room is
+ *  derived from the row id server-side, so the payload carries no PII. */
+export type Appointment = {
+  id: string
+  dentistId: string
+  childKey: string
+  schoolId: string | null
+  level: 'red' | 'yellow'
+  scheduledAt: string
+  roomName: string
+  roomUrl: string
+  status: 'scheduled' | 'completed' | 'cancelled'
+  createdById: string
+  dentistNote: string | null
+}
+
+/** Book a video call with a volunteer dentist for a flagged child. Additive —
+ *  one new appointment row per booking. */
+export const createAppointment = (
+  dentistId: string,
+  childKey: string,
+  scheduledAt: string,
+  level: 'red' | 'yellow',
+) =>
+  apiFetch<Appointment>('/api/appointments', {
+    method: 'POST',
+    body: JSON.stringify({ dentistId, childKey, scheduledAt, level }),
+  })
+
 /** Help requests, role-scoped server-side: a dentist sees open + assigned ones,
  *  a school doctor their school's, a parent/teacher their own. */
 export type HelpRequestRow = {
@@ -298,12 +327,15 @@ export type AnalyzeMeta = {
   symptoms?: string
 }
 
-/** One captured arch (upper/lower) tied to its own detections, for the result UI. */
+/** One captured region (quadrant) tied to its own detections, for the result UI. */
 export type PhotoAnalysis = {
   uri: string
-  arch: 'upper' | 'lower'
+  quadrant: Quadrant
   detections: InferenceDetection[]
 }
+
+/** A single captured photo + the region it represents, sent to inference. */
+export type CaptureShot = { uri: string; quadrant: Quadrant }
 
 export type AnalyzeResult = {
   screeningId: string
@@ -330,20 +362,15 @@ const INFERENCE_RECOVERABLE = new Set(['inference_failed', 'inference_unreachabl
 const canFallbackToLocal = (err: unknown): boolean =>
   isOfflineError(err) || (err instanceof Error && INFERENCE_RECOVERABLE.has(err.message))
 
-/** Run both arches locally (offline fallback), combining into ONE screening. */
+/** Run every region locally (offline fallback), combining into ONE screening. */
 const analyzeImagesLocally = async (
-  upperUri: string,
-  lowerUri: string,
+  shots: CaptureShot[],
   symptoms: SymptomSet = {},
 ): Promise<AnalyzeResult> => {
-  const inputs = [
-    { uri: upperUri, arch: 'upper' as const },
-    { uri: lowerUri, arch: 'lower' as const },
-  ]
   const photos: PhotoAnalysis[] = []
-  for (const i of inputs) {
+  for (const i of shots) {
     const raw = await runLocalInference(i.uri)
-    photos.push({ uri: i.uri, arch: i.arch, detections: normalizeInference(raw, 'on_device').detections })
+    photos.push({ uri: i.uri, quadrant: i.quadrant, detections: normalizeInference(raw, 'on_device').detections })
   }
   const detections = photos.flatMap(p => p.detections)
   const findings = detectionsToFindings(detections, () => `local-${Math.random().toString(36).slice(2)}`)
@@ -359,19 +386,23 @@ const analyzeImagesLocally = async (
 }
 
 /**
- * Send both arches in ONE request so the server creates a SINGLE screening that
- * holds every finding. Sending them separately would split one capture across two
- * screening records, and the report would only ever read one of them.
+ * Send all four region photos in ONE request so the server creates a SINGLE
+ * screening that holds every finding. Sending them separately would split one
+ * capture across multiple screening records, and the report would only ever read
+ * one of them. Each photo is keyed by its quadrant (`image_<quadrant>`).
  */
 export const analyzeImages = async (
-  upperUri: string,
-  lowerUri: string,
+  shots: CaptureShot[],
   meta: AnalyzeMeta,
 ): Promise<AnalyzeResult> => {
   const token = await getToken()
   const form = new FormData()
-  form.append('imageUpper', { uri: upperUri, type: 'image/jpeg', name: 'upper.jpg' } as unknown as Blob)
-  form.append('imageLower', { uri: lowerUri, type: 'image/jpeg', name: 'lower.jpg' } as unknown as Blob)
+  for (const shot of shots) {
+    form.append(
+      `image_${shot.quadrant}`,
+      { uri: shot.uri, type: 'image/jpeg', name: `${shot.quadrant}.jpg` } as unknown as Blob,
+    )
+  }
   for (const [k, v] of Object.entries(meta)) {
     if (v) form.append(k, v)
   }
@@ -384,15 +415,15 @@ export const analyzeImages = async (
     })
     const json = (await res.json()) as { success: boolean; data: AnalyzeResult; message?: string }
     if (!res.ok) throw new Error(json.message ?? String(res.status))
-    // The server has no device-side image URIs; re-attach them by arch so the
+    // The server has no device-side image URIs; re-attach them by quadrant so the
     // result UI can render each photo with its own detection boxes.
-    const uriByArch: Record<'upper' | 'lower', string> = { upper: upperUri, lower: lowerUri }
-    const photos = (json.data.photos ?? []).map(p => ({ ...p, uri: uriByArch[p.arch] ?? p.uri }))
+    const uriByQuadrant = Object.fromEntries(shots.map(s => [s.quadrant, s.uri])) as Record<Quadrant, string>
+    const photos = (json.data.photos ?? []).map(p => ({ ...p, uri: uriByQuadrant[p.quadrant] ?? p.uri }))
     return { ...json.data, photos }
   } catch (err) {
     if (canFallbackToLocal(err) && (await isModelCached())) {
       const sym = (() => { try { return JSON.parse(meta.symptoms ?? '{}') as SymptomSet } catch { return {} } })()
-      return analyzeImagesLocally(upperUri, lowerUri, sym)
+      return analyzeImagesLocally(shots, sym)
     }
     throw err
   }

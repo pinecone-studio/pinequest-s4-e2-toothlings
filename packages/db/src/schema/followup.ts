@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import { sqliteTable, text, integer, real, index, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 const uuid = () => text('id').primaryKey().$defaultFn(() => crypto.randomUUID())
@@ -5,9 +6,11 @@ const ts = (name: string) => integer(name, { mode: 'timestamp_ms' })
 const bool = (name: string) => integer(name, { mode: 'boolean' })
 
 /**
- * One follow-up arc per child per season.
- * Fixes the silent-stale-status bug: UNIQUE(childKey, triggerSeasonId) means a
- * second-season red screening always opens a fresh, visible episode.
+ * One OPEN follow-up arc per child per season.
+ * Fixes the silent-stale-status bug: a second-season red screening always opens a
+ * fresh, visible episode. The uniqueness is PARTIAL (closedAt IS NULL) so the
+ * lifecycle can close an old episode and open a new one within the SAME season —
+ * a full UNIQUE(childKey, triggerSeasonId) blocked that second insert.
  * Closed episodes are immutable — corrections require a new screening event.
  */
 export const followUpEpisodes = sqliteTable('FollowUpEpisode', {
@@ -32,7 +35,7 @@ export const followUpEpisodes = sqliteTable('FollowUpEpisode', {
   updatedById: text('updatedById').notNull(),
   version: integer('version').notNull().default(0),
 }, (t) => [
-  uniqueIndex('FollowUpEpisode_child_season_key').on(t.childKey, t.triggerSeasonId),
+  uniqueIndex('FollowUpEpisode_child_season_open_key').on(t.childKey, t.triggerSeasonId).where(sql`${t.closedAt} is null`),
   index('FollowUpEpisode_school_status_idx').on(t.schoolId, t.status),
   index('FollowUpEpisode_childKey_idx').on(t.childKey),
   index('FollowUpEpisode_open_idx').on(t.schoolId, t.closedAt),

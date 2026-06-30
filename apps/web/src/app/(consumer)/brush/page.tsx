@@ -76,15 +76,28 @@ const InstructionsPanel = () => (
       <p className="mt-2 text-center text-[13px] text-slate-500">45° өнцөг, бүс бүр 30 секунд</p>
     </div>
 
-    <ol className="grid gap-3 md:col-span-2 md:grid-cols-2">
-      {STEPS.map((step, i) => (
-        <li key={i} className="warm-card flex gap-4 p-5 text-[14px] text-slate-700">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-[#F3B900]/15 text-[13px] font-bold text-[#B8860B]">
-            {i + 1}
-          </span>
-          {step}
-        </li>
-      ))}
+    <ol className="warm-card relative md:col-span-2 p-6">
+      {STEPS.map((step, i) => {
+        const [lead, detail] = step.split(' — ')
+        const last = i === STEPS.length - 1
+        return (
+          <li key={i} className="relative flex gap-4 pb-7 last:pb-0">
+            {!last && (
+              <span
+                aria-hidden
+                className="absolute left-4 top-9 h-[calc(100%-1.25rem)] w-px -translate-x-1/2 bg-[#F3B900]/30"
+              />
+            )}
+            <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#F3B900] text-[13px] font-bold text-slate-900 shadow-[0_2px_8px_rgba(243,185,0,0.35)]">
+              {i + 1}
+            </span>
+            <div className="pt-1">
+              <p className="text-[14px] font-semibold text-slate-900">{lead}</p>
+              {detail ? <p className="mt-0.5 text-[13px] text-text-muted">{detail}</p> : null}
+            </div>
+          </li>
+        )
+      })}
     </ol>
   </div>
 )

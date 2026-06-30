@@ -26,7 +26,7 @@ const GreetingHeader = ({
   return (
     <View style={s.root}>
       <View style={s.topRow}>
-        <Text style={[s.greeting, { color: colors.textBase }]}>{`Сайн уу, ${name || '…'} 👋`}</Text>
+        <Text style={[s.greeting, { color: colors.textBase }]}>{`Сайн уу, ${name || '…'}`}</Text>
         <Pressable
           onPress={onPressAvatar}
           hitSlop={8}

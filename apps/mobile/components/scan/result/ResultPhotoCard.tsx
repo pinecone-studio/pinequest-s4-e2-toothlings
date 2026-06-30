@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
 import { useTheme } from '@/lib/ThemeContext'
+import { QUADRANT_LABEL_MN } from '@pinequest/core'
 import type { PhotoAnalysis } from '@/lib/api'
 import { findingLabel } from './findingLabels'
-
-const ARCH_LABEL: Record<PhotoAnalysis['arch'], string> = {
-  upper: 'Дээд эгнээ',
-  lower: 'Доод эгнээ',
-}
 
 type Props = { photo: PhotoAnalysis }
 
@@ -34,9 +30,9 @@ export default function ResultPhotoCard({ photo }: Props) {
   return (
     <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={s.header}>
-        <Text style={[s.archLabel, { color: colors.textBase }]}>{ARCH_LABEL[photo.arch]}</Text>
+        <Text style={[s.archLabel, { color: colors.textBase }]} numberOfLines={1}>{QUADRANT_LABEL_MN[photo.quadrant]}</Text>
         <View style={[s.countBadge, { backgroundColor: count > 0 ? colors.triageYellowBg : colors.triageGreenBg }]}>
-          <Text style={[s.countText, { color: count > 0 ? colors.triageYellowText : colors.triageGreenText }]}>
+          <Text style={[s.countText, { color: count > 0 ? colors.triageYellowText : colors.triageGreenText }]} numberOfLines={1}>
             {count > 0 ? `${count} илэрц` : '✓ Цэвэр'}
           </Text>
         </View>
@@ -68,10 +64,13 @@ export default function ResultPhotoCard({ photo }: Props) {
 }
 
 const s = StyleSheet.create({
-  card: { flex: 1, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 12, gap: 10 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  archLabel: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
-  countBadge: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
+  card: { flex: 1, borderRadius: 16, borderWidth: 1, padding: 12, gap: 10 },
+  // Stack the region name above the badge — on the narrow 2×2 cards a single row
+  // squeezes the long quadrant label and clips the "илэрц/Цэвэр" badge.
+  header: { flexDirection: 'column', alignItems: 'flex-start', gap: 6 },
+  // Fixed small size so all four region labels render identically on one line.
+  archLabel: { alignSelf: 'stretch', fontSize: 11.5, fontFamily: 'Inter_600SemiBold' },
+  countBadge: { alignSelf: 'flex-start', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
   countText: { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
   imageWrap: { width: '100%', borderRadius: 12, overflow: 'hidden', position: 'relative' },
   image: { width: '100%', height: '100%' },

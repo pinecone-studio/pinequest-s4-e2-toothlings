@@ -6,6 +6,7 @@ import { useFonts } from 'expo-font'
 import { getToken } from '@/lib/auth'
 import { ThemeProvider, useTheme } from '@/lib/ThemeContext'
 import { SessionProvider } from '@/lib/SessionContext'
+import BackButton from '@/components/BackButton'
 
 const applyInterDefaults = () => {
   const base = { fontFamily: 'Inter_400Regular' }
@@ -70,7 +71,15 @@ const RootStack = () => {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="scan" options={{ headerShown: false }} />
       <Stack.Screen name="hospital" options={{ headerShown: false }} />
-      <Stack.Screen name="stats" options={{ title: 'Статистик', headerBackTitle: 'Буцах' }} />
+      <Stack.Screen
+        name="stats"
+        options={{
+          title: 'Статистик',
+          headerBackVisible: false,
+          headerShadowVisible: false,
+          headerLeft: () => <BackButton style={{ marginRight: 8 }} />,
+        }}
+      />
       <Stack.Screen name="class" options={{ headerShown: false }} />
       <Stack.Screen name="screening" options={{ headerShown: false }} />
     </Stack>

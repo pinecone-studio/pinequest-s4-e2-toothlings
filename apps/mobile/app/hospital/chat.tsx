@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useState, useRef } from 'react'
 import { useTheme } from '@/lib/ThemeContext'
 import { getDoctor } from '@/lib/doctorsData'
+import BackButton from '@/components/BackButton'
 import ChatBubble from '@/components/hospital/ChatBubble'
 import ChatInputBar from '@/components/hospital/ChatInputBar'
 
@@ -36,9 +37,7 @@ const ChatScreen = () => {
   return (
     <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
       <View style={[s.header, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color={colors.textBase} />
-        </TouchableOpacity>
+        <BackButton />
         <View style={s.headerCenter}>
           <Text style={[s.doctorName, { color: colors.textBase }]}>{doctor.name}</Text>
           <Text style={[s.doctorRole, { color: colors.textMuted }]}>{doctor.specialty}</Text>

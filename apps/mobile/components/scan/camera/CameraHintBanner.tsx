@@ -1,18 +1,21 @@
 import { View, Text, StyleSheet } from 'react-native'
+import { QUADRANT_LABEL_MN } from '@pinequest/core'
+import type { Quadrant } from '@pinequest/types'
 
-type Props = { mode: 'upper' | 'lower' }
+type Props = { quadrant: Quadrant }
 
-const LABELS = { upper: 'Дээд талын шүд', lower: 'Доод талын шүд' }
-const HINTS = {
-  upper: 'Дээд шүдээ харагдахаар амаа ангайлга',
-  lower: 'Доод шүдээ харагдахаар амаа ангайлга',
+const HINTS: Record<Quadrant, string> = {
+  upperRight: 'Дээд эгнээний баруун талын шүд харагдахаар амаа ангайлга',
+  upperLeft: 'Дээд эгнээний зүүн талын шүд харагдахаар амаа ангайлга',
+  lowerRight: 'Доод эгнээний баруун талын шүд харагдахаар амаа ангайлга',
+  lowerLeft: 'Доод эгнээний зүүн талын шүд харагдахаар амаа ангайлга',
 }
 
-export default function CameraHintBanner({ mode }: Props) {
+export default function CameraHintBanner({ quadrant }: Props) {
   return (
     <View style={s.banner}>
-      <Text style={s.title}>{LABELS[mode]}</Text>
-      <Text style={s.hint}>{HINTS[mode]}</Text>
+      <Text style={s.title}>{QUADRANT_LABEL_MN[quadrant]}</Text>
+      <Text style={s.hint}>{HINTS[quadrant]}</Text>
     </View>
   )
 }

@@ -35,15 +35,28 @@ export const BrushInstructions = () => (
       <p className="mt-2 text-center text-[13px] text-text-muted">45° өнцөг, бүс бүр 30 секунд</p>
     </div>
 
-    <ol className="grid gap-3 md:col-span-2 md:grid-cols-2">
-      {STEPS.map((step, i) => (
-        <li key={i} className="flex gap-4 rounded-2xl border border-border bg-surface p-5 text-[14px] text-text-base shadow-(--shadow-card)">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-[13px] font-bold text-primary">
-            {i + 1}
-          </span>
-          {step}
-        </li>
-      ))}
+    <ol className="relative md:col-span-2 rounded-2xl border border-border bg-surface p-6 shadow-(--shadow-card)">
+      {STEPS.map((step, i) => {
+        const [lead, detail] = step.split(' — ')
+        const last = i === STEPS.length - 1
+        return (
+          <li key={i} className="relative flex gap-4 pb-7 last:pb-0">
+            {!last && (
+              <span
+                aria-hidden
+                className="absolute left-4 top-9 h-[calc(100%-1.25rem)] w-px -translate-x-1/2 bg-primary/30"
+              />
+            )}
+            <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-[13px] font-bold text-text-on-primary shadow-sm">
+              {i + 1}
+            </span>
+            <div className="pt-1">
+              <p className="text-[14px] font-semibold text-text-base">{lead}</p>
+              {detail ? <p className="mt-0.5 text-[13px] text-text-muted">{detail}</p> : null}
+            </div>
+          </li>
+        )
+      })}
     </ol>
   </div>
 )

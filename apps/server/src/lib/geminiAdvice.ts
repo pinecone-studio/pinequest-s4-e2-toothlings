@@ -3,7 +3,11 @@
  * биш. Энэ нь web дэх /api/inference/analyze-ийн advice seam-тэй ижил зарчим:
  * triage логик TS (packages/core) дотор үлдэнэ, загвар/AI зөвхөн илрүүлэлт + зөвлөмж.
  */
-import type { InferenceDetection, SymptomSet, TriageLevel } from '@pinequest/types'
+import { QUADRANT_LABEL_MN } from '@pinequest/core'
+import type { InferenceDetection, Quadrant, SymptomSet, TriageLevel } from '@pinequest/types'
+
+/** One captured region + the detections the model found on its photo. */
+export type PhotoDetections = { quadrant: Quadrant; detections: InferenceDetection[] }
 
 // YOLO class_name (snake_case) → УI дээр харуулах нэр.
 const CLASS_LABEL: Record<string, string> = {
@@ -60,19 +64,27 @@ const parseAdvice = (text: string): string => {
 
 const buildAdvicePrompt = (params: {
   triageLevel: TriageLevel
-  detections: InferenceDetection[]
+  photos: PhotoDetections[]
   symptoms: SymptomSet
 }): string => {
-  const findingLines = params.detections.length
-    ? params.detections
-        .slice()
-        .sort((a, b) => b.confidence - a.confidence)
-        .map(
-          (d, i) =>
-            `  ${i + 1}. ${CLASS_LABEL[d.className] ?? d.className} — итгэлцэл ${(d.confidence * 100).toFixed(0)}%`,
-        )
+  const totalDetections = params.photos.reduce((n, p) => n + p.detections.length, 0)
+
+  // Group the model's detections by the four captured regions so the advice can
+  // reference where each finding was seen (хоншоор/эрүү, баруун/зүүн).
+  const findingLines = totalDetections
+    ? params.photos
+        .map((p) => {
+          const header = QUADRANT_LABEL_MN[p.quadrant]
+          if (!p.detections.length) return `  ${header}: илрүүлэлт алга`
+          const dets = p.detections
+            .slice()
+            .sort((a, b) => b.confidence - a.confidence)
+            .map((d) => `      - ${CLASS_LABEL[d.className] ?? d.className} (итгэлцэл ${(d.confidence * 100).toFixed(0)}%)`)
+            .join('\n')
+          return `  ${header}:\n${dets}`
+        })
         .join('\n')
-    : '  (Загвар зургаас цоорол/хагарал илрүүлээгүй)'
+    : '  (Загвар 4 зургаас цоорол/хагарал илрүүлээгүй)'
 
   const symptomLines = (Object.keys(params.symptoms) as Array<keyof SymptomSet>)
     .filter((k) => params.symptoms[k])
@@ -81,10 +93,10 @@ const buildAdvicePrompt = (params: {
 
   return `Та хүүхдийн шүдний мэргэжилтэн эмч юм. Та өвчтөний эцэг эхтэй тайван, ойлгомжтой, найрсаг байдлаар ярьж байна. Хариуг ЗААВАЛ цэвэр монгол хэлээр бичнэ. Хятад, орос, англи үг огт хэрэглэхгүй.
 
-ЧУХАЛ: Шүдний зураг дээрх илрүүлэлтийг (detection) АГ загвар (YOLO) аль хэдийн хийсэн. Доорх илрүүлсэн зүйлс болон аюулын зэрэглэл (triage) нь АЛБАН ЁСНЫ үр дүн — та үүнийг өөрчлөхгүй, зөвхөн эцэг эхэд зориулсан ойлгомжтой ЗӨВЛӨМЖ бичнэ.
+ЧУХАЛ: Хүүхдийн амны 4 хэсгийг (хоншоор баруун/зүүн, эрүү баруун/зүүн) тус бүрд нь зураг авч, АГ загвар (YOLO) илрүүлэлт (detection) хийсэн. Доорх хэсэг тус бүрийн илрүүлсэн зүйлс болон аюулын зэрэглэл (triage) нь АЛБАН ЁСНЫ үр дүн — та үүнийг өөрчлөхгүй, зөвхөн эцэг эхэд зориулсан ойлгомжтой ЗӨВЛӨМЖ бичнэ.
 
 ═══════════════════════════════
-ЗАГВАРЫН ИЛРҮҮЛСЭН ЗҮЙЛС (албан ёсны)
+ЗАГВАРЫН ИЛРҮҮЛСЭН ЗҮЙЛС (4 зураг, хэсэг тус бүрээр, албан ёсны)
 ═══════════════════════════════
 Аюулын зэрэглэл (triage): ${params.triageLevel}
 ${findingLines}
@@ -98,7 +110,7 @@ ${symptomLines || '  (Шинж тэмдэг тэмдэглээгүй)'}
 ЗӨВЛӨМЖ БИЧИХ ЗАГВАР
 ═══════════════════════════════
 3-4 өгүүлбэрээр эцэг эхэд хандан бичнэ үү:
-  • 1-р өгүүлбэр: зургаас юу илэрсэн тухай (загварын илрүүлэлтэд тулгуурла)
+  • 1-р өгүүлбэр: 4 зургаас юу, аль хэсэгт илэрсэн тухай (загварын илрүүлэлтэд тулгуурла)
   • 2-р өгүүлбэр: шинж тэмдэгтэй хэрхэн холбогдох тухай
   • 3-р өгүүлбэр: дараагийн алхам (яаралтай эсэх, хэзээ эмчид очих)
   • 4-р өгүүлбэр: гэрт авах арга хэмжээ
@@ -107,27 +119,18 @@ ${symptomLines || '  (Шинж тэмдэг тэмдэглээгүй)'}
 { "advice": "Монгол хэлээр 3-4 өгүүлбэр." }`
 }
 
-const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
-  const chunk = 0x8000
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunk))
-  }
-  return btoa(binary)
-}
-
 /**
- * Gemini зөвлөмжийн текст гаргана (зураг + загварын илрүүлэлт + асуумж дээр
- * тулгуурлан). Тохиргоо/сүлжээ алдаа гарвал null буцаана — дуудагч fallback хийнэ.
+ * Gemini зөвлөмжийн текст гаргана — ЗӨВХӨН YOLO загварын илрүүлэлт + triage +
+ * асуумж дээр тулгуурлан (зураг явуулахгүй: зөвлөмж текстээс гардаг тул зургийг
+ * нэмэх нь чанарт нөлөөлөхгүй, зөвхөн саатал нэмнэ). Тохиргоо/сүлжээ алдаа гарвал
+ * null буцаана — дуудагч fallback хийнэ.
  */
 export const runGeminiAdvice = async (params: {
   apiKey: string
   model: string
   triageLevel: TriageLevel
-  detections: InferenceDetection[]
+  photos: PhotoDetections[]
   symptoms: SymptomSet
-  image?: File
 }): Promise<string | null> => {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
     params.model,
@@ -135,23 +138,22 @@ export const runGeminiAdvice = async (params: {
 
   const promptText = buildAdvicePrompt({
     triageLevel: params.triageLevel,
-    detections: params.detections,
+    photos: params.photos,
     symptoms: params.symptoms,
   })
 
   const parts: Array<Record<string, unknown>> = [{ text: promptText }]
-  if (params.image) {
-    try {
-      const base64 = arrayBufferToBase64(await params.image.arrayBuffer())
-      parts.push({ inlineData: { mimeType: params.image.type || 'image/jpeg', data: base64 } })
-    } catch {
-      // image optional — fall back to text-only prompt
-    }
-  }
 
   const body = {
     contents: [{ role: 'user', parts }],
-    generationConfig: { temperature: 0, maxOutputTokens: 2048, responseMimeType: 'application/json' },
+    generationConfig: {
+      temperature: 0,
+      maxOutputTokens: 512,
+      responseMimeType: 'application/json',
+      // 3-4 өгүүлбэрийн энгийн зөвлөмжид "бодох" overhead шаардлагагүй —
+      // үүнийг унтраах нь 2.5-flash-ийн саатлыг мэдэгдэхүйц багасгана.
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   }
 
   try {
