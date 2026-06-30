@@ -1,8 +1,13 @@
 import type { ChildScreeningSummary, InferenceDetection, ScreeningGuidance, Quadrant, SymptomSet, UserRole, FollowUpStatus } from '@pinequest/types'
 import { normalizeInference, detectionsToFindings, triage } from '@pinequest/core'
 import { getToken, type AuthUser } from './auth'
-import { runLocalInference, isModelCached } from './localInference'
+import { runLocalInference, isModelCached, isOnnxAvailable } from './localInference'
 import { API_BASE as BASE } from './config'
+
+// Deadline for the multi-image analyze request. The server path (4 inferences +
+// Gemini) is the slowest call in the app; this caps how long the capture screen
+// can spin before the user gets a retryable error instead of an endless loader.
+const ANALYZE_TIMEOUT_MS = 60_000
 
 const authHeader = async (): Promise<Record<string, string>> => {
   const token = await getToken()
@@ -410,12 +415,21 @@ export const analyzeImages = async (
   for (const [k, v] of Object.entries(meta)) {
     if (v) form.append(k, v)
   }
+  // The server runs four sequential inferences + a Gemini call; none of those
+  // have an upstream timeout, so without a client deadline a slow/stalled request
+  // leaves the capture screen spinning forever. Abort and surface a clear error.
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), ANALYZE_TIMEOUT_MS)
   try {
     const res = await fetch(`${BASE}/api/screenings/analyze`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token ?? ''}` },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: form as any,
+      // RN's fetch typing ships its own AbortSignal type that conflicts with the
+      // DOM lib one; the runtime accepts it fine.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      signal: controller.signal as any,
     })
     const json = (await res.json()) as { success: boolean; data: AnalyzeResult; message?: string }
     if (!res.ok) throw new Error(json.message ?? String(res.status))
@@ -425,10 +439,20 @@ export const analyzeImages = async (
     const photos = (json.data.photos ?? []).map(p => ({ ...p, uri: uriByQuadrant[p.quadrant] ?? p.uri }))
     return { ...json.data, photos }
   } catch (err) {
-    if (canFallbackToLocal(err) && (await isModelCached())) {
+    // Map an abort (our deadline) to a recognizable, translatable error.
+    if (err instanceof Error && err.name === 'AbortError') {
+      if (isOnnxAvailable && (await isModelCached())) {
+        const sym = (() => { try { return JSON.parse(meta.symptoms ?? '{}') as SymptomSet } catch { return {} } })()
+        return analyzeImagesLocally(shots, sym)
+      }
+      throw new Error('analyze_timeout')
+    }
+    if (canFallbackToLocal(err) && isOnnxAvailable && (await isModelCached())) {
       const sym = (() => { try { return JSON.parse(meta.symptoms ?? '{}') as SymptomSet } catch { return {} } })()
       return analyzeImagesLocally(shots, sym)
     }
     throw err
+  } finally {
+    clearTimeout(timer)
   }
 }
