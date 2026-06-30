@@ -42,7 +42,7 @@ const navBtn = 'btn absolute top-1/2 flex size-7 -translate-y-1/2 items-center j
 export const ImageGallery = ({ refs, screeningId }: { refs: string[]; screeningId?: string }) => {
   const [idx, setIdx] = useState(0)
   if (!refs.length || !screeningId) return (
-    <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-2xl bg-surface-raised text-text-muted/50">
+    <div className="flex h-64 flex-col items-center justify-center gap-2 rounded-2xl bg-surface-raised text-text-muted/50">
       <CameraIcon className="size-7" /><span className="text-[11px]">Зураг байхгүй</span>
     </div>
   )
@@ -51,7 +51,7 @@ export const ImageGallery = ({ refs, screeningId }: { refs: string[]; screeningI
       <AuthImage
         path={`/api/screenings/${screeningId}/image/${idx}`}
         alt={`Үзүүлэлт зураг ${idx + 1}/${refs.length}`}
-        className="h-44 w-full object-cover"
+        className="h-72 w-full object-cover"
       />
       {refs.length > 1 && <>
         <button onClick={() => setIdx((i) => Math.max(0, i - 1))} disabled={idx === 0} aria-label="Өмнөх" className={`${navBtn} left-2`}><ChevronLeftIcon className="size-4" /></button>
@@ -93,6 +93,16 @@ export const RawQuestionnairePanel = ({ answers }: { answers: QuestionnaireAnswe
     </div>
   )
 }
+
+// Web дээр 5 асуулт асуудаггүй (зөвхөн зураг + нас). Тийм скрининг дээр хуурамч "Үгүй"
+// шинж бус, "Асуумж байхгүй" төлөвийг харуулна. Мобайл дата (questionnaireRaw) байвал жинхэнэ
+// хариултыг харуулна.
+export const EmptyQuestionnairePanel = () => (
+  <div className="rounded-2xl bg-surface-raised px-4 py-3">
+    <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-text-muted">Асуумжаар</p>
+    <p className="text-[12px] text-text-muted">Асуумж байхгүй</p>
+  </div>
+)
 
 export const QuestionnairePanel = ({ q }: { q: QuestionnaireAnswers }) => (
   <div className="rounded-2xl bg-surface-raised px-4 py-3">

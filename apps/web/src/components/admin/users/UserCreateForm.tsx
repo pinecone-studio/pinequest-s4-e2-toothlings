@@ -7,6 +7,7 @@ import { useSchools } from '@/hooks/useSchools'
 import { useClasses } from '@/hooks/useClasses'
 import Button from '@/components/ui/Button'
 import Dropdown, { type DropdownOption } from '@/components/ui/Dropdown'
+import { formatSeason } from '@/lib/season'
 import {
   AcademicCapIcon, BuildingOffice2Icon, UserGroupIcon, ViewfinderCircleIcon,
   SparklesIcon, ShieldCheckIcon, BuildingLibraryIcon,
@@ -63,7 +64,7 @@ const UserCreateForm = () => {
           <Dropdown
             className="col-span-2"
             value={classId}
-            options={[{ value: '', label: '— Бүлэг (багшийг бүлэгт хуваарилах) —' }, ...(classes ?? []).map((c) => ({ value: c.id, label: `${c.name} · ${c.seasonId}` }))]}
+            options={[{ value: '', label: '— Бүлэг (багшийг бүлэгт хуваарилах) —' }, ...(classes ?? []).map((c) => ({ value: c.id, label: `${c.name} · ${formatSeason(c.seasonId)}` }))]}
             onChange={setClassId}
             ariaLabel="Бүлэг сонгох"
           />

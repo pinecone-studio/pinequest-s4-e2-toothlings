@@ -7,6 +7,7 @@ import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import CoverageBar from '@/components/admin/schools/CoverageBar'
 import { downloadICS } from '@/lib/calendar'
+import { formatSeason } from '@/lib/season'
 
 type Vars = { newSeasonId: string; newName: string; scheduledAt: string | null; reminderPhone: string | null }
 type Props = {
@@ -55,7 +56,7 @@ const CarryForwardModal = ({ open, onClose, source, schoolName, submitting, onSu
     if (wantReminder && scheduledAt) {
       downloadICS({
         title: `Шүдний үзүүлэлт — ${schoolName} · ${name || source.name}`,
-        description: `${seasonId} улирлын үзүүлэлт айлчлал. Хамрагдах сурагч: ${source.enrolled}.`,
+        description: `${formatSeason(seasonId)} улирлын үзүүлэлт айлчлал. Хамрагдах сурагч: ${source.enrolled}.`,
         start: new Date(scheduledAt),
         remindMinBefore: 1440,
       })
@@ -68,7 +69,7 @@ const CarryForwardModal = ({ open, onClose, source, schoolName, submitting, onSu
       open={open}
       onClose={onClose}
       title="Дараа улирал төлөвлөх"
-      subtitle={`${source.name} · ${source.seasonId} → шинэ улирал`}
+      subtitle={`${source.name} · ${formatSeason(source.seasonId)} → шинэ улирал`}
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>Болих</Button>

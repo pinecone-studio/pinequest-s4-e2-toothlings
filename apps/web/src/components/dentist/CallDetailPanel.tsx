@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { VideoCameraIcon, CheckCircleIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import { childSummaryNarrative } from '@pinequest/core'
-import { ImageGallery, QuestionnairePanel, RawQuestionnairePanel, TRIAGE_BADGE, TRIAGE_LABEL } from '@/components/admin/summary/SummaryPanels'
+import { ImageGallery, EmptyQuestionnairePanel, RawQuestionnairePanel, TRIAGE_BADGE, TRIAGE_LABEL } from '@/components/admin/summary/SummaryPanels'
 import { useAppointmentSummary, useUpdateAppointmentNote, type AppointmentRow } from '@/hooks/useAppointments'
 import { useCall } from '@/context/IncomingCallContext'
 import { useToast } from '@/components/ui/Toast'
@@ -121,9 +121,7 @@ const CallDetailPanel = ({ appt }: { appt: AppointmentRow | null }) => {
 
         {!isLoading && tab === 'survey' && (detail?.questionnaireRaw?.length
           ? <RawQuestionnairePanel answers={detail.questionnaireRaw} />
-          : detail?.questionnaire
-            ? <QuestionnairePanel q={detail.questionnaire} />
-            : <p className="rounded-2xl border border-border bg-surface-raised p-4 text-[13px] text-text-muted">Асуумжийн мэдээлэл алга.</p>)}
+          : <EmptyQuestionnairePanel />)}
 
         {tab === 'note' && (
           <div className="flex flex-col gap-2">

@@ -25,13 +25,13 @@ export const BrushInstructions = () => (
       </div>
       <div className="border-t border-border px-5 py-4">
         <p className="text-[15px] font-semibold text-text-base">Видео заавар</p>
-        <p className="mt-1 text-[13px] text-text-muted">Bass угаалгын техник — 2 минут</p>
+        <p className="mt-1 text-[13px] text-text-muted">2 минутын турш Bass-ын аргаар шүд угаах</p>
       </div>
     </div>
 
     <div className="flex flex-col items-center">
       <ToothModel zoneScores={{ UL: 25, UR: 25, LL: 20, LR: 18 }} />
-      <p className="mt-6 text-[14px] font-semibold text-text-base">3D анимац — зөв угаалгын чиглэл</p>
+      <p className="mt-6 text-[14px] font-semibold text-text-base">Зөв аргаар шүд угаах 3D дүрслэл</p>
       <p className="mt-2 text-center text-[13px] text-text-muted">45° өнцөг, бүс бүр 30 секунд</p>
     </div>
 

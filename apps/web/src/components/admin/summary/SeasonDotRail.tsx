@@ -4,6 +4,7 @@ import type { ComponentType, SVGProps } from 'react'
 import { ArrowUpIcon, ArrowDownIcon, ExclamationTriangleIcon, ArrowsRightLeftIcon } from '@heroicons/react/24/solid'
 import type { ChildTrendSnapshot, TriageLevel } from '@pinequest/types'
 import type { SeasonSnapshot } from '@/hooks/useBoard'
+import { formatSeason } from '@/lib/season'
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>
 
@@ -45,7 +46,7 @@ const SeasonDotRail = ({ history, trend }: Props) => {
         <span
           key={s.seasonId}
           className={`size-2 shrink-0 rounded-full ${DOT_CLS[s.effectiveLevel] ?? 'bg-border'}`}
-          title={s.seasonId}
+          title={formatSeason(s.seasonId)}
         />
       ))}
       {t && (

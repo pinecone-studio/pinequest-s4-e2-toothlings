@@ -5,7 +5,7 @@ import { CheckCircleIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/so
 import type { BoardStudent } from '@/hooks/useBoard'
 import type { ChildSummaryPayload } from '@/hooks/useChildSummary'
 import { childSummaryNarrative } from '@pinequest/core'
-import { ImageGallery, QuestionnairePanel, RawQuestionnairePanel, HospitalGuidePanel, TRIAGE_BADGE, TRIAGE_LABEL } from './SummaryPanels'
+import { ImageGallery, EmptyQuestionnairePanel, RawQuestionnairePanel, HospitalGuidePanel, TRIAGE_BADGE, TRIAGE_LABEL } from './SummaryPanels'
 import Skeleton from '@/components/ui/Skeleton'
 import { formatSeason } from '@/lib/season'
 
@@ -60,10 +60,11 @@ const StudentSummaryBody = ({ student, detail, isLoading, statusSlot }: Props) =
       </div>
 
       {isLoading && <Skeleton className="h-28 rounded-2xl" />}
-      {/* Утсан дээр асуусан яг асуулт-хариултыг харуулна; raw байхгүй бол шинж тэмдгийн жагсаалт руу буцна. */}
-      {detail?.questionnaireRaw?.length
+      {/* Мобайл дата (questionnaireRaw) байвал утсан дээр асуусан яг хариултыг харуулна; web дээр
+          5 асуулт асуудаггүй тул "Асуумж байхгүй" төлөвийг харуулна. */}
+      {!isLoading && (detail?.questionnaireRaw?.length
         ? <RawQuestionnairePanel answers={detail.questionnaireRaw} />
-        : detail?.questionnaire && <QuestionnairePanel q={detail.questionnaire} />}
+        : <EmptyQuestionnairePanel />)}
 
       <div className="rounded-2xl bg-surface-raised px-4">
         {[['Хийсэн огноо', date], ['Анги', `${student.className} — ${formatSeason(student.seasonId)}`]].map(([l, v]) => (

@@ -12,6 +12,7 @@ import { useChildHistory } from '@/hooks/useChildHistory'
 import { openParentEmail, openParentSms } from '@/lib/parentEmail'
 import { printChildSummary } from '@/lib/parentPdf'
 import type { BoardStudent } from '@/hooks/useBoard'
+import { formatSeason } from '@/lib/season'
 
 type Tab = 'latest' | 'history' | 'chart'
 const TAB_LABELS: Record<Tab, string> = { latest: 'Сүүлийн дүгнэлт', history: 'Өмнөх дүгнэлтүүд', chart: 'Динамик өөрчлөлтүүд' }
@@ -36,7 +37,7 @@ const StudentModal = ({ student, onClose }: { student: BoardStudent | null; onCl
   return (
     <Modal
       open onClose={onClose} title={name}
-      subtitle={`${student.className} · ${student.seasonId}`}
+      subtitle={`${student.className} · ${formatSeason(student.seasonId)}`}
       size="lg"
       footer={
         <div className="flex w-full items-center gap-2">

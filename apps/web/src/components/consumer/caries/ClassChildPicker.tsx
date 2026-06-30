@@ -21,6 +21,8 @@ export type ScreenTarget = {
   schoolId: string
   seasonId: string
   childLabel: string
+  /** Хүүхдийн нас (birthYear-аас бодсон). Web дээр асуумж байхгүй тул AI зөвлөмжийн цорын ганц өвчтөний контекст. */
+  age: string
 }
 
 const selectCls =
@@ -90,14 +92,16 @@ export const ClassChildPicker = ({ onChange }: { onChange: (t: ScreenTarget | nu
     ...roster.map((r) => ({ value: r.childKey, label: `${r.screenedAt ? '✓ ' : ''}${r.lastName} ${r.firstName}`, Icon: UserIcon })),
   ]
 
-  const emit = (kid: { childKey: string; firstName: string; lastName: string }) => {
+  const emit = (kid: { childKey: string; firstName: string; lastName: string; birthYear: number }) => {
     if (!cls) return
+    const age = kid.birthYear ? String(new Date().getFullYear() - kid.birthYear) : ''
     onChange({
       childKey: kid.childKey,
       classId: cls.id,
       schoolId: cls.schoolId,
       seasonId: cls.seasonId,
       childLabel: `${kid.lastName} ${kid.firstName}`.trim() || kid.childKey,
+      age,
     })
   }
 

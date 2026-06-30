@@ -12,6 +12,7 @@ import StatusPicker from '@/components/ui/StatusPicker'
 import StudentSummaryBody from '@/components/admin/summary/StudentSummaryBody'
 import LongitudinalDeltaBar from '@/components/admin/summary/LongitudinalDeltaBar'
 import { VolunteerDentistSection } from '@/components/admin/help/VolunteerDentistSection'
+import { formatSeason } from '@/lib/season'
 
 type Channel = 'sms' | 'call' | 'in_person'
 const CHANNELS: { value: Channel; label: string }[] = [
@@ -50,7 +51,7 @@ const FollowUpEditModal = ({ student, onClose }: Props) => {
     <Modal
       open onClose={onClose}
       title={`${student.lastName} ${student.firstName}`}
-      subtitle={`${student.className} · ${student.seasonId}`}
+      subtitle={`${student.className} · ${formatSeason(student.seasonId)}`}
       size="lg"
       footer={
         <>

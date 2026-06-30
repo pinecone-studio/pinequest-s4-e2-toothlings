@@ -52,6 +52,8 @@ export const runGeminiAdvice = async (params: {
       maxOutputTokens: 4096,
       responseMimeType: 'application/json',
       responseSchema: GUIDANCE_SCHEMA,
+      // Thinking унтраав: structured зөвлөмжид reasoning хэрэггүй, саатал + хоосон хариу багасна.
+      thinkingConfig: { thinkingBudget: 0 },
     },
   }
 

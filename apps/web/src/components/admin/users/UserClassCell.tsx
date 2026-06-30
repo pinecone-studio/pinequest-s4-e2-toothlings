@@ -3,6 +3,7 @@
 import { useClasses } from '@/hooks/useClasses'
 import { usePatchUser, type UserRow } from '@/hooks/useUsers'
 import Dropdown, { type DropdownOption } from '@/components/ui/Dropdown'
+import { formatSeason } from '@/lib/season'
 
 // Per-row class assignment for a screener (class teacher). Own hook instance so
 // useClasses(schoolId) is valid per row. Non-screeners show nothing to assign.
@@ -15,7 +16,7 @@ const UserClassCell = ({ user }: { user: UserRow }) => {
 
   const options: DropdownOption[] = [
     { value: '', label: '— Бүх бүлэг —' },
-    ...(classes ?? []).map((c) => ({ value: c.id, label: `${c.name} · ${c.seasonId}` })),
+    ...(classes ?? []).map((c) => ({ value: c.id, label: `${c.name} · ${formatSeason(c.seasonId)}` })),
   ]
 
   return (

@@ -24,7 +24,7 @@ type AnalyzeErrorPayload = {
   details?: string
 }
 
-export const analyzeScanImage = async (file: File, imageUrl: string): Promise<ScanResult> => {
+export const analyzeScanImage = async (file: File, imageUrl: string, age?: string): Promise<ScanResult> => {
   const q = getQuestionnaire()
   const form = new FormData()
   form.append('image', file)
@@ -48,6 +48,10 @@ export const analyzeScanImage = async (file: File, imageUrl: string): Promise<Sc
     if (symptoms.fever) form.append('fever', 'yes')
     if (symptoms.swelling) form.append('feverSwelling', 'yes')
   }
+
+  // Web дээр асуумж байхгүй — сонгосон хүүхдийн нас (ростероос) AI зөвлөмжийн цорын ганц
+  // контекст. Асуумжийн насыг (хэрэв байвал) дарж бичнэ.
+  if (age && age.trim()) form.set('age', age.trim())
 
   const res = await fetch('/api/inference/analyze', { method: 'POST', body: form })
   const payload = (await res.json().catch(() => ({}))) as AnalyzePayload | AnalyzeErrorPayload

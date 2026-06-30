@@ -59,7 +59,7 @@ const InstructionsPanel = () => (
       </div>
       <div className="border-t border-[#E0E0E0]/60 px-5 py-4">
         <p className="text-[15px] font-semibold text-slate-900">Видео заавар</p>
-        <p className="mt-1 text-[13px] text-text-muted">Bass угаалгын техник — 2 минут</p>
+        <p className="mt-1 text-[13px] text-text-muted">2 минутын турш Bass-ийн аргаар шүд угаах</p>
         <a
           href={`https://youtu.be/${BRUSH_VIDEO_ID}`}
           target="_blank"
