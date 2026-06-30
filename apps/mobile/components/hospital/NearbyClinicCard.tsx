@@ -30,8 +30,14 @@ const NearbyClinicCard = ({ clinic, distance, isSelected, onPress }: Props) => {
         <Text style={[s.name, { color: colors.textBase }]} numberOfLines={1}>
           {clinic.name}
         </Text>
-        <Text style={[s.meta, { color: colors.textMuted }]}>
-          ⭐ {clinic.rating ?? '-'} · {distance.toFixed(1)} км · {clinic.hours}
+        <Text style={[s.meta, { color: colors.textMuted }]} numberOfLines={1}>
+          {[
+            clinic.rating != null ? `⭐ ${clinic.rating}` : null,
+            `${distance.toFixed(1)} км`,
+            clinic.hours || null,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </Text>
       </View>
       <View style={s.actions}>

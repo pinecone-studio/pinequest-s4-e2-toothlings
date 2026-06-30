@@ -119,7 +119,7 @@ const s = StyleSheet.create({
   scroll: { padding: 20, gap: 16, paddingBottom: 40 },
   block: { gap: 8 },
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
-  dateRow: { borderWidth: 1, borderRadius: 9999, paddingHorizontal: 14, height: 52, justifyContent: 'center' },
+  dateRow: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 9999, paddingHorizontal: 14, height: 52, justifyContent: 'center' },
   dateText: { fontSize: 15, fontFamily: 'Inter_400Regular' },
   error: { fontSize: 13, color: '#ef4444' },
 })

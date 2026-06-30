@@ -30,7 +30,7 @@ const CameraTabButton = ({ onPress, style, ...rest }: Props) => {
 
 const s = StyleSheet.create({
   wrap: {
-    top: -18,
+    top: -0,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -38,13 +38,13 @@ const s = StyleSheet.create({
     width: 74,
     height: 74,
     borderRadius: 37,
-    borderWidth: 3,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   circle: {
-    width: 62,
-    height: 62,
+    width: 66,
+    height: 66,
     borderRadius: 31,
     alignItems: 'center',
     justifyContent: 'center',

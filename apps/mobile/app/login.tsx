@@ -115,7 +115,7 @@ const s = StyleSheet.create({
   },
   grabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, marginBottom: 8 },
   scroll: { padding: 22, gap: 20, paddingBottom: 40 },
-  tabs: { flexDirection: 'row', borderRadius: 9999, padding: TAB_PAD, borderWidth: 1, position: 'relative' },
+  tabs: { flexDirection: 'row', borderRadius: 9999, padding: TAB_PAD, borderWidth: StyleSheet.hairlineWidth, position: 'relative' },
   pill: {
     position: 'absolute',
     top: TAB_PAD,

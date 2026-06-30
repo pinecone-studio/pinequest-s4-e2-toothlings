@@ -11,7 +11,7 @@ export default function GuideScreen() {
   const [tab, setTab] = useState<GuideTab>('guide')
 
   return (
-    <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[s.root, { backgroundColor: colors.bg }]}>
       <Text style={[s.pageTitle, { color: colors.textBase }]}>Заавар</Text>
       <GuideTabs active={tab} onChange={setTab} />
       {tab === 'guide' ? <BrushingGuide /> : <BrushMonitor />}

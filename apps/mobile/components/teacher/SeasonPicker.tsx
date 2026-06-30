@@ -29,7 +29,7 @@ const SeasonPicker = ({ value, onChange, year }: Props) => {
 
 const s = StyleSheet.create({
   row: { gap: 8, paddingVertical: 2 },
-  chip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 9999, borderWidth: 1 },
+  chip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 9999, borderWidth: StyleSheet.hairlineWidth },
   label: { fontSize: 13, fontFamily: 'Inter_500Medium' },
 })
 

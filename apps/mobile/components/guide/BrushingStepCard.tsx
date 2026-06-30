@@ -17,7 +17,7 @@ export default function BrushingStepCard({ name, description }: BrushingStep) {
 }
 
 const s = StyleSheet.create({
-  card: { flex: 1, borderRadius: 14, padding: 14, borderWidth: 1, gap: 5 },
+  card: { flex: 1, borderRadius: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth, gap: 5 },
   name: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
   desc: { fontSize: 12, fontFamily: 'Inter_400Regular' },
 })

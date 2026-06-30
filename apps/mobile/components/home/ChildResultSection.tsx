@@ -59,7 +59,7 @@ const ChildResultSection = () => {
 
 const s = StyleSheet.create({
   title: { fontFamily: 'Inter_600SemiBold', fontSize: 11, letterSpacing: 0.5, paddingBottom: 8 },
-  card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 6, alignItems: 'center' },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, gap: 6, alignItems: 'center' },
   name: { fontSize: 15, fontFamily: 'Inter_600SemiBold' },
   empty: { fontFamily: 'Inter_400Regular', fontSize: 14, textAlign: 'center' },
 })

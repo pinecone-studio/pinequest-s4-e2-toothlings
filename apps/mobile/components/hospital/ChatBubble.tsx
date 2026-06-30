@@ -17,7 +17,7 @@ const ChatBubble = ({ text, isMe, time }: Props) => {
           s.bubble,
           isMe
             ? { backgroundColor: colors.primary }
-            : { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 },
+            : { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth },
         ]}
       >
         <Text style={[s.text, { color: isMe ? colors.primaryText : colors.textBase }]}>

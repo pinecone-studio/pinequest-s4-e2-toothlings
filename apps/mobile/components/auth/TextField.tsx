@@ -31,7 +31,7 @@ const TextField = ({ label, value, onChange, placeholder, keyboard, autoCapitali
 const s = StyleSheet.create({
   group: { gap: 6 },
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
-  input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, height: 52, fontSize: 16 },
+  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, paddingHorizontal: 14, height: 52, fontSize: 16 },
 })
 
 export default TextField

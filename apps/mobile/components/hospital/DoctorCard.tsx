@@ -49,7 +49,7 @@ const s = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 10,
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,

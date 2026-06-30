@@ -35,7 +35,7 @@ const ClassCard = ({ klass, onPress }: { klass: TeacherClass; onPress: () => voi
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 12 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, gap: 12 },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   titleWrap: { gap: 2 },
   name: { fontSize: 17, fontFamily: 'Inter_700Bold' },

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import { apiFetch } from '@/lib/api'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import { toMongolian } from '@/lib/errorMessages'
 
 type Screening = {
@@ -40,6 +41,7 @@ const LEVEL_LABEL: Record<string, string> = {
 
 export default function HistoryScreen() {
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
   const router = useRouter()
   const [screenings, setScreenings] = useState<Screening[]>([])
   const [loading, setLoading] = useState(true)
@@ -69,12 +71,12 @@ export default function HistoryScreen() {
     )
 
   return (
-    <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[s.root, { backgroundColor: colors.bg }]}>
       <Text style={[s.header, { color: colors.textBase }]}>Дүгнэлт</Text>
       <FlatList
         data={screenings}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: tabBarPad }}
         ListEmptyComponent={
           <Text style={[s.empty, { color: colors.textDisabled }]}>
             Одоогоор дүгнэлт байхгүй байна

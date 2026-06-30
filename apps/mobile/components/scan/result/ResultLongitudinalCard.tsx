@@ -52,7 +52,7 @@ const ResultLongitudinalCard = ({ currentLevel, priorLevel }: Props) => {
 export default ResultLongitudinalCard
 
 const s = StyleSheet.create({
-  card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 10 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, gap: 10 },
   heading: { fontSize: 11, fontFamily: 'Inter_600SemiBold', textTransform: 'uppercase', letterSpacing: 0.5 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   col: { flex: 1, alignItems: 'center', gap: 6 },

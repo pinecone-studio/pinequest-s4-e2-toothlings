@@ -24,9 +24,9 @@ export type ColorTokens = {
 }
 
 export const lightColors: ColorTokens = {
-  primary: '#F2B705',        // Honey Gold — matches web brand primary
-  primaryText: '#1A1407',    // dark text on gold button
-  primarySoft: 'rgba(242,183,5,0.12)', // soft gold chip behind icons (works on white)
+  primary: '#0E9594',        // clinical teal — brand
+  primaryText: '#FFFFFF',    // white text on the teal button
+  primarySoft: 'rgba(14,149,148,0.14)', // soft teal chip behind icons (works on white)
   sidebar: '#2A2418',        // web brand-sidebar
   bg: '#FFFFFF',             // all-white canvas on phone
   surface: '#FFFFFF',
@@ -49,9 +49,9 @@ export const lightColors: ColorTokens = {
 }
 
 export const darkColors: ColorTokens = {
-  primary: '#FFC93C',        // brighter gold for dark mode — matches web dark primary
-  primaryText: '#1A1407',
-  primarySoft: 'rgba(255,201,60,0.16)', // soft gold chip behind icons (dark)
+  primary: '#0E9594',        // clinical teal — brand (dark mode)
+  primaryText: '#FFFFFF',
+  primarySoft: 'rgba(14,149,148,0.20)', // soft teal chip behind icons (dark)
   sidebar: '#1C1C1E',
   bg: '#000000',
   surface: '#1C1C1E',
@@ -71,4 +71,22 @@ export const darkColors: ColorTokens = {
   badgeGreen: '#62D094',
   badgeYellow: '#E8924A',
   badgeRed: '#D97878',
+}
+
+/**
+ * Home screen "monochrome dark glass" skin.
+ * Near-black canvas, translucent glassy cards, hairline light borders — the
+ * surfaces stay monochrome, while active/accent elements (icons, avatar, active
+ * states) use the brand orange. Triage/badge semantics are inherited from
+ * darkColors so the red/yellow/green status pops stay intact.
+ */
+export const homeMonoColors: ColorTokens = {
+  ...darkColors,
+  primary: '#0E9594', // clinical teal — active/accent elements
+  primaryText: '#FFFFFF',
+  primarySoft: 'rgba(14,149,148,0.20)', // soft teal chip behind icons
+  bg: '#0A0A0A',
+  surface: 'rgba(255,255,255,0.055)', // glassy card fill over the near-black canvas
+  surfaceRaised: 'rgba(255,255,255,0.09)',
+  border: 'rgba(255,255,255,0.10)', // hairline glass edge
 }

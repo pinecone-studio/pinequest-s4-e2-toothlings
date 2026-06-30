@@ -68,7 +68,7 @@ export default function ResultPhotoCard({ photo }: Props) {
 }
 
 const s = StyleSheet.create({
-  card: { flex: 1, borderRadius: 16, borderWidth: 1, padding: 12, gap: 10 },
+  card: { flex: 1, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 12, gap: 10 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   archLabel: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
   countBadge: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },

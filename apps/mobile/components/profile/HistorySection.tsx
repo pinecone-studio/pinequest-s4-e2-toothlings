@@ -164,7 +164,7 @@ const s = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
   loader: {
@@ -184,7 +184,7 @@ const s = StyleSheet.create({
   lastLabel: { fontFamily: 'Inter_400Regular', fontSize: 11 },
   lastDate: { fontFamily: 'Inter_500Medium', fontSize: 14, marginTop: 2 },
   breakdown: { flexDirection: 'row', gap: 8 },
-  stat: { flex: 1, gap: 6, borderWidth: 1, borderRadius: 12, padding: 12, alignItems: 'center' },
+  stat: { flex: 1, gap: 6, borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, padding: 12, alignItems: 'center' },
   statTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   statDot: { width: 10, height: 10, borderRadius: 5 },
   statValue: { fontFamily: 'Inter_700Bold', fontSize: 20 },

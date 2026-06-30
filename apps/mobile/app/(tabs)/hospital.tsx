@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useLocalSearchParams } from 'expo-router'
 import * as Location from 'expo-location'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import { useSession } from '@/lib/SessionContext'
 import { roleConfigFor } from '@/lib/roleConfig'
 import SegmentTabs from '@/components/hospital/SegmentTabs'
@@ -17,6 +18,7 @@ type Coords = { lat: number; lng: number }
 
 const HospitalScreen = () => {
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
   const { activeRole } = useSession()
   const config = roleConfigFor(activeRole)
   const { segment: initialSegment } = useLocalSearchParams<{ segment?: string }>()
@@ -33,9 +35,9 @@ const HospitalScreen = () => {
   // Dentists review incoming help requests here instead of searching for a doctor.
   if (config.tabs.hospitalMode === 'help-requests') {
     return (
-      <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={[s.root, { backgroundColor: colors.bg }]}>
         <Text style={[s.pageTitle, { color: colors.textBase }]}>{config.tabs.hospitalLabel}</Text>
-        <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: tabBarPad }]} showsVerticalScrollIndicator={false}>
           <HelpRequestsSection />
         </ScrollView>
       </SafeAreaView>
@@ -43,7 +45,7 @@ const HospitalScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[s.root, { backgroundColor: colors.bg }]}>
       <Text style={[s.pageTitle, { color: colors.textBase }]}>{config.tabs.hospitalLabel}</Text>
       <SegmentTabs active={segment} onChange={setSegment} />
       {segment === 'doctors' ? (

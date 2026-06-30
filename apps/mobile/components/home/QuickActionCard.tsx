@@ -30,7 +30,7 @@ const QuickActionCard = ({ icon, label, onPress }: Props) => {
 const s = StyleSheet.create({
   card: {
     flex: 1,
-    borderRadius: 16, borderWidth: 1,
+    borderRadius: 16, borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'flex-start', justifyContent: 'space-between',
     padding: 14,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },

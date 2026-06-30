@@ -73,7 +73,7 @@ const s = StyleSheet.create({
   icon: { alignSelf: 'center', marginBottom: 4 },
   title: { fontSize: 26, fontFamily: 'Inter_700Bold', textAlign: 'center' },
   subtitle: { fontSize: 15, fontFamily: 'Inter_400Regular', textAlign: 'center', lineHeight: 22 },
-  card: { borderRadius: 16, padding: 20, gap: 16, borderWidth: 1 },
+  card: { borderRadius: 16, padding: 20, gap: 16, borderWidth: StyleSheet.hairlineWidth },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   rowIcon: { marginTop: 1, flexShrink: 0 },
   rowText: { flex: 1, fontSize: 15, fontFamily: 'Inter_400Regular', lineHeight: 22 },

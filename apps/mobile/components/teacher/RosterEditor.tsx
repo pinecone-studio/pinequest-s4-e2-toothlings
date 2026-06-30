@@ -33,7 +33,7 @@ const s = StyleSheet.create({
   wrap: { gap: 10 },
   head: { flexDirection: 'row', justifyContent: 'space-between' },
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
-  add: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderRadius: 9999, borderStyle: 'dashed', paddingVertical: 12 },
+  add: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: StyleSheet.hairlineWidth, borderRadius: 9999, borderStyle: 'dashed', paddingVertical: 12 },
   addText: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
 })
 

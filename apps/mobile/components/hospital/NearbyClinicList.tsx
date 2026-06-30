@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useMemo } from 'react'
 import { useTheme } from '@/lib/ThemeContext'
-import { CLINICS, distanceKm, type Clinic } from '@/lib/clinics'
+import { distanceKm, type Clinic } from '@/lib/clinics'
 import type { VolunteerDentist } from '@/lib/api'
 import NearbyClinicCard from './NearbyClinicCard'
 import NearbyDentistCard from './NearbyDentistCard'
@@ -9,17 +9,19 @@ import NearbyDentistCard from './NearbyDentistCard'
 type Props = {
   userLat: number
   userLng: number
+  clinics: Clinic[]
+  loading?: boolean
   selectedId?: string
   onSelect: (id: string, kind: 'clinic' | 'dentist') => void
   dentists?: VolunteerDentist[]
 }
 
-const NearbyClinicList = ({ userLat, userLng, selectedId, onSelect, dentists = [] }: Props) => {
+const NearbyClinicList = ({ userLat, userLng, clinics, loading, selectedId, onSelect, dentists = [] }: Props) => {
   const { colors } = useTheme()
 
   const sortedClinics = useMemo(
-    () => [...CLINICS].map((c) => ({ ...c, dist: distanceKm(c, userLat, userLng) })).sort((a, b) => a.dist - b.dist),
-    [userLat, userLng]
+    () => clinics.map((c) => ({ ...c, dist: distanceKm(c, userLat, userLng) })).sort((a, b) => a.dist - b.dist),
+    [clinics, userLat, userLng]
   )
 
   const sortedDentists = useMemo(
@@ -49,7 +51,10 @@ const NearbyClinicList = ({ userLat, userLng, selectedId, onSelect, dentists = [
             ))}
           </>
         )}
-        <Text style={[s.sectionTitle, { color: colors.textMuted }]}>Эмнэлгүүд ({sortedClinics.length})</Text>
+        <View style={s.sectionRow}>
+          <Text style={[s.sectionTitle, { color: colors.textMuted }]}>Ойролцоох эмнэлгүүд ({sortedClinics.length})</Text>
+          {loading && <ActivityIndicator size="small" color={colors.textMuted} style={s.sectionSpinner} />}
+        </View>
         {sortedClinics.map((c) => (
           <NearbyClinicCard
             key={c.id}
@@ -70,7 +75,7 @@ const s = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 300,
+    height: 400,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: '#000',
@@ -80,7 +85,9 @@ const s = StyleSheet.create({
     elevation: 8,
   },
   handle: { width: 36, height: 4, borderRadius: 2, alignSelf: 'center', marginTop: 8, marginBottom: 4 },
+  sectionRow: { flexDirection: 'row', alignItems: 'center' },
   sectionTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 12, paddingHorizontal: 16, paddingVertical: 6 },
+  sectionSpinner: { marginLeft: -8 },
 })
 
 export default NearbyClinicList

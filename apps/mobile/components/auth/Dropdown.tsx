@@ -62,7 +62,7 @@ const s = StyleSheet.create({
   group: { gap: 6 },
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
   trigger: {
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 52,
@@ -73,7 +73,7 @@ const s = StyleSheet.create({
   triggerText: { fontSize: 16, flex: 1 },
   chevron: { fontSize: 14, marginLeft: 8 },
   backdrop: { flex: 1, backgroundColor: '#0006', justifyContent: 'center', paddingHorizontal: 28 },
-  sheet: { borderRadius: 16, borderWidth: 1, maxHeight: '60%', overflow: 'hidden' },
+  sheet: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, maxHeight: '60%', overflow: 'hidden' },
   option: {
     paddingHorizontal: 18,
     paddingVertical: 15,

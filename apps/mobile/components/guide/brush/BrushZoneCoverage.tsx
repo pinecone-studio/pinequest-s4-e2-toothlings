@@ -56,13 +56,13 @@ export const BrushZoneCoverage = ({ coverage, currentZone }: Props) => {
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 16, borderWidth: 1, padding: 14 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 14 },
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.5 },
   now: { marginTop: 4, fontSize: 13, fontFamily: 'Inter_400Regular' },
   overallRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, marginBottom: 12 },
   overallPct: { width: 42, textAlign: 'right', fontSize: 14, fontFamily: 'Inter_700Bold' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  quad: { width: '47.5%', borderRadius: 14, borderWidth: 1, padding: 10 },
+  quad: { width: '47.5%', borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, padding: 10 },
   quadHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   quadName: { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
   quadPct: { fontSize: 12, fontFamily: 'Inter_700Bold' },

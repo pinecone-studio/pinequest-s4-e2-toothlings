@@ -8,7 +8,7 @@ export default function ResultBottomActions({ screeningId: _screeningId, onRetak
 
   return (
     <View style={s.row}>
-      <TouchableOpacity style={[s.btn, { borderWidth: 1, borderColor: colors.border }]} onPress={onHome}>
+      <TouchableOpacity style={[s.btn, { borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border }]} onPress={onHome}>
         <Text style={[s.btnText, { color: colors.textMuted }]}>Нүүр хуудас{'\n'}руу буцах</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[s.btn, { backgroundColor: colors.primary }]} onPress={onRetake}>

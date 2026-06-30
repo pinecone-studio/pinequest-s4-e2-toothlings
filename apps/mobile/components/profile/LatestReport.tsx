@@ -55,9 +55,9 @@ const LatestReport = ({ reportName }: Props) => {
 
 const s = StyleSheet.create({
   sectionTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 11, letterSpacing: 0.5, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
-  card: { borderRadius: 16, borderWidth: 1, marginHorizontal: 16, padding: 16, gap: 14 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, marginHorizontal: 16, padding: 16, gap: 14 },
   top: { flexDirection: 'row', gap: 14 },
-  docPreview: { width: 72, height: 86, borderRadius: 10, borderWidth: 1, padding: 10, gap: 6, justifyContent: 'center' },
+  docPreview: { width: 72, height: 86, borderRadius: 10, borderWidth: StyleSheet.hairlineWidth, padding: 10, gap: 6, justifyContent: 'center' },
   docLine: { height: 4, borderRadius: 2 },
   docLineWide: { width: '80%' },
   docLineShort: { width: '50%' },

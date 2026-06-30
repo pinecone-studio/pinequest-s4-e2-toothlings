@@ -30,11 +30,11 @@ const RosterRow = ({ index, value, onChange, onRemove }: Props) => {
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 12, borderWidth: 1, padding: 12, gap: 8 },
+  card: { borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, gap: 8 },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   slot: { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
   nameRow: { flexDirection: 'row', gap: 8 },
-  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, height: 44, fontSize: 14 },
+  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, paddingHorizontal: 12, height: 44, fontSize: 14 },
   half: { flex: 1 },
   year: { width: 110 },
   email: { flex: 1 },

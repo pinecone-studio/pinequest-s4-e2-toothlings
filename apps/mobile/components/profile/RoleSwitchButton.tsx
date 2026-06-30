@@ -55,7 +55,7 @@ const s = StyleSheet.create({
   pill: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 10, paddingVertical: 5,
-    borderRadius: 9999, borderWidth: 1,
+    borderRadius: 9999, borderWidth: StyleSheet.hairlineWidth,
   },
   label: { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
 })

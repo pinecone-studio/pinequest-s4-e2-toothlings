@@ -1,5 +1,6 @@
 import { ScrollView } from 'react-native'
 import { useState } from 'react'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import AgeGroupSelector, { AgeGroup } from './AgeGroupSelector'
 import BrushingStepGrid from './BrushingStepGrid'
 import BrushingTip from './BrushingTip'
@@ -29,9 +30,10 @@ const TIPS: Record<AgeGroup, string> = {
 
 export default function BrushingGuide() {
   const [group, setGroup] = useState<AgeGroup>('young')
+  const tabBarPad = useFloatingTabBarPad()
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={{ paddingBottom: tabBarPad }} showsVerticalScrollIndicator={false}>
       <AgeGroupSelector selected={group} onSelect={setGroup} />
       <BrushingStepGrid steps={STEPS[group]} />
       <BrushingTip text={TIPS[group]} />

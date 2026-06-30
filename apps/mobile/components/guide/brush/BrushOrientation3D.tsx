@@ -65,7 +65,7 @@ export const BrushOrientation3D = ({ reading, trackerRef, status, onCalibrate }:
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 16, borderWidth: 1, overflow: 'hidden' },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: 1 },
   title: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -76,6 +76,6 @@ const s = StyleSheet.create({
   axis: { flex: 1, alignItems: 'center' },
   axisLabel: { fontSize: 11, fontFamily: 'Inter_600SemiBold' },
   axisValue: { fontSize: 18, fontFamily: 'Inter_700Bold', marginTop: 2 },
-  calBtn: { margin: 14, borderRadius: 9999, borderWidth: 1, paddingVertical: 11, alignItems: 'center' },
+  calBtn: { margin: 14, borderRadius: 9999, borderWidth: StyleSheet.hairlineWidth, paddingVertical: 11, alignItems: 'center' },
   calText: { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
 })

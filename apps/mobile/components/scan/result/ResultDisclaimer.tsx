@@ -13,6 +13,6 @@ export default function ResultDisclaimer() {
 }
 
 const s = StyleSheet.create({
-  box: { borderRadius: 14, padding: 14, borderWidth: 1 },
+  box: { borderRadius: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth },
   text: { fontSize: 13, fontFamily: 'Inter_400Regular', lineHeight: 20 },
 })

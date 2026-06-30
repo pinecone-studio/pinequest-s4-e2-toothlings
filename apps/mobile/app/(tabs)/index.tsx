@@ -2,7 +2,10 @@ import { ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter, useFocusEffect } from 'expo-router'
 import { useCallback } from 'react'
-import { useTheme } from '@/lib/ThemeContext'
+import { setStatusBarStyle } from 'expo-status-bar'
+import { ThemeContext } from '@/lib/ThemeContext'
+import { homeMonoColors } from '@/lib/theme'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import { useSession } from '@/lib/SessionContext'
 import { roleConfigFor, type HomeSection } from '@/lib/roleConfig'
 import { useOutboxSync } from '@/lib/useOutboxSync'
@@ -16,13 +19,23 @@ import HelpRequestsSection from '@/components/dentist/HelpRequestsSection'
 import QuickActionGrid from '@/components/home/QuickActionGrid'
 
 const HomeScreen = () => {
-  const { colors } = useTheme()
+  // Home always wears the monochrome-glass dark skin from the reference design,
+  // regardless of the phone's light/dark setting.
+  const colors = homeMonoColors
   const router = useRouter()
   const { user, activeRole } = useSession()
   const { sync, syncing, pendingCount, deadCount } = useOutboxSync()
 
+  // Content scrolls UNDER the floating bar (so the glass blurs it); pad the
+  // last item clear of the bar.
+  const scrollBottomPad = useFloatingTabBarPad()
+
   useFocusEffect(useCallback(() => {
     void sync()
+    // Keep the status bar readable over the dark canvas while Home is focused;
+    // restore the system-driven style when leaving.
+    setStatusBarStyle('light')
+    return () => setStatusBarStyle('auto')
   }, [sync]))
 
   const config = roleConfigFor(activeRole)
@@ -56,8 +69,12 @@ const HomeScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+    <ThemeContext.Provider value={{ colors, dark: true }}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={[s.safe, { backgroundColor: colors.bg }]}>
+        <ScrollView
+          contentContainerStyle={[s.scroll, { paddingBottom: scrollBottomPad }]}
+          showsVerticalScrollIndicator={false}
+        >
         <GreetingHeader
           name={user?.name ?? '...'}
           onPressAvatar={() => router.push('/(tabs)/profile' as never)}
@@ -68,14 +85,15 @@ const HomeScreen = () => {
         {config.showScanHero && <ScanHeroCard onScan={() => router.push('/scan')} />}
         {config.sections.map(renderSection)}
         <QuickActionGrid actions={actions} />
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemeContext.Provider>
   )
 }
 
 const s = StyleSheet.create({
   safe: { flex: 1 },
-  scroll: { flexGrow: 1, padding: 20, gap: 18, paddingBottom: 32 },
+  scroll: { flexGrow: 1, padding: 20, gap: 18 },
 })
 
 export default HomeScreen

@@ -1,7 +1,8 @@
 import { StyleSheet, View } from 'react-native'
 import { useState } from 'react'
 import MapView from 'react-native-maps'
-import { CLINICS, UB_CENTER, type Clinic } from '@/lib/clinics'
+import { UB_CENTER } from '@/lib/clinics'
+import { useNearbyClinics } from '@/lib/useNearbyClinics'
 import { useVolunteerDentists } from '@/lib/useVolunteerDentists'
 import ClinicMarker from './ClinicMarker'
 import DentistMarker from './DentistMarker'
@@ -14,6 +15,7 @@ type Props = {
 
 const ClinicMapView = ({ userLat, userLng }: Props) => {
   const { data: dentists } = useVolunteerDentists()
+  const { clinics, loading } = useNearbyClinics(userLat, userLng)
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const handleSelect = (id: string) => setSelectedId((prev) => (prev === id ? null : id))
@@ -33,7 +35,7 @@ const ClinicMapView = ({ userLat, userLng }: Props) => {
         showsUserLocation
         showsMyLocationButton={false}
       >
-        {CLINICS.map((clinic) => (
+        {clinics.map((clinic) => (
           <ClinicMarker
             key={clinic.id}
             clinic={clinic}
@@ -53,6 +55,8 @@ const ClinicMapView = ({ userLat, userLng }: Props) => {
       <NearbyClinicList
         userLat={userLat}
         userLng={userLng}
+        clinics={clinics}
+        loading={loading}
         selectedId={selectedId ?? undefined}
         onSelect={handleSelect}
         dentists={dentists}

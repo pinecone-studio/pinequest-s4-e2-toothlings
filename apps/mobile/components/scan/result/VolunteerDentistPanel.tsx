@@ -51,7 +51,7 @@ const s = StyleSheet.create({
   sub: { fontFamily: 'Inter_400Regular', fontSize: 12, marginBottom: 6 },
   loader: { marginVertical: 16 },
   list: { paddingVertical: 4, paddingRight: 4 },
-  empty: { fontFamily: 'Inter_400Regular', fontSize: 12, borderWidth: 1, borderRadius: 12, padding: 14, textAlign: 'center' },
+  empty: { fontFamily: 'Inter_400Regular', fontSize: 12, borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, padding: 14, textAlign: 'center' },
 })
 
 export default VolunteerDentistPanel

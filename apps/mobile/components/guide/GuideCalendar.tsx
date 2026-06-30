@@ -51,7 +51,7 @@ export default function GuideCalendar() {
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 16, padding: 16, borderWidth: 1 },
+  card: { borderRadius: 16, padding: 16, borderWidth: StyleSheet.hairlineWidth },
   monthLabel: { fontSize: 15, fontFamily: 'Inter_700Bold', marginBottom: 10 },
   weekRow: { flexDirection: 'row' },
   dayHeader: { flex: 1, textAlign: 'center', fontSize: 11, fontFamily: 'Inter_600SemiBold', paddingVertical: 5 },

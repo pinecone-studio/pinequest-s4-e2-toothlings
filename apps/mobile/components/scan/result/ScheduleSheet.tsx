@@ -91,7 +91,7 @@ const s = StyleSheet.create({
   title: { fontFamily: 'Inter_700Bold', fontSize: 18 },
   sub: { fontFamily: 'Inter_400Regular', fontSize: 13, marginBottom: 8 },
   slots: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 6 },
-  slot: { borderWidth: 1, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14 },
+  slot: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14 },
   slotText: { fontFamily: 'Inter_500Medium', fontSize: 13 },
   err: { fontFamily: 'Inter_400Regular', fontSize: 12, marginVertical: 4 },
   cta: { borderRadius: 9999, padding: 16, alignItems: 'center', marginTop: 10 },

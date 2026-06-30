@@ -1,9 +1,12 @@
 import { Tabs, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from '@/lib/ThemeContext'
 import { useSession } from '@/lib/SessionContext'
 import { roleConfigFor } from '@/lib/roleConfig'
 import CameraTabButton from '@/components/home/CameraTabButton'
+import GlassTabBarBackground from '@/components/home/GlassTabBarBackground'
+import { TAB_BAR_RADIUS, TAB_BAR_HEIGHT, TAB_BAR_SIDE_INSET } from '@/lib/tabBarLayout'
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name']
 
@@ -12,31 +15,47 @@ const TabIcon = ({ name, color }: { name: IoniconsName; color: string }) => (
 )
 
 const TabLayout = () => {
-  const { colors } = useTheme()
+  const { colors, dark } = useTheme()
   const router = useRouter()
   const { activeRole } = useSession()
   const config = roleConfigFor(activeRole)
+  const insets = useSafeAreaInsets()
+
+  const barFloat = (insets.bottom || 12) + 6 // gap between the bar and the screen bottom
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        // No bottom reservation — screens render UNDER the floating bar so the
+        // glass actually blurs the content behind it (see-through). Screens that
+        // scroll pad their own content to keep the last item above the bar.
         sceneStyle: { backgroundColor: colors.bg },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
+        // Frosted-glass pane floating above the screen content.
+        tabBarBackground: () => <GlassTabBarBackground />,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          position: 'absolute',
+          // NOTE: React Navigation's base tab-bar style sets `start:0/end:0`,
+          // which override `left`/`right`. Use marginHorizontal to actually
+          // shrink the bar's width.
+          marginHorizontal: TAB_BAR_SIDE_INSET,
+          bottom: barFloat,
+          height: TAB_BAR_HEIGHT,
+          paddingTop: 8,
+          paddingBottom: 8,
+          backgroundColor: 'transparent',
           borderTopWidth: 0,
-          borderTopLeftRadius: 28,
-          borderTopRightRadius: 28,
-          height: 72,
-          paddingTop: 10,
+          borderRadius: TAB_BAR_RADIUS,
+          // float shadow (lives on the unclipped outer container)
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.08,
-          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: dark ? 0.4 : 0.15,
+          shadowRadius: 20,
           elevation: 16,
         },
+        tabBarItemStyle: { paddingTop: 2 },
         tabBarLabelStyle: { fontFamily: 'Inter_500Medium', fontSize: 11 },
       }}
     >

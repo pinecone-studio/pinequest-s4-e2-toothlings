@@ -36,7 +36,7 @@ const LastScreeningCard = ({ date, triageLevel, summary, onPress }: Props) => {
 const s = StyleSheet.create({
   card: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
-    borderRadius: 16, padding: 16, borderWidth: 1,
+    borderRadius: 16, padding: 16, borderWidth: StyleSheet.hairlineWidth,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
   },

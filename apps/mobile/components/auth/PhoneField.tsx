@@ -28,7 +28,7 @@ const PhoneField = ({ value, onChange }: Props) => {
 const s = StyleSheet.create({
   group: { gap: 6 },
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
-  row: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, height: 52 },
+  row: { flexDirection: 'row', alignItems: 'center', borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, paddingHorizontal: 14, height: 52 },
   prefix: { fontSize: 16, fontFamily: 'Inter_500Medium', marginRight: 12 },
   divider: { width: 1, height: 20, marginRight: 12 },
   input: { flex: 1, fontSize: 16, fontFamily: 'Inter_500Medium' },

@@ -24,7 +24,7 @@ const ScreenHeader = ({ title, subtitle, right }: Props) => {
 
 const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 4 },
-  back: { width: 40, height: 40, borderRadius: 9999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  back: { width: 40, height: 40, borderRadius: 9999, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
   titles: { flex: 1 },
   title: { fontSize: 20, fontFamily: 'Inter_700Bold', letterSpacing: -0.3 },
   sub: { fontSize: 13, fontFamily: 'Inter_400Regular', marginTop: 2 },

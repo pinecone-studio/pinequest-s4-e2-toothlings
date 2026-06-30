@@ -229,7 +229,7 @@ const s = StyleSheet.create({
     flex: 1,
     paddingVertical: 8,
     borderRadius: 9999,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
   },
   instChipLabel: { fontSize: 13, fontFamily: 'Inter_500Medium' },

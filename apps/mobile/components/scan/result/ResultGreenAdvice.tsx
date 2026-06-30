@@ -37,7 +37,7 @@ const s = StyleSheet.create({
     gap: 12,
     borderRadius: 14,
     padding: 14,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   check: { fontSize: 16, fontFamily: 'Inter_700Bold' },
   text: { flex: 1, fontSize: 14, fontFamily: 'Inter_400Regular', lineHeight: 20 },

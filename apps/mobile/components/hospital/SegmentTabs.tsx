@@ -75,7 +75,7 @@ const s = StyleSheet.create({
   row: {
     flexDirection: 'row',
     borderRadius: 9999,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     padding: TAB_PAD,
     position: 'relative',
   },

@@ -57,12 +57,12 @@ const s = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
   logoutBtn: {
     marginTop: 16,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 9999,
     paddingVertical: 14,
     alignItems: 'center',

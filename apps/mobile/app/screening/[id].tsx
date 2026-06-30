@@ -293,7 +293,7 @@ const s = StyleSheet.create({
   head: { paddingHorizontal: 20, paddingTop: 8 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30 },
   scroll: { padding: 16, paddingBottom: 24 },
-  page: { borderRadius: 16, borderWidth: 1, padding: 20 },
+  page: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 20 },
   docTitle: { fontSize: 18, fontFamily: 'Inter_700Bold' },
   docSub: { fontSize: 12, fontFamily: 'Inter_400Regular', marginTop: 4, lineHeight: 18 },
   pill: {
@@ -318,7 +318,7 @@ const s = StyleSheet.create({
   col3: { width: 80, textAlign: 'right' },
   symRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
   symText: { fontSize: 14, fontFamily: 'Inter_400Regular' },
-  reviewBox: { borderWidth: 1, borderRadius: 10, padding: 14, marginTop: 18, gap: 4 },
+  reviewBox: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, padding: 14, marginTop: 18, gap: 4 },
   reviewLevel: { fontSize: 15, fontFamily: 'Inter_700Bold' },
   reviewNote: { fontSize: 14, fontFamily: 'Inter_400Regular', lineHeight: 20 },
   foot: {

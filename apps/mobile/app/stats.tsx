@@ -121,7 +121,11 @@ const StatsScreen = () => {
           <Text style={[s.err]}>{error}</Text>
         </View>
       ) : stats ? (
-        <View style={s.scroll}>
+        <ScrollView
+          style={s.scrollView}
+          contentContainerStyle={s.scroll}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[s.sectionLabel, { color: colors.textMuted }]}>ХАМРАГДАЛТ</Text>
             <Text style={[s.bigNum, { color: colors.textBase }]}>
@@ -169,7 +173,7 @@ const StatsScreen = () => {
               <TrendBars buckets={trend.buckets} />
             </View>
           )}
-        </View>
+        </ScrollView>
       ) : null}
     </SafeAreaView>
   )
@@ -180,17 +184,18 @@ const s = StyleSheet.create({
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4 },
   title: { fontSize: 24, fontFamily: 'Inter_700Bold', letterSpacing: -0.4 },
   seasonRow: { paddingHorizontal: 20, paddingVertical: 10, gap: 8 },
-  seasonBtn: { borderRadius: 9999, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 7 },
+  seasonBtn: { borderRadius: 9999, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, paddingVertical: 7 },
   seasonText: { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
   err: { color: '#ef4444', textAlign: 'center' },
-  scroll: { flex: 1, padding: 20, gap: 14, paddingBottom: 24 },
-  card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 12 },
+  scrollView: { flex: 1 },
+  scroll: { padding: 20, gap: 14, paddingBottom: 24 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, gap: 12 },
   sectionLabel: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
   bigNum: { fontSize: 32, fontFamily: 'Inter_700Bold', letterSpacing: -0.5 },
   bigSub: { fontSize: 20, fontFamily: 'Inter_400Regular' },
   row3: { flexDirection: 'row', gap: 10 },
-  kpi: { flex: 1, borderRadius: 14, borderWidth: 1, padding: 12, alignItems: 'center', gap: 3 },
+  kpi: { flex: 1, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, padding: 12, alignItems: 'center', gap: 3 },
   kpiNum: { fontSize: 22, fontFamily: 'Inter_700Bold' },
   kpiLabel: { fontSize: 11, fontFamily: 'Inter_400Regular', textAlign: 'center' },
 })

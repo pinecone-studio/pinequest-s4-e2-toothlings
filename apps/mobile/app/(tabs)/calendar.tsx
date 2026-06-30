@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useFocusEffect } from 'expo-router'
 import { seasonLabelMn } from '@pinequest/core'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import { getMyClasses, updateSchedule, type TeacherClass } from '@/lib/api'
 import { scheduleScreeningReminder, syncScreeningReminders } from '@/lib/notifications'
 import { toMongolian } from '@/lib/errorMessages'
@@ -19,6 +20,7 @@ const fmt = (iso: string) => {
 
 const CalendarScreen = () => {
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
   const [classes, setClasses] = useState<TeacherClass[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
@@ -50,7 +52,7 @@ const CalendarScreen = () => {
   const alerts = overdue + unscheduled
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[s.safe, { backgroundColor: colors.bg }]}>
       <View style={s.head}>
         <Text style={[s.title, { color: colors.textBase }]}>Хуанли</Text>
         <View style={s.bell}>
@@ -64,7 +66,7 @@ const CalendarScreen = () => {
       ) : error ? (
         <View style={s.center}><Text style={[s.muted, { color: colors.textMuted }]}>{error}</Text></View>
       ) : (
-        <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: tabBarPad }]} showsVerticalScrollIndicator={false}>
           {alerts > 0 && (
             <View style={[s.alert, { backgroundColor: colors.triageRedBg }]}>
               <Ionicons name="alert-circle-outline" size={18} color={colors.triageRedText} />
@@ -117,18 +119,18 @@ const s = StyleSheet.create({
   bell: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   dot: { position: 'absolute', top: 2, right: 0, minWidth: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
   dotText: { color: '#fff', fontSize: 10, fontFamily: 'Inter_700Bold' },
-  scroll: { paddingHorizontal: 20, paddingBottom: 28, gap: 12 },
+  scroll: { paddingHorizontal: 20, gap: 12 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30 },
   alert: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 12, padding: 12 },
   alertText: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium' },
   hint: { fontSize: 12, fontFamily: 'Inter_400Regular' },
-  card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 12 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, gap: 12 },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },
   cardInfo: { gap: 2 },
   cardName: { fontSize: 17, fontFamily: 'Inter_700Bold' },
   cardSeason: { fontSize: 13, fontFamily: 'Inter_400Regular' },
   cardDate: { fontSize: 13, fontFamily: 'Inter_600SemiBold', textAlign: 'right', flexShrink: 1 },
-  pickBtn: { borderWidth: 1, borderRadius: 9999, paddingVertical: 11, alignItems: 'center' },
+  pickBtn: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 9999, paddingVertical: 11, alignItems: 'center' },
   pickText: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
   muted: { fontSize: 14, fontFamily: 'Inter_400Regular', textAlign: 'center' },
 })

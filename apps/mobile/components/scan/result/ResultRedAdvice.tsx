@@ -39,6 +39,6 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', gap: 10 },
   btn: { flex: 1, borderRadius: 16, paddingVertical: 16, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
   btnText: { fontSize: 14, fontFamily: 'Inter_700Bold', textAlign: 'center', lineHeight: 19 },
-  smsBtn: { borderRadius: 9999, padding: 14, alignItems: 'center', borderWidth: 1 },
+  smsBtn: { borderRadius: 9999, padding: 14, alignItems: 'center', borderWidth: StyleSheet.hairlineWidth },
   smsBtnText: { fontSize: 14, fontFamily: 'Inter_500Medium' },
 })

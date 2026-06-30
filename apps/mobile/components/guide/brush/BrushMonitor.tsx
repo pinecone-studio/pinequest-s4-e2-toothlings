@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import { BrushOrientation3D } from './BrushOrientation3D'
 import { BrushZoneCoverage } from './BrushZoneCoverage'
 import { BrushArchMonitor } from './BrushArchMonitor'
@@ -16,6 +17,7 @@ const mmss = (sec: number) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:
 /** Smart brushing monitor: live 3D orientation + per-zone & per-tooth coverage. */
 export const BrushMonitor = () => {
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
   const [running, setRunning] = useState(false)
 
   const recognizer = useBrushRecognizer()
@@ -37,7 +39,7 @@ export const BrushMonitor = () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={s.wrap} showsVerticalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={[s.wrap, { paddingBottom: tabBarPad }]} showsVerticalScrollIndicator={false}>
       <BrushOrientation3D reading={reading} trackerRef={trackerRef} status={status} onCalibrate={calibrate} />
 
       <View style={[s.timerCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -66,8 +68,8 @@ export const BrushMonitor = () => {
 }
 
 const s = StyleSheet.create({
-  wrap: { gap: 14, padding: 16, paddingBottom: 40 },
-  timerCard: { borderRadius: 16, borderWidth: 1, padding: 16, alignItems: 'center' },
+  wrap: { gap: 14, padding: 16 },
+  timerCard: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, alignItems: 'center' },
   timerLabel: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.5 },
   timer: { fontSize: 42, fontFamily: 'Inter_700Bold', marginTop: 4 },
   track: { width: '100%', height: 8, borderRadius: 9999, overflow: 'hidden', marginTop: 10 },

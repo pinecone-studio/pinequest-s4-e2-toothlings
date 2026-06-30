@@ -78,7 +78,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 9999,
     padding: TAB_PAD,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
   pill: {

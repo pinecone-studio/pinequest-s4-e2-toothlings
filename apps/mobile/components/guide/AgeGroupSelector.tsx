@@ -48,7 +48,7 @@ export default function AgeGroupSelector({ selected, onSelect }: Props) {
 
 const s = StyleSheet.create({
   row: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 16 },
-  btn: { flex: 1, borderRadius: 9999, padding: 14, borderWidth: 1, gap: 3 },
+  btn: { flex: 1, borderRadius: 9999, padding: 14, borderWidth: StyleSheet.hairlineWidth, gap: 3 },
   label: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
   sub: { fontSize: 12, fontFamily: 'Inter_400Regular' },
 })

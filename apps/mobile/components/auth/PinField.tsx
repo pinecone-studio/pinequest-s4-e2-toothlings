@@ -31,7 +31,7 @@ const s = StyleSheet.create({
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8 },
   hint: { fontSize: 11 },
   input: {
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 52,

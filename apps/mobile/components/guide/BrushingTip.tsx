@@ -14,7 +14,7 @@ export default function BrushingTip({ text }: Props) {
 }
 
 const s = StyleSheet.create({
-  box: { flexDirection: 'row', gap: 10, marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 14, borderWidth: 1, alignItems: 'flex-start' },
+  box: { flexDirection: 'row', gap: 10, marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth, alignItems: 'flex-start' },
   icon: { fontSize: 16, lineHeight: 22 },
   text: { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', lineHeight: 20 },
 })

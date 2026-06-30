@@ -56,7 +56,7 @@ const RedStudentsSection = ({ roster }: { roster: RosterStatusRow[] }) => {
 const s = StyleSheet.create({
   wrap: { gap: 8 },
   title: { fontSize: 13, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.3 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 12, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 12, paddingVertical: 10 },
   info: { flex: 1, gap: 2 },
   name: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },
   meta: { fontSize: 11, fontFamily: 'Inter_400Regular' },

@@ -54,7 +54,7 @@ const VolunteerDentistRow = ({ dentist, onPress }: Props) => {
 
 const s = StyleSheet.create({
   card: {
-    width: 168, padding: 14, borderRadius: 18, borderWidth: 1, marginRight: 12,
+    width: 168, padding: 14, borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, marginRight: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
   },
   avatarWrap: { width: 52, height: 52, marginBottom: 10 },

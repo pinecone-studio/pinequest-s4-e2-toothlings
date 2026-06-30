@@ -64,7 +64,7 @@ const Stat = ({ dot, label, value, color, muted, tile, border }: {
 
 const s = StyleSheet.create({
   title: { fontFamily: 'Inter_600SemiBold', fontSize: 11, letterSpacing: 0.5, paddingBottom: 8 },
-  card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 14 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, gap: 14 },
   loader: { paddingVertical: 28 },
   empty: { fontFamily: 'Inter_400Regular', fontSize: 14, textAlign: 'center', paddingVertical: 20 },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
@@ -74,7 +74,7 @@ const s = StyleSheet.create({
   coverLabel: { fontFamily: 'Inter_400Regular', fontSize: 11 },
   coverVal: { fontFamily: 'Inter_600SemiBold', fontSize: 16, marginTop: 2 },
   breakdown: { flexDirection: 'row', gap: 8 },
-  stat: { flex: 1, gap: 6, borderWidth: 1, borderRadius: 12, padding: 12, alignItems: 'center' },
+  stat: { flex: 1, gap: 6, borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, padding: 12, alignItems: 'center' },
   statTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   statDot: { width: 10, height: 10, borderRadius: 5 },
   statValue: { fontFamily: 'Inter_700Bold', fontSize: 20 },

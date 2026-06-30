@@ -62,7 +62,7 @@ const MonthCalendar = ({ value, onChange, minDate }: Props) => {
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 16, borderWidth: 1, padding: 14, gap: 10 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 14, gap: 10 },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   month: { fontSize: 15, fontFamily: 'Inter_600SemiBold' },
   weekRow: { flexDirection: 'row' },

@@ -12,12 +12,14 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter, useFocusEffect } from 'expo-router'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import { getMyClasses, type TeacherClass } from '@/lib/api'
 import { toMongolian } from '@/lib/errorMessages'
 import ClassCard from '@/components/teacher/ClassCard'
 
 const ClassesScreen = () => {
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
   const router = useRouter()
   const [classes, setClasses] = useState<TeacherClass[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -43,7 +45,7 @@ const ClassesScreen = () => {
   }, [load])
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.bg }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[s.safe, { backgroundColor: colors.bg }]}>
       <View style={s.head}>
         <Text style={[s.title, { color: colors.textBase }]}>Анги</Text>
         <TouchableOpacity
@@ -72,7 +74,7 @@ const ClassesScreen = () => {
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={s.list}
+          contentContainerStyle={[s.list, { paddingBottom: tabBarPad }]}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -107,7 +109,7 @@ const s = StyleSheet.create({
   },
   title: { fontSize: 24, fontFamily: 'Inter_700Bold', letterSpacing: -0.4 },
   add: { width: 42, height: 42, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' },
-  list: { paddingHorizontal: 20, paddingBottom: 28, gap: 14 },
+  list: { paddingHorizontal: 20, gap: 14 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 30 },
   muted: { fontSize: 14, fontFamily: 'Inter_400Regular', textAlign: 'center', lineHeight: 21 },
 })

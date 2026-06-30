@@ -66,7 +66,7 @@ const s = StyleSheet.create({
   bulletRow: { flexDirection: 'row', gap: 8 },
   bullet: { fontSize: 14, lineHeight: 20 },
   line: { flex: 1, fontSize: 14, fontFamily: 'Inter_400Regular', lineHeight: 20 },
-  step: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 14, padding: 14, borderWidth: 1 },
+  step: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth },
   check: { fontSize: 16, fontFamily: 'Inter_700Bold' },
   stepText: { flex: 1, fontSize: 14, fontFamily: 'Inter_400Regular', lineHeight: 20 },
 })

@@ -39,7 +39,7 @@ export default function ResultDetectionList({ detections }: Props) {
 const s = StyleSheet.create({
   container: { gap: 8 },
   label: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.8, marginBottom: 2 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 14, padding: 14, borderWidth: 1 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth },
   dot: { width: 8, height: 8, borderRadius: 4 },
   name: { flex: 1, fontSize: 14, fontFamily: 'Inter_500Medium' },
   pct: { fontSize: 14, fontFamily: 'Inter_600SemiBold' },

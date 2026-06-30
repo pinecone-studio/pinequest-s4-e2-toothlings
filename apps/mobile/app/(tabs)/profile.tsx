@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { getUser, saveUser } from '@/lib/auth'
 import { getMe, apiFetch, type MeResult, type TriageLevel } from '@/lib/api'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import SettingsSection from '@/components/profile/SettingsSection'
 import RoleSwitchButton from '@/components/profile/RoleSwitchButton'
 import EditProfileSheet, { realEmail } from '@/components/profile/EditProfileSheet'
@@ -29,6 +30,7 @@ type LatestScreening = {
 
 const ProfileScreen = () => {
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
   const router = useRouter()
   const { activeRole, refresh } = useSession()
   const [me, setMe] = useState<MeResult | null>(null)
@@ -65,7 +67,7 @@ const ProfileScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[s.root, { backgroundColor: colors.bg }]}>
       <View style={s.header}>
         <Pressable
           style={({ pressed }) => [s.headerTap, { opacity: pressed ? 0.7 : 1 }]}
@@ -85,7 +87,7 @@ const ProfileScreen = () => {
       </View>
 
       <ScrollView
-        contentContainerStyle={s.scroll}
+        contentContainerStyle={[s.scroll, { paddingBottom: tabBarPad }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -128,7 +130,7 @@ const Row = ({ label, value, muted, base }: { label: string; value: string; mute
 const s = StyleSheet.create({
   root: { flex: 1 },
   loader: { marginTop: 48 },
-  scroll: { padding: 20, gap: 18, paddingBottom: 96 },
+  scroll: { padding: 20, gap: 18 },
   header: { alignItems: 'center', gap: 8, paddingVertical: 12 },
   headerTap: { alignItems: 'center', gap: 6 },
   avatar: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center' },
@@ -137,7 +139,7 @@ const s = StyleSheet.create({
   name: { fontSize: 20, fontFamily: 'Inter_700Bold' },
   roleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   role: { fontSize: 14, fontFamily: 'Inter_400Regular' },
-  card: { borderRadius: 16, borderWidth: 1, padding: 16, gap: 12 },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: 16, gap: 12 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   rowLabel: { fontSize: 13, fontFamily: 'Inter_500Medium' },
   rowValue: { fontSize: 14, fontFamily: 'Inter_500Medium', flexShrink: 1 },

@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # Screener — phone-camera dental caries screening & triage
 
 Working name **Screener**. A phone-camera caries-and-danger screening tool for non-dentists
@@ -17,20 +21,22 @@ Everything is a **view/aggregation over an IMMUTABLE event log**.
 - **apps/mobile** (Expo RN) — offline-first capture + on-device inference + result. The capture surface.
 - **apps/web** (Next.js) — admin/review **board**: cohort dashboard, prioritized worklist, dentist
   chart, follow-up lifecycle, metrics, content mgmt. Role-scoped. (Board/admin only unless decided otherwise.)
-- **apps/api** (Fastify) — thin **sync service** over packages/db: ingest screening events, serve
-  aggregations, relay mutable follow-up status. NOT where screening decisions happen.
-- **apps/inference** (Python FastAPI + YOLOv8) — stateless, behind `INFERENCE_URL`. The online
-  inference path and the source for the on-device model.
+- **apps/server** (Hono on Cloudflare Workers; data in **D1**) — thin **sync service** over packages/db:
+  ingest screening events, serve aggregations, relay mutable follow-up status. Routes in `src/routes/*`.
+  NOT where screening decisions happen. (CLAUDE folder/stack names: `server`, not `api`/Fastify.)
+- **apps/model** (Python FastAPI + YOLOv8) — stateless, behind `INFERENCE_URL`. The online
+  inference path and the source for the on-device model. Serves `/model.onnx` for the mobile swap.
 
 ## Package map (share logic, not UI; pure packages have NO platform imports)
 - **packages/types** — domain types only.
 - **packages/core** — PURE logic: childKey hash (school+class+roster slot+birth-year), triage
   scoring, role guards, zod schemas, inference post-processing/normalization, content-version refs.
-- **packages/db** — Prisma schema + client (server-only; SQLite dev / Postgres prod). Migrations authoritative.
-- **packages/sync** — platform-agnostic outbox + `ILocalStore` interface; adapters: expo-sqlite
-  (mobile), Dexie/IndexedDB (web).
+- **packages/db** — **Drizzle** schema (`src/schema/`) + D1 client (server-only; SQLite dev / Cloudflare D1 prod).
+  Migrations in `drizzle/` are authoritative; generate with `pnpm --filter @pinequest/db db:generate`.
+- **packages/sync** — platform-agnostic outbox + `ILocalStore` interface; adapters in `src/adapters/`
+  (expo-sqlite on mobile, Dexie/IndexedDB on web).
 - **packages/config** — tsconfig / eslint / prettier.
-- **packages/model** — ONNX weights + convert script (on-device inference).
+- ONNX weights live with **apps/model** (Python; gitignored, fetched on first run) — there is no `packages/model`.
 - Dependency direction: `config → types → core → {db, sync} → apps`. No package imports an app.
 
 ## Fixed decisions (do not deviate)
@@ -52,6 +58,34 @@ Everything is a **view/aggregation over an IMMUTABLE event log**.
 1. Contract (`types` + `core`) → 2. `db` → 3. sync service (event ingest) → 4. mobile capture loop
 (**using server inference first**) → 5. board read-only → 6. mutations + roles + audit → 7. on-device
 ONNX swap (behind the inference seam) → 8. ranking + longitudinal (needs 2 seasons; seed it) → 9. design polish.
+
+## Commands
+pnpm + Turborepo; packages are filtered by **package name** (`web`, `mobile`, `server`,
+`@pinequest/core`, `@pinequest/db`, …), which is NOT always the folder name.
+
+```bash
+pnpm install                 # all workspaces (use corepack pnpm@9.15.4 if pnpm isn't on PATH)
+pnpm typecheck               # tsc --noEmit across every workspace (turbo)
+pnpm lint                    # eslint .
+pnpm test                    # vitest (packages/core, packages/sync, apps/web)
+pnpm format                  # prettier --write .   (format:check to verify only)
+pnpm dev                     # all JS apps; web bundle also boots the Python model
+
+# Per surface
+pnpm --filter server dev                 # Hono on wrangler dev → :8787
+pnpm --filter web dev:web-only           # board only → :3000  (omit ":web-only" to also start model)
+pnpm --filter mobile dev                 # expo start (i / a / w)
+pnpm dev:model                           # Python YOLO model standalone → :8765
+
+# DB (D1 via wrangler) — re-run apply after generating a migration
+pnpm --filter @pinequest/db db:generate
+pnpm --filter server exec wrangler d1 migrations apply screener-db --local
+curl -X POST localhost:8787/api/dev/seed  # seed admin@screener.mn / admin123 (needs SEED_ENABLED=true)
+```
+
+Single test (vitest): `pnpm --filter @pinequest/core exec vitest run src/triage.test.ts`,
+or filter by name with `... vitest run -t "pattern"`. Drop `run` for watch mode.
+Per-package gate, e.g. `pnpm --filter server typecheck`. See README.md for ports, env files, and deploy.
 
 ## Commit gate (must pass before ANY commit)
 - `tsc --noEmit` (every affected workspace; via `turbo typecheck`)

@@ -3,11 +3,13 @@ import { useRouter } from 'expo-router'
 import { useVolunteerDentists } from '@/lib/useVolunteerDentists'
 import { STATIC_LIST_DOCTORS, type ListDoctor } from '@/lib/doctorsData'
 import { useTheme } from '@/lib/ThemeContext'
+import { useFloatingTabBarPad } from '@/lib/tabBarLayout'
 import DoctorCard from './DoctorCard'
 
 const DoctorList = () => {
   const router = useRouter()
   const { colors } = useTheme()
+  const tabBarPad = useFloatingTabBarPad()
   const { data: apiDentists, loading } = useVolunteerDentists()
 
   // Prefer live volunteer dentists; fall back to static clinic list when API returns empty.
@@ -54,14 +56,14 @@ const DoctorList = () => {
           }
         />
       )}
-      contentContainerStyle={s.list}
+      contentContainerStyle={[s.list, { paddingBottom: tabBarPad }]}
       showsVerticalScrollIndicator={false}
     />
   )
 }
 
 const s = StyleSheet.create({
-  list: { paddingTop: 4, paddingBottom: 24 },
+  list: { paddingTop: 4 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 })
 
