@@ -3,15 +3,15 @@ import { m } from 'framer-motion'
 import { useState } from 'react'
 import { AIMAGS, type Aimag } from './mongoliaAimags'
 
-// Three-tier encoding by dental-clinic count:
-// yellow = 5+ clinics, amber = 1-4 (limited — referral target), orange = none.
-const HAS = '#52A075'
-const FEW = '#E89B2C'
-const NONE = '#E2620E'
+// Three-tier encoding by dental-clinic count — all on the brand green scale:
+// light mint = 5+ clinics, brand green = 1-4 (limited — referral target), deep green = none.
+const HAS = '#7BDDA8'
+const FEW = '#4DAA7C'
+const NONE = '#2C684A'
 const tier = (c: number): 'has' | 'few' | 'none' => (c >= 5 ? 'has' : c > 0 ? 'few' : 'none')
 const COLOR = { has: HAS, few: FEW, none: NONE }
-const TINT = { has: 'rgba(82, 160, 117,0.18)', few: 'rgba(232,155,44,0.18)', none: 'rgba(226,98,14,0.18)' }
-const BADGE = { has: 'Хангалттай', few: 'Хязгаарлагдмал', none: 'Эмнэлэггүй' }
+const TINT = { has: 'rgba(123,221,168,0.18)', few: 'rgba(77,170,124,0.18)', none: 'rgba(44,104,74,0.18)' }
+const BADGE = { has: 'Хангалттай тооны эмнэлэг', few: 'Цөөн тооны эмнэлэг', none: 'Шүдний эмнэлэг байхгүй' }
 const fmt = (n: number) => n.toLocaleString('en-US')
 
 const Tooltip = ({ a }: { a: Aimag }) => {
@@ -25,16 +25,12 @@ const Tooltip = ({ a }: { a: Aimag }) => {
         </span>
       </div>
       <div className="mt-3 space-y-1.5 text-[12px]">
-        <Row label="Шүдний эмнэлэг" value={`${a.clinics}`} />
-        <Row label="Шүд цоорсон" value={`${a.p}%`} accent />
-        <Row label="Цоорсон хүүхэд" value={`≈ ${fmt(a.affected)}`} />
-        <Row label="Скрининг насны хүүхэд" value={`≈ ${fmt(a.kids)}`} />
+        <Row label="Үйл ажиллагаа явуулдаг шүдний эмнэлэг" value={`${a.clinics}`} />
+        <Row label="ШЦӨ-ний тархалт" value={`${a.p}%`} accent />
+        <Row label="Нийт ШЦӨ-тэй хүүхдүүд" value={`≈ ${fmt(a.affected)}`} />
+        <Row label="Нийт хүүхэд" value={`≈ ${fmt(a.kids)}`} />
       </div>
-      {a.clinics > 0 && (
-        <p className="mt-3 text-[11px]" style={{ color: COLOR[t] }}>
-          Эмчилгээ шаардлагатай хүүхдийг энд чиглүүлнэ.
-        </p>
-      )}
+    
     </div>
   )
 }
@@ -57,7 +53,7 @@ export const MongoliaMap = () => {
         className="relative overflow-hidden bg-[#050505] py-10"
         onMouseMove={(e) => setPos({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY })}
       >
-        <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(70% 90% at 50% 35%, rgba(226,98,14,0.14), transparent 70%)' }} />
+        <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(70% 90% at 50% 35%, rgba(82,160,117,0.16), transparent 70%)' }} />
         <svg viewBox="0 0 1000 480" className="relative mx-auto block w-full max-w-[1600px]" role="img" aria-label="Монгол улсын аймаг бүрийн шүдний эмчийн хүртээмж ба шүд цоорлын тархалт">
           <defs>
             <linearGradient id="relief" x1="0" y1="0" x2="0" y2="1">

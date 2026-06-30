@@ -17,7 +17,7 @@ export const ScreeningProgress = ({
         <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
       </div>
       <span className="shrink-0 whitespace-nowrap text-[12px] tabular-nums text-text-base">
-        Шинжилсэн {screened}/{total} · Үлдсэн {remaining}
+        Хамрагдсан {screened}/{total} · Үлдсэн {remaining}
       </span>
     </div>
   )

@@ -16,7 +16,7 @@ const NEEDS_CHILD: RoleChoice[] = ['parent', 'teacher_parent']
 
 const ROLE_DD: DropdownOption<RoleChoice>[] = [
   ...ROLE_OPTIONS.map((o) => ({ value: o.value as RoleChoice, label: o.label })),
-  { value: 'teacher_parent', label: 'Багш + эцэг эх (хослол)' },
+  { value: 'teacher_parent', label: 'Багш + эцэг эх (хамт)' },
 ]
 const INST_DD: DropdownOption<string>[] = [
   { value: 'Сургууль', label: 'Сургууль' },

@@ -64,6 +64,22 @@ interface Guidance {
   nextStep: string
 }
 
+// Gemini-д өгөх ил тод JSON гэрээ (responseSchema) — server талын GUIDANCE_SCHEMA-тай ижил.
+// Загварыг яг эдгээр 6 талбарыг, энэ дарааллаар, цэвэр JSON-оор буцаахад хүргэнэ.
+const GUIDANCE_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    advice: { type: 'STRING' },
+    homeCare: { type: 'STRING' },
+    brushing: { type: 'STRING' },
+    diet: { type: 'STRING' },
+    prevention: { type: 'STRING' },
+    nextStep: { type: 'STRING' },
+  },
+  required: ['advice', 'homeCare', 'brushing', 'diet', 'prevention', 'nextStep'],
+  propertyOrdering: ['advice', 'homeCare', 'brushing', 'diet', 'prevention', 'nextStep'],
+} as const
+
 interface AnalysisResult {
   triage: TriageLevel
   urgent: boolean
@@ -271,11 +287,12 @@ const runGeminiAdvice = async (
     ],
     generationConfig: {
       temperature: 0,
-      maxOutputTokens: 512,
+      // 6 талбартай structured JSON + thinking загварт хүрэлцэхээр өргөн авав
+      // (512 байсан нь Кирилл текстийг дунд нь тасалж, JSON parse унагаан → түүхий
+      //  JSON-ийг advice болгон харуулдаг байсан). Server талын тохиргоотой ижил.
+      maxOutputTokens: 4096,
       responseMimeType: 'application/json',
-      // 3-4 өгүүлбэрийн энгийн зөвлөмжид "бодох" overhead шаардлагагүй —
-      // үүнийг унтраах нь 2.5-flash-ийн саатлыг мэдэгдэхүйц багасгана.
-      thinkingConfig: { thinkingBudget: 0 },
+      responseSchema: GUIDANCE_SCHEMA,
     },
   }
 

@@ -20,6 +20,7 @@ type Props<T extends string> = {
   size?: 'sm' | 'md'
   align?: 'left' | 'right'
   className?: string
+  disabled?: boolean
 }
 
 const SIZE = {
@@ -29,7 +30,7 @@ const SIZE = {
 
 // Menu is portalled to document.body so it escapes any card stacking context
 // (transform / opacity animations on parent cards block absolute-positioned children).
-const Dropdown = <T extends string>({ value, options, onChange, ariaLabel, size = 'md', align = 'left', className }: Props<T>) => {
+const Dropdown = <T extends string>({ value, options, onChange, ariaLabel, size = 'md', align = 'left', className, disabled = false }: Props<T>) => {
   const [open, setOpen] = useState(false)
   const [menuRect, setMenuRect] = useState<DOMRect | null>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -37,6 +38,7 @@ const Dropdown = <T extends string>({ value, options, onChange, ariaLabel, size 
   const current = options.find((o) => o.value === value) ?? options[0]
 
   const toggle = () => {
+    if (disabled) return
     if (!open && triggerRef.current) setMenuRect(triggerRef.current.getBoundingClientRect())
     setOpen((p) => !p)
   }
@@ -76,7 +78,8 @@ const Dropdown = <T extends string>({ value, options, onChange, ariaLabel, size 
         aria-expanded={open}
         aria-label={ariaLabel}
         onClick={toggle}
-        className={cn('btn flex w-full items-center rounded-full border border-border bg-surface font-semibold text-text-base transition-all duration-150 hover:border-primary', SIZE[size])}
+        disabled={disabled}
+        className={cn('btn flex w-full items-center rounded-full border border-border bg-surface font-semibold text-text-base transition-all duration-150 hover:border-primary', SIZE[size], disabled && 'cursor-not-allowed opacity-50 hover:border-border')}
       >
         {current.Icon && <current.Icon className={cn('size-4 shrink-0', current.iconClass ?? 'text-text-muted')} />}
         <span className="flex-1 truncate text-left">{current.label}</span>

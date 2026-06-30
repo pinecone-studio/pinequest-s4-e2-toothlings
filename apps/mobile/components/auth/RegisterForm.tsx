@@ -21,7 +21,7 @@ const ROLE_OPTIONS: DropdownOption<RoleChoice>[] = [
   { value: 'parent', label: 'Хэрэглэгч (эцэг эх)' },
   { value: 'teacher', label: 'Багш' },
   { value: 'school_doctor', label: 'Сургууль/цэцэрлэгийн эмч' },
-  { value: 'teacher_parent', label: 'Багш + эцэг эх (хослол)' },
+  { value: 'teacher_parent', label: 'Багш + эцэг эх (хамт)' },
 ]
 
 const NEEDS_SCHOOL: RoleChoice[] = ['teacher', 'school_doctor', 'teacher_parent']

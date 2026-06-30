@@ -5,7 +5,7 @@ export const Footer = () => (
   <footer className="relative z-10 flex flex-col items-center justify-center gap-3 bg-black py-8"
     style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
     <div className="flex items-center gap-3">
-      <Image src="/logoYellow.png" alt="ToothLings" width={44} height={44} className="select-none object-contain" />
+      <Image src="/logoGreen.png" alt="ToothLings" width={44} height={44} className="select-none object-contain" />
       <span className="select-none font-black" style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', letterSpacing: '-0.03em' }}>
         <span style={{ color: '#fff' }}>Tooth</span><span style={{ color: 'var(--olive)' }}>Lings</span>
       </span>

@@ -40,7 +40,7 @@ const Sidebar = () => {
   return (
     <div className="flex w-[84px] flex-col items-center gap-1 py-5">
       {/* dark mode → yellow logo; light mode → black logo */}
-      <Image src="/logoYellow.png" alt="Screener" width={48} height={48} priority className="hidden object-contain dark:block" />
+      <Image src="/logoGreen.png" alt="Screener" width={48} height={48} priority className="hidden object-contain dark:block" />
       <Image src="/logoBlack.png" alt="Screener" width={48} height={48} priority className="block object-contain dark:hidden" />
       <p className="mb-4 text-center text-[10px] font-bold leading-tight tracking-wide">
         <span className="text-gray-900 dark:text-white">Tooth</span><span className="text-primary">Lings</span>

@@ -27,7 +27,7 @@ const DentistCalendar = ({ appts }: { appts: AppointmentRow[] }) => {
   const startWd = (new Date(view.y, view.m, 1).getDay() + 6) % 7 // Monday-first
   const total = new Date(view.y, view.m + 1, 0).getDate()
   const cells: (number | null)[] = [...Array(startWd).fill(null), ...Array.from({ length: total }, (_, i) => i + 1)]
-  const monthLabel = new Date(view.y, view.m, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' })
+  const monthLabel = `${view.y} оны ${view.m + 1} сар`
   const isToday = (d: number) => d === today.getDate() && view.m === today.getMonth() && view.y === today.getFullYear()
   const step = (dir: number) => {
     const nm = view.m + dir

@@ -24,13 +24,14 @@ const SORT_OPTS: DropdownOption<Sort>[] = [
 ]
 const RANK:  Record<string, number> = { red: 0, yellow: 1, green: 2 }
 
-const COLS = 'grid grid-cols-[1.5fr_1.1fr_1.6fr_1.2fr_1fr] items-center gap-3'
+const COLS = 'grid grid-cols-[1.5fr_1.1fr_1.2fr_1fr] items-center gap-3'
 
 const conf = (s: ScreeningRow) => (s.findings.length ? Math.round(Math.max(...s.findings.map((f) => f.confidence)) * 100) : null)
 
 const RecentScreeningsTable = ({ screenings, loading }: Props) => {
   const [sort, setSort] = useState<Sort>('level')
   const [page, setPage] = useState(0)
+  const [showAll, setShowAll] = useState(false)
 
   if (loading) return <SkeletonTable />
 
@@ -40,9 +41,11 @@ const RecentScreeningsTable = ({ screenings, loading }: Props) => {
     return new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime()
   })
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
-  const safePage   = Math.min(page, totalPages - 1)
-  const pageRows   = sorted.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
+  const totalPages   = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const safePage     = Math.min(page, totalPages - 1)
+  const pageRows     = sorted.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
+  const visibleRows  = showAll ? sorted : pageRows
+  const showPaging   = !showAll && totalPages > 1
 
   return (
     <div className="blob-lg pop-in flex flex-col border border-border bg-surface shadow-(--shadow-card)" style={{ animationDelay: '240ms' }}>
@@ -55,7 +58,7 @@ const RecentScreeningsTable = ({ screenings, loading }: Props) => {
       </div>
 
       <div className={`${COLS} border-t border-border px-6 py-2.5`}>
-        {['Хүүхдийн код', 'Төлөв', 'Оношилгооны шинж', 'Синк', 'Магадлал'].map((h) => (
+        {['Хүүхдийн код', 'Төлөв', 'Синк', 'Магадлал'].map((h) => (
           <span key={h} className="text-[10.5px] font-semibold uppercase tracking-wide text-text-muted">{h}</span>
         ))}
       </div>
@@ -63,7 +66,7 @@ const RecentScreeningsTable = ({ screenings, loading }: Props) => {
       {sorted.length === 0 ? (
         <EmptyState Icon={InboxIcon} title="Хэрэглэгчийн бүртгэл алга" hint="Шинэ хэрэглэгчээр нэвтрэхэд дараалал энд харагдана." />
       ) : (
-        pageRows.map((s) => {
+        visibleRows.map((s) => {
           const c = conf(s)
           return (
             <Link key={s.id} href={`/dashboard/dentist/screenings/${s.id}`}
@@ -75,7 +78,6 @@ const RecentScreeningsTable = ({ screenings, loading }: Props) => {
                 <span className="truncate font-mono text-[12.5px] text-text-base">{s.childKey.slice(0, 16)}</span>
               </div>
               <StatusPill tone={TONE[s.triageLevel] ?? 'neutral'}>{LABEL[s.triageLevel] ?? s.triageLevel}</StatusPill>
-              <span className="truncate text-[12px] text-text-muted">{s.triageReason ?? '—'}</span>
               {s.syncedAt
                 ? <StatusPill tone="synced">Хадгалагдсан</StatusPill>
                 : <StatusPill tone="pending" pulse>Хүлээгдэж буй</StatusPill>}
@@ -95,10 +97,12 @@ const RecentScreeningsTable = ({ screenings, loading }: Props) => {
       )}
 
       <div className="flex items-center justify-between border-t border-border-muted px-6 py-3">
-        <Link href="/dashboard/dentist" className="btn text-[12px] font-medium text-primary transition-all duration-150 hover:underline">
-          Бүгдийг харах
-        </Link>
-        {totalPages > 1 && (
+        {sorted.length > PAGE_SIZE ? (
+          <button onClick={() => setShowAll(v => !v)} className="btn text-[12px] font-medium text-primary transition-all duration-150 hover:underline">
+            {showAll ? 'Хумих' : `Бүгдийг харах (${sorted.length})`}
+          </button>
+        ) : <span />}
+        {showPaging && (
           <div className="flex items-center gap-3">
             <button
               onClick={() => setPage(p => Math.max(0, p - 1))}

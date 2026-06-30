@@ -27,7 +27,7 @@ export const triage = (findings: ToothFinding[], symptoms: SymptomSet): TriageRe
   const confidentWording = maxConfidence >= TRIAGE_THRESHOLDS.confidentWording
 
   if (hasUrgentSymptom(symptoms)) {
-    return { level: 'red', score: 1, confidentWording: true, reason: 'urgent_symptom' }
+    return { level: 'red', score: 1, confidentWording: true, reason: 'Яаралтай эмчилгээ шаардлагатай цоорлын' }
   }
   if (findings.length === 0) {
     return { level: 'green', score: 0, confidentWording, reason: 'no_findings' }

@@ -6,7 +6,7 @@ import { CariesDetectorDashboard } from '@/components/consumer/CariesDetectorDas
 const ScreeningPage = () => {
   useSetPageHeader({
     title: 'Амны хөндийн байдлын хяналт, үнэлгээ',
-    subtitle: 'Оруулсан зургийг танин, дүгнэлт хийх болно.',
+    subtitle: 'Оруулсан зургийг танин, дүгнэлт хийнэ.',
   })
 
   return <CariesDetectorDashboard />

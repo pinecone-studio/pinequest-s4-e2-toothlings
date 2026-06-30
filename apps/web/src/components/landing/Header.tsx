@@ -40,7 +40,7 @@ export const Header = () => {
         transition={{ delay: 2.3, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
       />
       <Link href="/" className="flex items-center gap-2">
-        <img src="/logoYellow.png" alt="ToothLings" className="h-9 w-9 object-contain" />
+        <img src="/logoGreen.png" alt="ToothLings" className="h-9 w-9 object-contain" />
         <m.div style={{ opacity: wmarkOp }} className="flex items-baseline gap-1">
           <span style={{ fontWeight: 900, fontSize: 18 }}>
             <span style={{ color: '#fff' }}>Tooth</span><span style={{ color: 'var(--olive)' }}>Lings</span>
@@ -50,12 +50,14 @@ export const Header = () => {
       <div className="flex items-center gap-3">
         {loggedIn ? (
           <Link href={homeForRole(role)}
-            className="btn inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-text-on-primary shadow-(--shadow-card) transition-all duration-150 hover:bg-primary-hover">
+            style={{ background: 'var(--olive)', color: '#0d1e35' }}
+            className="btn inline-flex items-center justify-center rounded-full px-4 py-2 text-[13px] font-semibold shadow-(--shadow-card) transition-all duration-150 hover:brightness-110">
             Эхлэх
           </Link>
         ) : (
           <Link href="/?auth=login"
-            className="btn inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-text-on-primary shadow-(--shadow-card) transition-all duration-150 hover:bg-primary-hover">
+            style={{ background: 'var(--olive)', color: '#0d1e35' }}
+            className="btn inline-flex items-center justify-center rounded-full px-4 py-2 text-[13px] font-semibold shadow-(--shadow-card) transition-all duration-150 hover:brightness-110">
             Нэвтрэх
           </Link>
         )}

@@ -11,8 +11,8 @@ Built on what the project already ships — **Lenis + Framer Motion `m.*`**
 `#hero` / `PageNav` anchors. No new dependencies.
 
 > Scope: **web only** (per the build decision). The palette stays on the
-> shipping honey-gold system — the closed mouth is the deep field, the
-> inner-lip glow is honey-gold `#F2B705`. Not a new orange/mint scale.
+> shipping brand-green system — the closed mouth is the deep field, the
+> inner-lip glow is brand green `#52A075`. Not a new orange/gold scale.
 
 ## Files
 

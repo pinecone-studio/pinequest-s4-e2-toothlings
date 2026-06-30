@@ -59,7 +59,7 @@ const AuthModal = ({ open, onClose, initialMode = 'login' }: Props) => {
 
         {/* logo + name */}
         <div className="mb-5 flex items-center gap-2.5">
-          <Image src="/logoYellow.png" alt="ToothLings" width={40} height={40} className="hidden object-contain dark:block" />
+          <Image src="/logoGreen.png" alt="ToothLings" width={40} height={40} className="hidden object-contain dark:block" />
           <Image src="/logoBlack.png" alt="ToothLings" width={40} height={40} className="block object-contain dark:hidden" />
           <span className="text-[18px] font-semibold tracking-tight">
             <span className="text-gray-900 dark:text-white">Tooth</span><span className="text-primary">Lings</span>

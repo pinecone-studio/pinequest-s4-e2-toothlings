@@ -15,7 +15,7 @@ type Props = {
 
 // One organic lip, used twice. Upper translates up, lower translates down —
 // both off the SAME progress value so they part in perfect symmetry. Only
-// transform + opacity animate (compositor-only); the honey-gold rim glow rides
+// transform + opacity animate (compositor-only); the brand-green rim glow rides
 // the inner edge and travels with the lip.
 export const Lip = ({ variant, progress, willChange }: Props) => {
   const upper = variant === 'upper'
@@ -49,7 +49,7 @@ export const Lip = ({ variant, progress, willChange }: Props) => {
         {/* lip body */}
         <path d={fill} fill={`url(#${gradId})`} />
 
-        {/* honey-gold inner-edge glow: soft blurred halo + crisp wet-rim highlight */}
+        {/* brand-green inner-edge glow: soft blurred halo + crisp wet-rim highlight */}
         <m.g style={{ opacity: glowOp }}>
           <path
             d={SEAM_PATH}

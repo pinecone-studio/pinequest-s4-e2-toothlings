@@ -6,7 +6,6 @@ import { topDetectionPerLabel } from './detectionMeta'
 import { DetectionGroup } from './DetectionGroup'
 import { GuidanceSections } from './GuidanceSections'
 import { ScheduleCallCard } from './ScheduleCallCard'
-import { NearestClinicCard } from './NearestClinicCard'
 
 const TRIAGE_LABEL: Record<'green' | 'yellow' | 'red', string> = {
   red: 'Яаралтай эмчилгээ шаардлагатай',
@@ -50,7 +49,6 @@ export const ResultsPanel = ({ result }: { result: ScanResult }) => {
       )}
 
       {triageLevel === 'red' && <ScheduleCallCard />}
-      {triageLevel !== 'green' && <NearestClinicCard />}
 
       <p className="flex items-start gap-2 text-[12px] leading-relaxed text-text-muted">
         <AlertTriangle className="mt-0.5 size-3.5 shrink-0" strokeWidth={2} />

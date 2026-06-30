@@ -82,7 +82,7 @@ export default function CameraScreen() {
       <View style={s.root}>
         <View style={s.camLoading}>
           {/* eslint-disable-next-line @typescript-eslint/no-require-imports */}
-          <Image source={require('@/assets/logoYellow.png')} style={ts.loadingLogo} resizeMode="contain" />
+          <Image source={require('@/assets/logoGreen.png')} style={ts.loadingLogo} resizeMode="contain" />
           <ActivityIndicator size="large" color="#fff" />
           <Text style={s.overlayText}>Дүгнэлтийг боловсруулж байна</Text>
         </View>

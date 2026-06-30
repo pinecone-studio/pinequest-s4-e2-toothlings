@@ -33,7 +33,7 @@ export const LogoReveal = ({ progress, reduced, willChange }: Props) => {
     return (
       <div className="absolute inset-0 grid place-items-center px-6">
         <div className="flex flex-col items-center gap-5">
-          <img src="/logoYellow.png" alt="" aria-hidden="true" className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
+          <img src="/logoGreen.png" alt="" aria-hidden="true" className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
           {Brand}
         </div>
       </div>
@@ -54,7 +54,7 @@ export const LogoReveal = ({ progress, reduced, willChange }: Props) => {
             filter: 'blur(34px)',
           }}
         />
-        <img src="/logoYellow.png" alt="" aria-hidden="true" className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
+        <img src="/logoGreen.png" alt="" aria-hidden="true" className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
         {Brand}
       </m.div>
     </m.div>

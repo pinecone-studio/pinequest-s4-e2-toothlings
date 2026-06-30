@@ -12,7 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF",
       "dark": {
-        "image": "./assets/logoYellow.png",
+        "image": "./assets/logoGreen.png",
         "backgroundColor": "#1C1C1E"
       }
     },

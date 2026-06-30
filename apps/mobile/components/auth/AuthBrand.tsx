@@ -8,7 +8,7 @@ const AuthBrand = ({ subtitle }: Props) => {
   // RN bundles static assets via require(); these are the only two app logo variants.
   /* eslint-disable @typescript-eslint/no-require-imports */
   const logo = dark
-    ? require('../../assets/logoYellow.png')
+    ? require('../../assets/logoGreen.png')
     : require('../../assets/logoBlack.png')
   /* eslint-enable @typescript-eslint/no-require-imports */
   return (

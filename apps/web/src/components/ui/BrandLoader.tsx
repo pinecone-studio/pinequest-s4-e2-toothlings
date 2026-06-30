@@ -15,7 +15,7 @@ const BrandLoader = ({ className }: { className?: string }) => (
     <div className="flex flex-col items-center gap-2.5">
       <div className="float">
         {/* dark mode → yellow logo; light mode → black logo (matches Sidebar) */}
-        <Image src="/logoYellow.png" alt="" width={52} height={52} priority className="hidden object-contain dark:block" />
+        <Image src="/logoGreen.png" alt="" width={52} height={52} priority className="hidden object-contain dark:block" />
         <Image src="/logoBlack.png" alt="" width={52} height={52} priority className="block object-contain dark:hidden" />
       </div>
       <p className="text-[12.5px] font-bold tracking-wide">

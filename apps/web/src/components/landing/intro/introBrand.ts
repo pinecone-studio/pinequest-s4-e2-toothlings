@@ -6,18 +6,18 @@
 // live, so web (and a future mobile parity build) can't drift. If mobile is
 // added, copy this file verbatim into apps/mobile and consume the same values.
 //
-// Palette intentionally stays on the shipping ToothLings system: honey-gold
-// (#52A075) accent on a deep warm-ink field — NOT a new orange/mint scale.
+// Palette intentionally stays on the shipping ToothLings system: brand green
+// (#52A075) accent on a deep warm-ink field — NOT a new orange/gold scale.
 // ─────────────────────────────────────────────────────────────────────────
 
-/** Closed-mouth field + glow + wordmark colors (mirror of the gold brand). */
+/** Closed-mouth field + glow + wordmark colors (mirror of the green brand). */
 export const INTRO = {
   // deep warm-ink field — the closed-mouth body. base0 = darkest (outer edge).
   base0: '#0B0A08',
   base1: '#121009',
   base2: '#1B1712',
   base3: '#241E14',
-  // honey-gold inner-lip glow (the deliberate accent — rim only, never a flood).
+  // brand-green inner-lip glow (the deliberate accent — rim only, never a flood).
   glow: '#52A075',
   glowHi: '#62D094',
   glowSoft: 'rgba(82, 160, 117, 0.55)',
