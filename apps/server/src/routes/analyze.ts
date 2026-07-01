@@ -124,6 +124,8 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
         image: shots[0]?.image,
       })
     : null
+  // Gemini зураг + асуумж (SymptomSet) дээр тулгуурлан хүүхэд тус бүрт ялгаатай дүгнэлт/
+  // зөвлөмж гаргана. Gemini унавал л triage түвшинд тохирсон fallback руу шилжинэ.
   const advice = generated?.advice ?? fallbackAdvice(triageResult.level, allDetections.length)
   const guidance = generated?.guidance
 

@@ -22,6 +22,7 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
   const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [target, setTarget] = useState<ScreenTarget | null>(null)
   const [persistUrl, setPersistUrl] = useState<string | null>(null)
+  const [resetSignal, setResetSignal] = useState(0)
   const save = useSaveScreening()
   const toast = useToast()
 
@@ -76,6 +77,7 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
     setPreview(null)
     setFile(null)
     setResult(null)
+    setPersistUrl(null)
     setAnalysisError(null)
     save.reset()
     if (fileRef.current) fileRef.current.value = ''
@@ -85,23 +87,34 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
   // мэдэгдэл гарч, дашборд/ростер (мобайл дээр ч ижил ангийн сурагч) автоматаар шинэчлэгдэнэ.
   const onSave = () => {
     if (!result || !target || !persistUrl || save.isPending) return
+    const label = target.childLabel
     save.mutate(
       { scan: result, target, persistUrl },
       {
-        onSuccess: () => toast.success(`${target.childLabel} — бүртгэлд хадгаллаа`),
+        onSuccess: () => {
+          toast.success(`${label} — бүртгэлд хадгаллаа`)
+          // Скринерийг цэвэрлэж, дараагийн хүүхдэд бэлэн болгоно. resetSignal нэмэгдэхэд
+          // picker сонголтыг цэвэрлэж, DB-ээс хамрагдалт/ростероо шинэчилнэ.
+          clearAll()
+          setResetSignal((n) => n + 1)
+        },
         onError: (e) => toast.error(screeningSaveErrorText(e instanceof Error ? e.message : 'error')),
       },
     )
   }
 
   return (
-    <div className="flex h-full flex-col gap-6">
+    // Хуудас бүхэлдээ гүйлгэнэ (viewport-д түгжихгүй) → зураг өөрийн жинхэнэ өндрөөр
+    // харагдаж, дотроо гүйлгэхгүй. Баруун дүгнэлт багана нь зургийн өндөрт багтаж,
+    // хэтэрвэл зөвхөн өөрийнхөө дотор гүйлгэнэ.
+    <div className="flex min-h-0 flex-col gap-6 xl:h-full">
       {/* Анги + хүүхэд сонгож, зураг шинжилгээний дараа "Дүгнэлтийг хадгалах" товчоор бүртгэнэ. */}
-      <ClassChildPicker onChange={setTarget} />
+      <ClassChildPicker onChange={setTarget} resetSignal={resetSignal} />
 
-      <div className="grid min-h-0 flex-1 gap-8 xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-8 xl:min-h-0 xl:flex-1 xl:grid-cols-[1.15fr_0.85fr] xl:grid-rows-1 xl:items-stretch">
         <div className="flex min-h-0 flex-col gap-6">
           <ScanUploader
+            className="xl:min-h-0 xl:flex-1"
             fileRef={fileRef}
             displayImage={result?.imageUrl ?? preview}
             displayDetections={result?.detections ?? []}
@@ -114,13 +127,15 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
           />
         </div>
 
-        <div className="min-h-0 xl:sticky xl:top-28">
+        {/* xl дээр баруун багана зургийн мөрийн өндөрт багтана (absolute inset-0), тул
+            дүгнэлт хэтэрвэл зөвхөн энэ карт дотор гүйлгэнэ. Дор (mobile) энгийн урсгал. */}
+        <div className="relative min-h-0">
           {result ? (
-            <div className="flex h-full min-h-0 flex-col gap-3">
-              <FlatCard glass className="min-h-0 flex-1 overflow-y-auto p-6 xl:p-8">
+            <FlatCard glass className="flex flex-col overflow-hidden p-0 xl:absolute xl:inset-0">
+              <div className="min-h-0 flex-1 overflow-y-auto p-6 xl:p-8">
                 <ResultsPanel result={result} />
-              </FlatCard>
-              <div className="flex items-center justify-end gap-3">
+              </div>
+              <div className="flex shrink-0 items-center justify-end gap-3 border-t border-border/50 bg-surface/60 px-5 py-4">
                 {!target && <p className="mr-auto text-[12px] text-text-muted">Хадгалахын тулд эхлээд анги, хүүхэд сонгоно уу</p>}
                 <button
                   type="button"
@@ -131,9 +146,9 @@ export const CariesDetectorDashboard = ({ initialResult = false }: { initialResu
                   {save.isPending ? 'Хадгалж байна…' : save.isSuccess ? '✓ Хадгаллаа' : 'Дүгнэлтийг хадгалах'}
                 </button>
               </div>
-            </div>
+            </FlatCard>
           ) : (
-            <FlatCard glass className="flex h-full min-h-[420px] flex-col items-center justify-center p-10 text-center">
+            <FlatCard glass className="flex min-h-105 flex-col items-center justify-center p-10 text-center xl:absolute xl:inset-0">
               <p className="mt-5 text-[17px] font-bold text-text-base">Дүгнэлт энд харагдана</p>
               <p className="mt-2 max-w-xs text-[14px] leading-relaxed text-text-muted">
                 Зураг оруулсны дараа эхлэх товчийг дарна уу.

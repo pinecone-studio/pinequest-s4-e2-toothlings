@@ -45,3 +45,12 @@ export const usePatchUser = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
   })
 }
+
+export const useDeleteUser = () => {
+  const { token } = useSession()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiFetch(`/api/users/${id}`, { token, method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+  })
+}

@@ -16,6 +16,7 @@ export const ScanUploader = ({
   onFile,
   onAnalyze,
   onClear,
+  className,
 }: {
   fileRef: RefObject<HTMLInputElement | null>
   displayImage: string | null
@@ -26,11 +27,12 @@ export const ScanUploader = ({
   onFile: (f: File | null) => void
   onAnalyze: () => void
   onClear: () => void
+  className?: string
 }) => {
   const [dragOver, setDragOver] = useState(false)
 
   return (
-    <FlatCard className="flex h-full flex-col overflow-y-auto p-8">
+    <FlatCard className={cn('flex flex-col overflow-hidden p-8', className)}>
       <input
         ref={fileRef}
         type="file"
@@ -39,54 +41,57 @@ export const ScanUploader = ({
         onChange={(e) => onFile(e.target.files?.[0] ?? null)}
       />
 
-      {!displayImage ? (
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDragOver(true)
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault()
-            setDragOver(false)
-            onFile(e.dataTransfer.files?.[0] ?? null)
-          }}
-          className={cn(
-            'flex min-h-[320px] w-full flex-1 flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-10 text-center transition-all duration-200',
-            dragOver
-              ? 'border-[#0e9594] bg-[#0e9594]/10'
-              : 'border-border bg-surface-raised hover:border-[#0e9594]/50 hover:bg-[#0e9594]/5',
-          )}
-        >
-          <span className="flex size-14 items-center justify-center rounded-full bg-surface shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
-            <Upload className="size-7 text-text-muted" strokeWidth={1.5} />
-          </span>
-          <div>
-            <p className="text-[16px] font-semibold text-text-base">
-              Амны хөндийн ойрын зураг оруулна уу.
-            </p>
-            <p className="mt-2 max-w-sm text-[13px] text-text-muted">
-              Зургийг энд чирэх эсвэл дарж оруулж болно.
-            </p>
+      {/* Дотор нь гүйлгэдэг талбар — талбар багасахад хуудас биш зөвхөн энэ хэсэг гүйлгэнэ. */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        {!displayImage ? (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setDragOver(true)
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setDragOver(false)
+              onFile(e.dataTransfer.files?.[0] ?? null)
+            }}
+            className={cn(
+              'flex min-h-[320px] w-full flex-1 flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-10 text-center transition-all duration-200',
+              dragOver
+                ? 'border-[#0e9594] bg-[#0e9594]/10'
+                : 'border-border bg-surface-raised hover:border-[#0e9594]/50 hover:bg-[#0e9594]/5',
+            )}
+          >
+            <span className="flex size-14 items-center justify-center rounded-full bg-surface shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+              <Upload className="size-7 text-text-muted" strokeWidth={1.5} />
+            </span>
+            <div>
+              <p className="text-[16px] font-semibold text-text-base">
+                Амны хөндийн ойрын зураг оруулна уу.
+              </p>
+              <p className="mt-2 max-w-sm text-[13px] text-text-muted">
+                Зургийг энд чирэх эсвэл дарж оруулж болно.
+              </p>
+            </div>
+          </button>
+        ) : null}
+
+        {analysisError ? <p className="mt-4 text-[13px] text-triage-red">{analysisError}</p> : null}
+
+        {displayImage ? (
+          <div className="mt-6 flex min-h-0 flex-1 items-center justify-center">
+            <IntraoralImageView
+              imageUrl={displayImage}
+              detections={displayDetections}
+              scanning={analyzing}
+            />
           </div>
-        </button>
-      ) : null}
+        ) : null}
+      </div>
 
-      {analysisError ? <p className="mt-4 text-[13px] text-triage-red">{analysisError}</p> : null}
-
-      {displayImage ? (
-        <div className="mt-6">
-          <IntraoralImageView
-            imageUrl={displayImage}
-            detections={displayDetections}
-            scanning={analyzing}
-          />
-        </div>
-      ) : null}
-
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mt-6 flex shrink-0 flex-wrap items-center gap-3">
         <button
           type="button"
           disabled={!canAnalyze}

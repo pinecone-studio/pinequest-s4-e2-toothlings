@@ -9,7 +9,7 @@ import { SkeletonCard } from '@/components/ui/Skeleton'
 import StudentGrid from '@/components/admin/summary/StudentGrid'
 import StudentModal from '@/components/admin/summary/StudentModal'
 import StudentEditModal from '@/components/admin/summary/StudentEditModal'
-import SummaryFilterBar from '@/components/admin/summary/SummaryFilterBar'
+import SummaryFilterBar, { SECTION_LETTERS, SECTION_OTHER } from '@/components/admin/summary/SummaryFilterBar'
 import EmptyState from '@/components/ui/EmptyState'
 import { useSetPageHeader } from '@/components/shell/ShellHeaderContext'
 import { useSeason } from '@/components/shared/SeasonProvider'
@@ -22,9 +22,19 @@ const TRIAGE_GROUPS = [
   { level: 'none',   label: 'Шалгаагүй',                       dot: 'bg-border',        pill: 'bg-surface-raised text-text-muted' },
 ]
 
+// Ангийн нэр = анги + бүлэг (ж: "3А") — түүнийг задлан шүүлтэд тааруулна.
+const gradeOf = (name: string) => name.match(/\d+/)?.[0] ?? ''
+const sectionOf = (name: string) => name.replace(/\d+/, '').trim()
+// "Бусад" = А-Н-д багтахгүй (эсвэл хоосон) бүлэг бүхий анги.
+const matchesSection = (name: string, section: string) => {
+  if (!section) return true
+  const sec = sectionOf(name)
+  return section === SECTION_OTHER ? !SECTION_LETTERS.includes(sec) : sec === section
+}
+
 const SummaryBoard = () => {
   const { data: allStudents, isLoading } = useBoardStudents()
-  const { seasonId } = useSeason()
+  const { seasonId, setSeasonId } = useSeason()
   const send = useSendToParent()
   const del = useDeleteChild()
   const setStatus = useSetFollowUpStatus()
@@ -33,31 +43,46 @@ const SummaryBoard = () => {
   const [editing, setEditing] = useState<BoardStudent | null>(null)
   const [deleting, setDeleting] = useState<BoardStudent | null>(null)
   const [q, setQ] = useState('')
-  const [classFilter, setClassFilter] = useState('')
+  const [grade, setGrade] = useState('')
+  const [section, setSection] = useState('')
   const [trendFilter, setTrendFilter] = useState(false)
 
   // Scope every child's triage to the selected season; kids not screened that
   // season fall into the "Шалгаагүй" group. Switching season regroups the board.
   const students = useMemo(() => scopeStudentsToSeason(allStudents, seasonId), [allStudents, seasonId])
 
-  const classes = useMemo(() => {
-    const all = students ?? []
-    const sorted = [...new Set(all.map((s) => s.className))].sort()
-    return sorted.map((name) => ({ name, count: all.filter((s) => s.className === name).length }))
-  }, [students])
+  // Picking a full анги+бүлэг (ж: "3А") jumps the board to the season that class was
+  // most recently screened in, so its results actually show instead of "Шалгаагүй".
+  const jumpToSeason = (g: string, sec: string) => {
+    if (!g || !sec) return
+    let bestSeason = ''
+    let bestAt = 0
+    for (const s of allStudents ?? []) {
+      if (gradeOf(s.className) !== g || !matchesSection(s.className, sec)) continue
+      for (const h of s.seasonHistory) {
+        const t = new Date(h.screenedAt).getTime()
+        if (t >= bestAt) { bestAt = t; bestSeason = h.seasonId }
+      }
+      if (!bestSeason) bestSeason = s.seasonId // no screenings yet → the class's own season
+    }
+    if (bestSeason) setSeasonId(bestSeason)
+  }
+  const onGrade = (g: string) => { setGrade(g); jumpToSeason(g, section) }
+  const onSection = (sec: string) => { setSection(sec); jumpToSeason(grade, sec) }
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
     return (students ?? []).filter((s) => {
-      if (classFilter && s.className !== classFilter) return false
-      if (needle && !`${s.lastName} ${s.firstName} ${s.className}`.toLowerCase().includes(needle)) return false
+      if (grade && gradeOf(s.className) !== grade) return false
+      if (!matchesSection(s.className, section)) return false
+      if (needle && !`${s.lastName} ${s.firstName}`.toLowerCase().includes(needle)) return false
       if (trendFilter) {
         const tag = s.trend?.tag
         if (tag !== 'worsened' && tag !== 'deteriorating') return false
       }
       return true
     })
-  }, [students, q, classFilter, trendFilter])
+  }, [students, q, grade, section, trendFilter])
 
   const groups = useMemo(() => {
     const by: Record<string, BoardStudent[]> = { red: [], yellow: [], green: [], none: [] }
@@ -85,10 +110,9 @@ const SummaryBoard = () => {
     <section className="flex flex-col gap-5">
       <SummaryFilterBar
         q={q} onQ={setQ}
-        classFilter={classFilter} onClass={setClassFilter}
+        grade={grade} onGrade={onGrade}
+        section={section} onSection={onSection}
         trendFilter={trendFilter} onTrend={setTrendFilter}
-        classes={classes}
-        totalCount={students?.length ?? 0}
         isLoading={isLoading}
       />
 

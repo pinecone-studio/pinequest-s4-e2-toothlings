@@ -13,6 +13,7 @@ import FollowUpEditModal from '@/components/admin/follow-up/FollowUpEditModal'
 import BoardDentistPanel from '@/components/admin/help/BoardDentistPanel'
 import { useSeason } from '@/components/shared/SeasonProvider'
 import { scopeStudentsToSeason } from '@/lib/seasonScope'
+import { improvedFromRed, effectiveFollowUpStatus } from '@/lib/followUp'
 import EmptyState from '@/components/ui/EmptyState'
 import { SkeletonKanban } from '@/components/ui/Skeleton'
 import Button from '@/components/ui/Button'
@@ -52,11 +53,6 @@ const columnFor = (st: FollowUpStatus): Column =>
 const PAGE_SIZE = 5
 const inp =
   'rounded-full border border-border bg-surface px-3 py-2 text-[13px] text-text-base placeholder:text-text-muted/60 transition-colors focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/30'
-const LEVELS = [
-  { value: '', label: 'Бүх эрэмбэ' },
-  { value: 'red', label: 'Яаралтай' },
-  { value: 'yellow', label: 'Эмчилгээ' },
-]
 const URGENCY: Record<string, number> = { red: 0, yellow: 1 }
 const byUrgency = (a: BoardStudent, b: BoardStudent) => {
   const u = (URGENCY[a.latestLevel ?? ''] ?? 9) - (URGENCY[b.latestLevel ?? ''] ?? 9)
@@ -73,18 +69,18 @@ const FollowUpBoard = () => {
   const [dragOverCol, setDragOverCol] = useState<FollowUpStatus | null>(null)
   const [search, setSearch] = useState('')
   const [classFilter, setClassFilter] = useState('')
-  const [levelFilter, setLevelFilter] = useState('')
   const [colPages, setColPages] = useState<Record<string, number>>(() =>
     Object.fromEntries(COLUMNS.map((c) => [c.status, PAGE_SIZE])),
   )
 
-  // Scope the board to the selected season: read each child's screening snapshot
-  // for that season (level + date) instead of the all-time latest, drop kids with
-  // no screening that season, then keep only flagged. Changing the season re-screens.
+  // Хяналт нь ЗӨВХӨН улаан (яаралтай) хүүхдэд зориулагдана. Улирлын хэсэгчилэлээр
+  // тухайн улирлын улаан хүүхдийг харуулна; нэмээд өмнө улаан байгаад одоо сайжирсан
+  // (эмчлүүлсэн) хүүхдийг амжилтын түүх болгон "хийгдсэн" баганад харуулна. Хэзээ ч
+  // улаан байгаагүй, зүгээр шар хүүхэд энд ОРОХГҮЙ.
   const flagged = useMemo(
     () =>
       scopeStudentsToSeason(students, seasonId, true).filter(
-        (s) => s.latestLevel === 'red' || s.latestLevel === 'yellow',
+        (s) => s.latestLevel === 'red' || improvedFromRed(s),
       ),
     [students, seasonId],
   )
@@ -96,16 +92,15 @@ const FollowUpBoard = () => {
         if (search && !`${s.lastName} ${s.firstName}`.toLowerCase().includes(search.toLowerCase()))
           return false
         if (classFilter && s.className !== classFilter) return false
-        if (levelFilter && s.latestLevel !== levelFilter) return false
         return true
       }),
-    [flagged, search, classFilter, levelFilter],
+    [flagged, search, classFilter],
   )
 
   const byStatus = useMemo(() => {
     const map: Record<string, BoardStudent[]> = {}
     for (const col of COLUMNS) map[col.status] = []
-    for (const s of filtered) map[columnFor(s.followUpStatus ?? 'flagged').status].push(s)
+    for (const s of filtered) map[columnFor(effectiveFollowUpStatus(s)).status].push(s)
     for (const col of COLUMNS) map[col.status].sort(byUrgency)
     return map
   }, [filtered])
@@ -157,19 +152,7 @@ const FollowUpBoard = () => {
           </>
         )}
 
-        {/* Level pills */}
-        <div className="h-5 w-px bg-border" />
-        {LEVELS.map((l) => (
-          <button
-            key={l.value}
-            onClick={() => setLevelFilter(l.value)}
-            className={`btn rounded-full px-3 py-1.5 text-[12px] font-semibold transition-all ${levelFilter === l.value ? 'bg-primary text-text-on-primary' : 'border border-border bg-surface text-text-muted hover:border-primary hover:text-primary'}`}
-          >
-            {l.label}
-          </button>
-        ))}
-
-        {(search || classFilter || levelFilter) && (
+        {(search || classFilter) && (
           <Button
             variant="ghost"
             size="sm"
@@ -177,7 +160,6 @@ const FollowUpBoard = () => {
             onClick={() => {
               setSearch('')
               setClassFilter('')
-              setLevelFilter('')
             }}
           >
             <TrashIcon className="size-4" />
@@ -191,7 +173,7 @@ const FollowUpBoard = () => {
         <EmptyState
           Icon={ClipboardDocumentListIcon}
           title="Хяналт шаардлагатай сурагч алга"
-          hint="Улаан/шар төлөвтэй сурагч гарвал энд харагдана."
+          hint="Улаан (яаралтай) төлөвтэй сурагч гарвал энд харагдана."
         />
       ) : (
         <div className="flex min-h-0 flex-col gap-5 lg:flex-row lg:items-start">

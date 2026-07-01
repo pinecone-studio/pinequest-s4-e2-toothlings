@@ -6,11 +6,12 @@ import { useCreateUser } from '@/hooks/useUsers'
 import { useSchools } from '@/hooks/useSchools'
 import { useClasses } from '@/hooks/useClasses'
 import Button from '@/components/ui/Button'
+import Modal from '@/components/ui/Modal'
 import Dropdown, { type DropdownOption } from '@/components/ui/Dropdown'
 import { formatSeason } from '@/lib/season'
 import {
   AcademicCapIcon, BuildingOffice2Icon, UserGroupIcon, ViewfinderCircleIcon,
-  SparklesIcon, ShieldCheckIcon, BuildingLibraryIcon,
+  SparklesIcon, ShieldCheckIcon, BuildingLibraryIcon, UserPlusIcon,
 } from '@heroicons/react/24/solid'
 
 const ROLE_OPTS: DropdownOption<UserRole>[] = [
@@ -23,10 +24,12 @@ const ROLE_OPTS: DropdownOption<UserRole>[] = [
 ]
 
 const inp = 'rounded-xl border border-border bg-surface px-3 py-2 text-sm text-text-base placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary'
+const FORM_ID = 'user-create-form'
 
 const UserCreateForm = () => {
   const createUser = useCreateUser()
   const { data: schools } = useSchools()
+  const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -36,42 +39,61 @@ const UserCreateForm = () => {
   const [classId, setClassId] = useState('')
   const { data: classes } = useClasses(schoolId)
 
+  const reset = () => {
+    setName(''); setEmail(''); setPassword(''); setPhone(''); setRole('screener'); setSchoolId(''); setClassId('')
+  }
+
   const onAdd = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!name || !email || !password) return
     createUser.mutate(
       { name, email, password, role, phone: phone || undefined, schoolId: schoolId || undefined, classId: classId || undefined },
-      { onSuccess: () => { setName(''); setEmail(''); setPassword(''); setPhone(''); setSchoolId(''); setClassId('') } },
+      { onSuccess: () => { reset(); setOpen(false) } },
     )
   }
 
   return (
-    <div className="blob border border-border bg-surface p-5 shadow-(--shadow-card)">
-      <h2 className="mb-3 text-sm font-semibold text-text-muted">Шинэ хэрэглэгч нэмэх</h2>
-      <form onSubmit={onAdd} className="grid grid-cols-2 gap-2">
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Нэр" className={inp} />
-        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="И-мэйл" type="email" className={inp} autoComplete="off" />
-        <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Нууц үг (≥6)" type="password" className={inp} autoComplete="new-password" />
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Утас" type="tel" className={inp} autoComplete="off" />
-        <Dropdown value={role} options={ROLE_OPTS} onChange={setRole} ariaLabel="Үүрэг сонгох" />
-        <Dropdown
-          value={schoolId}
-          options={[{ value: '', label: '— Бүх сургууль —', Icon: BuildingLibraryIcon }, ...(schools ?? []).map((s) => ({ value: s.id, label: s.name }))]}
-          onChange={(v) => { setSchoolId(v); setClassId('') }}
-          ariaLabel="Сургууль сонгох"
-        />
-        {role === 'screener' && schoolId && (
+    <>
+      <Button variant="primary" size="sm" className="self-start" onClick={() => setOpen(true)}>
+        <UserPlusIcon className="size-4" /> Шинэ хэрэглэгч
+      </Button>
+
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Шинэ хэрэглэгч нэмэх"
+        size="lg"
+        footer={
+          <>
+            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Болих</Button>
+            <Button type="submit" form={FORM_ID} size="sm" loading={createUser.isPending}>Нэмэх</Button>
+          </>
+        }
+      >
+        <form id={FORM_ID} onSubmit={onAdd} className="grid grid-cols-2 gap-2">
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Нэр" className={inp} />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="И-мэйл" type="email" className={inp} autoComplete="off" />
+          <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Нууц үг (≥6)" type="password" className={inp} autoComplete="new-password" />
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Утас" type="tel" className={inp} autoComplete="off" />
+          <Dropdown value={role} options={ROLE_OPTS} onChange={setRole} ariaLabel="Үүрэг сонгох" />
           <Dropdown
-            className="col-span-2"
-            value={classId}
-            options={[{ value: '', label: '— Бүлэг (багшийг бүлэгт хуваарилах) —' }, ...(classes ?? []).map((c) => ({ value: c.id, label: `${c.name} · ${formatSeason(c.seasonId)}` }))]}
-            onChange={setClassId}
-            ariaLabel="Бүлэг сонгох"
+            value={schoolId}
+            options={[{ value: '', label: '— Бүх сургууль —', Icon: BuildingLibraryIcon }, ...(schools ?? []).map((s) => ({ value: s.id, label: s.name }))]}
+            onChange={(v) => { setSchoolId(v); setClassId('') }}
+            ariaLabel="Сургууль сонгох"
           />
-        )}
-        <Button type="submit" loading={createUser.isPending}>Нэмэх</Button>
-      </form>
-    </div>
+          {role === 'screener' && schoolId && (
+            <Dropdown
+              className="col-span-2"
+              value={classId}
+              options={[{ value: '', label: '— Бүлэг (багшийг бүлэгт хуваарилах) —' }, ...(classes ?? []).map((c) => ({ value: c.id, label: `${c.name} · ${formatSeason(c.seasonId)}` }))]}
+              onChange={setClassId}
+              ariaLabel="Бүлэг сонгох"
+            />
+          )}
+        </form>
+      </Modal>
+    </>
   )
 }
 

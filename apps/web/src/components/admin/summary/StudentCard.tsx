@@ -9,6 +9,8 @@ import type { FollowUpStatus } from '@pinequest/types'
 import type { BoardStudent } from '@/hooks/useBoard'
 import StatusPicker from '@/components/ui/StatusPicker'
 import IconButton from '@/components/ui/IconButton'
+import { formatSeason } from '@/lib/season'
+import { effectiveFollowUpStatus, improvedFromRed } from '@/lib/followUp'
 import SeasonDotRail from './SeasonDotRail'
 
 // Triage = STATUS accent only (avatar tint + result row text). The card surface
@@ -43,6 +45,9 @@ type Props = {
 const StudentCard = ({ student: s, onOpen, onSend, onEdit, onDelete, onStatus }: Props) => {
   const t = TONE[s.latestLevel ?? 'none']
   const date = s.screenedAt ? new Date(s.screenedAt).toLocaleDateString('mn-MN', { month: 'numeric', day: 'numeric' }) : '—'
+  // Улаанаас сайжирсан бол дагалтын төлөв автоматаар "Эмчилгээ хийлгэсэн" болно.
+  const followUp = effectiveFollowUpStatus(s)
+  const showFollowUp = s.followUpStatus != null || improvedFromRed(s)
 
   return (
     <div className={`grow flex h-full flex-col gap-3 blob bg-surface p-4 shadow-(--shadow-card) hover:shadow-(--shadow-card-lg) ${
@@ -53,7 +58,7 @@ const StudentCard = ({ student: s, onOpen, onSend, onEdit, onDelete, onStatus }:
         <span className={`flex size-10 shrink-0 items-center justify-center rounded-2xl text-[15px] font-black ${t.soft} ${t.text}`}>{s.lastName.charAt(0)}</span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[14px] font-bold text-text-base">{s.lastName} {s.firstName}</p>
-          <p className="text-[12px] text-text-muted">{s.className || '—'} · {s.seasonId || '—'}</p>
+          <p className="text-[12px] text-text-muted">{s.className || '—'} · {s.seasonId ? formatSeason(s.seasonId) : '—'}</p>
         </div>
         <IconButton Icon={ArrowsPointingOutIcon} tone="plain" size="sm" label="Дэлгэрэнгүй" onClick={onOpen} />
       </div>
@@ -77,8 +82,8 @@ const StudentCard = ({ student: s, onOpen, onSend, onEdit, onDelete, onStatus }:
       <SeasonDotRail history={s.seasonHistory ?? []} trend={s.trend ?? null} />
 
       {/* follow-up category pill */}
-      {s.followUpStatus && (() => {
-        const fu = FU_CATEGORY[s.followUpStatus]
+      {showFollowUp && (() => {
+        const fu = FU_CATEGORY[followUp]
         return fu ? (
           <div className={`flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 ${fu.bg}`}>
             <span className={`size-1.5 shrink-0 rounded-full ${fu.dot}`} />
@@ -89,7 +94,7 @@ const StudentCard = ({ student: s, onOpen, onSend, onEdit, onDelete, onStatus }:
 
       {/* actions */}
       <div className="mt-auto flex items-center gap-1.5">
-        {onStatus ? <StatusPicker value={s.followUpStatus ?? 'flagged'} onChange={onStatus} /> : <span className="flex-1" />}
+        {onStatus ? <StatusPicker value={followUp} onChange={onStatus} /> : <span className="flex-1" />}
         {onSend && <IconButton Icon={EnvelopeIcon} tone="plain" size="sm" label="Эцэг эхэд илгээх" onClick={onSend} />}
         {onEdit && <IconButton Icon={PencilSquareIcon} tone="plain" size="sm" label="Засах" onClick={onEdit} />}
         {onDelete && <IconButton Icon={TrashIcon} tone="plain" size="sm" label="Устгах" onClick={onDelete} className="hover:bg-triage-red-bg hover:text-triage-red" />}

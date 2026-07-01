@@ -12,7 +12,7 @@ import Dropdown, { type DropdownOption } from '@/components/ui/Dropdown'
 type Props = { screenings: ScreeningRow[] | undefined; loading?: boolean }
 type Sort  = 'recent' | 'oldest' | 'level'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 5
 
 const AVA:   Record<string, string> = { green: 'bg-triage-green-bg text-triage-green', yellow: 'bg-triage-yellow-bg text-triage-yellow', red: 'bg-triage-red-bg text-triage-red' }
 const TONE:  Record<string, Tone>   = { green: 'safe', yellow: 'check', red: 'danger' }

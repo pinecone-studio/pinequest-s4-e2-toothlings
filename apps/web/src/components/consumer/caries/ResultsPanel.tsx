@@ -25,7 +25,6 @@ export const ResultsPanel = ({ result }: { result: ScanResult }) => {
     <div className="flex flex-col gap-5">
       <div>
         <h2 className="text-[22px] font-bold tracking-tight text-text-base">Дүгнэлт</h2>
-        <p className="mt-1 text-[13px] text-text-muted">Gemini AI Vision</p>
       </div>
 
       <TriageHeroCard level={triageLevel} label={TRIAGE_LABEL[triageLevel]} summary={result.advice} />

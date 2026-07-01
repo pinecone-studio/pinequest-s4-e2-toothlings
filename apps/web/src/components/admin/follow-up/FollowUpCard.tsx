@@ -10,6 +10,7 @@ import type { BoardStudent } from '@/hooks/useBoard'
 import StatusPicker from '@/components/ui/StatusPicker'
 import IconButton from '@/components/ui/IconButton'
 import SeasonDotRail from '@/components/admin/summary/SeasonDotRail'
+import { effectiveFollowUpStatus } from '@/lib/followUp'
 
 // Triage is a STATUS accent ONLY — dot + icon + label + avatar initial. The
 // card surface itself stays neutral in BOTH themes; we never tint the whole
@@ -102,7 +103,7 @@ const FollowUpCard = ({ student: s, onSend, onStatus, onEdit, dragging, onDragSt
 
       {/* action row — clicks here change status / send, never open the modal */}
       <div className="flex items-center gap-2" onClick={stop}>
-        <StatusPicker value={s.followUpStatus ?? 'flagged'} onChange={onStatus} />
+        <StatusPicker value={effectiveFollowUpStatus(s)} onChange={onStatus} />
         {onSend && <IconButton Icon={EnvelopeIcon} tone="plain" size="sm" label="Эцэг эхэд илгээх" onClick={onSend} />}
       </div>
     </div>

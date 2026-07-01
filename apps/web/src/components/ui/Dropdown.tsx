@@ -49,7 +49,8 @@ const Dropdown = <T extends string>({ value, options, onChange, ariaLabel, size 
       const t = e.target as Node
       if (!triggerRef.current?.contains(t) && !menuRef.current?.contains(t)) setOpen(false)
     }
-    const scroll = () => setOpen(false)
+    // Close when the page scrolls, but not when scrolling inside the (long) menu itself.
+    const scroll = (e: Event) => { if (!menuRef.current?.contains(e.target as Node)) setOpen(false) }
     document.addEventListener('mousedown', close)
     document.addEventListener('scroll', scroll, true)
     return () => {
@@ -91,7 +92,7 @@ const Dropdown = <T extends string>({ value, options, onChange, ariaLabel, size 
           ref={menuRef}
           role="listbox"
           style={menuStyle}
-          className="overflow-hidden rounded-2xl border border-border bg-surface p-1.5 shadow-(--shadow-float)"
+          className="max-h-[60vh] overflow-y-auto rounded-2xl border border-border bg-surface p-1.5 shadow-(--shadow-float)"
         >
           {options.map((opt) => {
             const active = opt.value === value

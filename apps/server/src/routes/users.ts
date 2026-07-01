@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import type { UserRole } from '@pinequest/types'
-import { users, userScopes, type DB } from '@pinequest/db/d1'
+import { users, userScopes, parentChildLinks, type DB } from '@pinequest/db/d1'
 import { authorize } from '../middleware/auth.js'
 import { writeAudit } from '../lib/audit.js'
 import type { AppEnv } from '../types.js'
@@ -70,4 +70,28 @@ userRoutes.patch('/:id', authorize('admin'), async (c) => {
   await setClassScope(db, id, classId, c.get('jwtPayload').sub)
   await writeAudit(db, c.get('jwtPayload').sub, 'User', id, 'user_update', before, user)
   return c.json({ success: true, data: user })
+})
+
+// Hard-delete a user from the DB, plus their access grants + parent links. Immutable
+// audit/event actor stamps (screenings, reviews, follow-ups) are historical → left intact.
+userRoutes.delete('/:id', authorize('admin'), async (c) => {
+  const db = c.get('db')
+  const id = c.req.param('id')
+  const actorId = c.get('jwtPayload').sub
+  if (id === actorId) return c.json({ success: false, data: null, message: 'cannot_delete_self' }, 400)
+
+  const [before] = await db.select(userCols).from(users).where(eq(users.id, id))
+  if (!before) return c.json({ success: false, data: null, message: 'not_found' }, 404)
+  // Never leave the system without an admin.
+  if (before.role === 'admin') {
+    const admins = await db.select({ id: users.id }).from(users)
+      .where(and(eq(users.role, 'admin'), eq(users.isActive, true)))
+    if (admins.length <= 1) return c.json({ success: false, data: null, message: 'last_admin' }, 400)
+  }
+
+  await db.delete(userScopes).where(eq(userScopes.userId, id))
+  await db.delete(parentChildLinks).where(eq(parentChildLinks.userId, id))
+  await db.delete(users).where(eq(users.id, id))
+  await writeAudit(db, actorId, 'User', id, 'user_delete', before, null)
+  return c.json({ success: true, data: { id } })
 })
