@@ -169,8 +169,8 @@ authRoutes.post('/switch-role', authenticate, async (c) => {
 
 authRoutes.patch('/me', authenticate, async (c) => {
   const db = c.get('db')
-  const { name, phone, email } = await c.req.json<{ name?: string; phone?: string; email?: string }>()
-  const set: { name?: string; phone?: string | null; email?: string } = {}
+  const { name, phone, email, avatarUrl } = await c.req.json<{ name?: string; phone?: string; email?: string; avatarUrl?: string | null }>()
+  const set: { name?: string; phone?: string | null; email?: string; avatarUrl?: string | null } = {}
   if (typeof name === 'string' && name.trim()) set.name = name.trim()
   if (typeof phone === 'string') set.phone = phone.trim() || null
   if (typeof email === 'string' && email.trim()) {
@@ -181,9 +181,11 @@ authRoutes.patch('/me', authenticate, async (c) => {
     }
     set.email = clean
   }
+  // Passing avatarUrl (data URL string) sets the photo; null/'' clears it.
+  if (avatarUrl !== undefined) set.avatarUrl = avatarUrl || null
   if (!Object.keys(set).length) return c.json({ success: false, data: null, message: 'invalid_input' }, 400)
   const [user] = await db.update(users).set(set).where(eq(users.id, c.get('jwtPayload').sub)).returning()
-  return c.json({ success: true, data: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, schoolId: user.schoolId } })
+  return c.json({ success: true, data: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, schoolId: user.schoolId, avatarUrl: user.avatarUrl } })
 })
 
 authRoutes.get('/me', authenticate, async (c) => {
@@ -194,7 +196,7 @@ authRoutes.get('/me', authenticate, async (c) => {
   const hasLink = await reconcileParentLink(db, sub)
   const user = await db.query.users.findFirst({
     where: eq(users.id, sub),
-    columns: { id: true, email: true, name: true, role: true, phone: true, schoolId: true, isActive: true },
+    columns: { id: true, email: true, name: true, role: true, phone: true, schoolId: true, isActive: true, avatarUrl: true },
   })
   const link = hasLink ? { userId: sub } : null
   // activeRole = the JWT's current (possibly switched) role; hasParentLink gates the switch UI.

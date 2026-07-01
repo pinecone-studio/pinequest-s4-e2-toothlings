@@ -77,8 +77,8 @@ export type CreateClassPayload = {
   students: RosterStudentInput[]
 }
 
-export type ProfilePatch = { name?: string; phone?: string; email?: string }
-export type ProfileResult = { id: string; name: string; email: string; role: string; phone: string | null; schoolId: string | null }
+export type ProfilePatch = { name?: string; phone?: string; email?: string; avatarUrl?: string | null }
+export type ProfileResult = { id: string; name: string; email: string; role: string; phone: string | null; schoolId: string | null; avatarUrl: string | null }
 export type MeResult = {
   id: string
   email: string
@@ -86,6 +86,7 @@ export type MeResult = {
   role: string
   phone: string | null
   schoolId: string | null
+  avatarUrl: string | null
   isActive: boolean
   /** The JWT's CURRENT (possibly switched) role — drives which UI to render. */
   activeRole?: UserRole

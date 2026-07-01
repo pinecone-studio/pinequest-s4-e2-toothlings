@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/ThemeContext'
 import { useSession } from '@/lib/SessionContext'
 import { useModelPrefetch } from '@/lib/useModelPrefetch'
 import { roleConfigFor } from '@/lib/roleConfig'
+import HeroIcon from '@/components/ui/HeroIcon'
 import CameraTabButton from '@/components/home/CameraTabButton'
 import GlassTabBarBackground from '@/components/home/GlassTabBarBackground'
 import { TAB_BAR_RADIUS, TAB_BAR_HEIGHT, TAB_BAR_SIDE_INSET } from '@/lib/tabBarLayout'
@@ -74,8 +75,8 @@ const TabLayout = () => {
       <Tabs.Screen
         name="guide"
         options={{
-          title: 'Заавар',
-          tabBarIcon: ({ color }) => <TabIcon name="book-outline" color={color} />,
+          title: 'Шүд угаалт',
+          tabBarIcon: ({ color }) => <HeroIcon name="toothbrush" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -101,8 +102,8 @@ const TabLayout = () => {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Профайл',
-          tabBarIcon: ({ color }) => <TabIcon name="person-outline" color={color} />,
+          title: 'Тохиргоо',
+          tabBarIcon: ({ color }) => <TabIcon name="settings-outline" color={color} />,
         }}
       />
       <Tabs.Screen name="classes" options={{ href: null }} />

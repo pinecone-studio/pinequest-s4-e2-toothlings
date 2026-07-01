@@ -20,7 +20,7 @@ const DoctorScreen = () => {
     <SafeAreaView style={[s.root, { backgroundColor: colors.bg }]}>
       <View style={[s.header, { borderBottomColor: colors.border }]}>
         <BackButton />
-        <Text style={[s.headerTitle, { color: colors.textBase }]}>Эмчийн профайл</Text>
+        <Text style={[s.headerTitle, { color: colors.textBase }]}>Эмчийн мэдээлэл</Text>
         <View style={s.placeholder} />
       </View>
       <ScrollView contentContainerStyle={s.content}>

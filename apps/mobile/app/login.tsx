@@ -49,7 +49,7 @@ const LoginScreen = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeAreaView style={s.brandWrap}>
-          <AuthBrand subtitle={'Хүүхдийн амны хөндийн байдлын хяналт ба чиглүүлэг'} />
+          <AuthBrand subtitle={'Хүүхдийн амны хөндийн хяналт ба чиглүүлэг'} />
         </SafeAreaView>
       </TouchableWithoutFeedback>
 

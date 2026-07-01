@@ -26,7 +26,7 @@ const DentistProfileEditModal = ({ profile, onClose }: Props) => {
   }
 
   return (
-    <Modal open onClose={onClose} title="Профайл засах" size="md"
+    <Modal open onClose={onClose} title="Мэдээлэл засах" size="md"
       footer={
         <>
           <button onClick={onClose} className="btn rounded-full border border-border px-4 py-2 text-[13px] font-semibold text-text-muted">Болих</button>

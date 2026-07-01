@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter, useFocusEffect } from 'expo-router'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { setStatusBarStyle } from 'expo-status-bar'
 import { ThemeContext, useTheme } from '@/lib/ThemeContext'
 import { homeMonoColors, homeLightColors } from '@/lib/theme'
@@ -18,6 +18,7 @@ import RedStudentsBoardSection from '@/components/home/RedStudentsBoardSection'
 import HelpRequestsSection from '@/components/dentist/HelpRequestsSection'
 import QuickActionGrid from '@/components/home/QuickActionGrid'
 import AdBanner from '@/components/home/AdBanner'
+import ProfileModalHost from '@/components/profile/ProfileModalHost'
 
 const HomeScreen = () => {
   const { dark } = useTheme()
@@ -27,6 +28,7 @@ const HomeScreen = () => {
   const router = useRouter()
   const { user, activeRole } = useSession()
   const { sync, syncing, pendingCount, deadCount } = useOutboxSync()
+  const [profileOpen, setProfileOpen] = useState(false)
 
   // Content scrolls UNDER the floating bar (so the glass blurs it); pad the
   // last item clear of the bar.
@@ -79,7 +81,7 @@ const HomeScreen = () => {
         >
         <GreetingHeader
           name={user?.name ?? '...'}
-          onPressAvatar={() => router.push('/(tabs)/profile' as never)}
+          onPressAvatar={() => setProfileOpen(true)}
           syncing={syncing}
           pendingCount={pendingCount}
           deadCount={deadCount}
@@ -90,6 +92,7 @@ const HomeScreen = () => {
         <AdBanner />
         </ScrollView>
       </SafeAreaView>
+      <ProfileModalHost visible={profileOpen} onClose={() => setProfileOpen(false)} />
     </ThemeContext.Provider>
   )
 }

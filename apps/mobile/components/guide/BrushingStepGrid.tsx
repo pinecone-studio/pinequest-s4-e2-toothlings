@@ -11,7 +11,7 @@ export default function BrushingStepGrid({ steps }: Props) {
 
   return (
     <View style={s.container}>
-      <Text style={[s.sectionLabel, { color: colors.textMuted }]}>АЛХАМ АЛХМААР</Text>
+      <Text style={[s.sectionLabel, { color: colors.textMuted }]}>Дараалал</Text>
       <View style={s.grid}>
         {rows.map((pair, i) => (
           <View key={i} style={s.row}>

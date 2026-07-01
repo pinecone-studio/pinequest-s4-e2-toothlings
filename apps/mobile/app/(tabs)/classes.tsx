@@ -50,7 +50,14 @@ const ClassesScreen = () => {
         <Text style={[s.title, { color: colors.textBase }]}>Анги</Text>
         <TouchableOpacity
           style={[s.add, { backgroundColor: colors.primary }]}
-          onPress={() => router.push('/class/new')}
+          // A teacher already owns their class (created at signup) — jump straight
+          // to adding students there, never a blank "new class" form. Only fall
+          // back to class creation when they genuinely have none yet.
+          onPress={() => {
+            const own = classes?.[0]
+            if (own) router.push({ pathname: '/class/[id]', params: { id: own.id, add: '1' } })
+            else router.push('/class/new')
+          }}
           activeOpacity={0.85}
         >
           <Ionicons name="add" size={22} color={colors.primaryText} />

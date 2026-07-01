@@ -70,7 +70,7 @@ export const HOME_FEATURES: Array<{
   {
     id: 'profile',
     href: ROUTES.profile.root,
-    label: 'Профайл',
+    label: 'Тохиргоо',
     desc: 'Түүх, тохиргоо, динамик',
     Icon: UserIcon,
   },

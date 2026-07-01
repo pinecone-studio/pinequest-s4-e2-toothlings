@@ -12,7 +12,7 @@ export default function GuideScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={[s.root, { backgroundColor: colors.bg }]}>
-      <Text style={[s.pageTitle, { color: colors.textBase }]}>Заавар</Text>
+      <Text style={[s.pageTitle, { color: colors.textBase }]}>Шүд угаалт</Text>
       <GuideTabs active={tab} onChange={setTab} />
       {tab === 'guide' ? <BrushingGuide /> : <BrushMonitor />}
     </SafeAreaView>

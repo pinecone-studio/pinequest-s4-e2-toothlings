@@ -38,7 +38,7 @@ const ProfileCard = () => {
           </div>
           <button
             type="button"
-            aria-label="Профайл"
+            aria-label="Миний мэдээлэл"
             onClick={() => setOpen(true)}
             className="tap flex size-9 shrink-0 items-center justify-center rounded-full bg-black/10 text-current transition-colors hover:bg-black/20"
           >

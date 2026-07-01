@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -50,7 +50,7 @@ const buildStudents = (rows: EditableStudent[]): { students?: RosterAppendInput[
 
 const ClassDetailScreen = () => {
   const { colors } = useTheme()
-  const { id } = useLocalSearchParams<{ id: string }>()
+  const { id, add } = useLocalSearchParams<{ id: string; add?: string }>()
   const [meta, setMeta] = useState<ClassMeta | null>(null)
   const [roster, setRoster] = useState<RosterStatusRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -69,6 +69,12 @@ const ClassDetailScreen = () => {
   }, [])
 
   useFocusEffect(useCallback(() => { void load(id); return () => {} }, [id, load]))
+
+  // Deep-linked from the Class tab's "+" (the teacher's existing class): open the
+  // add-students sheet immediately so they just add students, never re-create the class.
+  useEffect(() => {
+    if (add === '1') { setRows([emptyStudent()]); setAddError(null); setShowAdd(true) }
+  }, [add])
 
   const onRefresh = useCallback(() => {
     setRefreshing(true)

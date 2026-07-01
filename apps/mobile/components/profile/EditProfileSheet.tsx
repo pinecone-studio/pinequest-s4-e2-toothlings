@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '@/lib/ThemeContext'
+import { lightColors, darkColors } from '@/lib/theme'
 import { updateMe, type ProfileResult } from '@/lib/api'
 import { toMongolian } from '@/lib/errorMessages'
 import TextField from '@/components/auth/TextField'
@@ -37,7 +38,10 @@ type Props = {
 // A bottom-sheet editor for the user's changeable registration values (name,
 // phone, email). Opened from the profile header — no always-visible edit button.
 const EditProfileSheet = ({ visible, initial, onClose, onSaved }: Props) => {
-  const { colors } = useTheme()
+  // Opaque palette so the sheet never lets the page behind bleed through a
+  // screen-specific glass skin (e.g. Home's translucent `surface`).
+  const { dark } = useTheme()
+  const colors = dark ? darkColors : lightColors
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')

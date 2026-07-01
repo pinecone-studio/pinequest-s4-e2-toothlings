@@ -66,7 +66,7 @@ const ProfileModal = ({ open, onClose }: Props) => {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Миний профайл">
+    <Modal open={open} onClose={onClose} title="Тохиргоо">
       <div className="flex flex-col items-center gap-5 pb-2 pt-1">
         <div className="relative">
           <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-[22px] font-bold text-text-on-primary">

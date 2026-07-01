@@ -46,7 +46,7 @@ export const useUpdateMe = () => {
   return useMutation({
     mutationFn: (vars: { name?: string; phone?: string; email?: string }) =>
       apiFetch<unknown>('/api/auth/me', { token, method: 'PATCH', body: vars }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['me'] }); toast.success('Профайл шинэчлэгдлээ') },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['me'] }); toast.success('Мэдээлэл шинэчлэгдлээ') },
     onError: () => toast.error('Алдаа гарлаа'),
   })
 }

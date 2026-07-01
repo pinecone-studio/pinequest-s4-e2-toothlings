@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router'
 import { useTheme } from '@/lib/ThemeContext'
 import { clearToken, clearUser } from '@/lib/auth'
 import SettingsRow from './SettingsRow'
+import ThemeToggleRow from './ThemeToggleRow'
 
 const SettingsSection = () => {
   const { colors } = useTheme()
@@ -18,6 +19,7 @@ const SettingsSection = () => {
     <View>
       <Text style={[s.sectionTitle, { color: colors.textMuted }]}>ТОХИРГОО</Text>
       <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <ThemeToggleRow />
         <SettingsRow
           icon="globe-outline"
           label="Хэл"

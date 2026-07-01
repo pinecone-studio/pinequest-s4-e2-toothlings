@@ -50,9 +50,14 @@ export default function RootLayout() {
       <SessionProvider>
         <RootStack />
       </SessionProvider>
-      <StatusBar style="auto" />
+      <ThemedStatusBar />
     </ThemeProvider>
   )
+}
+
+const ThemedStatusBar = () => {
+  const { dark } = useTheme()
+  return <StatusBar style={dark ? 'light' : 'dark'} />
 }
 
 const RootStack = () => {

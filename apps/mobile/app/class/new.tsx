@@ -6,7 +6,6 @@ import { seasonForDate } from '@pinequest/core'
 import { useTheme } from '@/lib/ThemeContext'
 import { createClass, type RosterStudentInput } from '@/lib/api'
 import { toMongolian } from '@/lib/errorMessages'
-import ScreenHeader from '@/components/teacher/ScreenHeader'
 import SeasonPicker from '@/components/teacher/SeasonPicker'
 import MonthCalendar from '@/components/teacher/MonthCalendar'
 import RosterEditor, { emptyStudent } from '@/components/teacher/RosterEditor'
@@ -40,7 +39,6 @@ const NewClassScreen = () => {
   const { colors } = useTheme()
   const router = useRouter()
   const [name, setName] = useState('')
-  const [grade, setGrade] = useState('')
   const [seasonId, setSeasonId] = useState(seasonForDate(new Date()))
   const [date, setDate] = useState<Date | null>(null)
   const [showCal, setShowCal] = useState(false)
@@ -55,11 +53,9 @@ const NewClassScreen = () => {
     setLoading(true)
     setError(null)
     try {
-      const gradeNum = parseInt(grade, 10)
       await createClass({
         name: name.trim(),
         seasonId,
-        gradeLevel: gradeNum > 0 ? gradeNum : undefined,
         scheduledAt: date ? date.toISOString() : undefined,
         students: students ?? [],
       })
@@ -80,11 +76,8 @@ const NewClassScreen = () => {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Шинэ анги" subtitle="Анги болон сурагчдын бүртгэл" />
-
-        <TextField label="АНГИЙН НЭР" value={name} onChange={setName} placeholder="ж: 3A" autoCapitalize="characters" />
-        <TextField label="АНГИ (ЗААВАЛ БИШ)" value={grade} onChange={setGrade} placeholder="ж: 3" keyboard="number-pad" />
-
+        <TextField label="Ангийн нэр" value={name} onChange={setName} placeholder="ж: 3A" autoCapitalize="characters" />
+       
         <View style={s.block}>
           <Text style={[s.label, { color: colors.textMuted }]}>Улирал</Text>
           <SeasonPicker value={seasonId} onChange={setSeasonId} year={THIS_YEAR} />

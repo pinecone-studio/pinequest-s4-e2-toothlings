@@ -48,6 +48,12 @@
           "cameraPermission": "Хүүхдийн шүдийг скрининг хийхэд камер ашиглана."
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Профайл зургаа сонгоход зургийн санд хандана."
+        }
+      ],
       "expo-font",
       "expo-sqlite",
       [

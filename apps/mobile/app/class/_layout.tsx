@@ -12,7 +12,7 @@ const ClassLayout = () => {
         headerShadowVisible: true,
       }}
     >
-      <Stack.Screen name="new" options={{ title: 'Анги нэмэх', headerBackTitle: 'Буцах' }} />
+      <Stack.Screen name="new" options={{ title: 'Шинэ анги', headerBackTitle: 'Буцах' }} />
       <Stack.Screen name="[id]" options={{ headerShown: false }} />
     </Stack>
   )

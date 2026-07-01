@@ -10,8 +10,8 @@ type Props = { onScan: () => void }
 // Three steps, each its own blurred gradient chip in one of the 3 colors.
 const SUB_CHIPS = [
   { word: 'Асуумж', rgb: '130,192,204' }, // #00b2ca
-  { word: 'Үнэлгээ', rgb: '0,178,202' }, // #1d4e89
-  { word: 'Дүгнэлт', rgb: '29,78,137' }, // #82c0cc
+  { word: 'Дүгнэлт', rgb: '0,178,202' }, // #1d4e89
+  { word: 'Шүд угаалт', rgb: '29,78,137' }, // #82c0cc
 ]
 
 // Teal palette repeated so the gradient tiles seamlessly across 2× the card
@@ -162,11 +162,10 @@ const s = StyleSheet.create({
   },
   sub: { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#FFFFFF' },
   btn: {
-    flexDirection: 'row',
+    width: 44,
+    height: 44,
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    justifyContent: 'center',
     borderRadius: 9999,
     backgroundColor: 'rgba(255,255,255,0.22)',
     borderWidth: StyleSheet.hairlineWidth,

@@ -11,6 +11,8 @@ export const users = sqliteTable('User', {
   phone: text('phone'),
   passwordHash: text('passwordHash'),
   schoolId: text('schoolId'),
+  avatarUrl: text('avatarUrl'), // profile photo, stored as a data URL (base64)
+
   isActive: integer('isActive', { mode: 'boolean' }).notNull().default(true),
   createdAt: ts('createdAt').notNull().$defaultFn(() => new Date()),
 }, (t) => [index('User_phone_idx').on(t.phone)])
