@@ -18,6 +18,7 @@ import RedStudentsBoardSection from '@/components/home/RedStudentsBoardSection'
 import HelpRequestsSection from '@/components/dentist/HelpRequestsSection'
 import QuickActionGrid from '@/components/home/QuickActionGrid'
 import AdBanner from '@/components/home/AdBanner'
+import ModelStatusBanner from '@/components/home/ModelStatusBanner'
 import ProfileModalHost from '@/components/profile/ProfileModalHost'
 
 const HomeScreen = () => {
@@ -86,6 +87,7 @@ const HomeScreen = () => {
           pendingCount={pendingCount}
           deadCount={deadCount}
         />
+        <ModelStatusBanner />
         {config.showScanHero && <ScanHeroCard onScan={() => router.push('/scan')} />}
         {config.sections.map(renderSection)}
         <QuickActionGrid actions={actions} />

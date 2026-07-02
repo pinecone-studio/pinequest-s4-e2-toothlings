@@ -28,7 +28,7 @@ const CallSession = ({ roomId }: { roomId: string }) => {
     onError: (msg) => setEnded(msg === 'camera_denied' ? 'Камер/микрофоныг ашиглах боломжгүй' : 'Холбогдож чадсангүй'),
   })
 
-  useEffect(() => { if (status === 'connected') return; return startRingback() }, [status])
+  useEffect(() => { if (status !== 'connecting' || ended) return; return startRingback() }, [status, ended])
   useEffect(() => { if (status !== 'connected') return; const iv = setInterval(() => setSecs((s) => s + 1), 1000); return () => clearInterval(iv) }, [status])
   useEffect(() => {
     if (role !== 'host' || !inviteId || status === 'connected' || ended) return
@@ -55,7 +55,9 @@ const CallSession = ({ roomId }: { roomId: string }) => {
         </span>
       </div>
 
-      <video ref={localVideoRef} autoPlay playsInline muted className={`absolute right-4 top-16 rounded-2xl border-2 border-white/30 object-cover ${PIP} ${camOn ? '' : 'hidden'}`} />
+      {/* Mirror ONLY the local self-view (natural, like a mirror / FaceTime). The remote
+          video is left un-mirrored so the other person is shown as they really are. */}
+      <video ref={localVideoRef} autoPlay playsInline muted className={`absolute right-4 top-16 -scale-x-100 rounded-2xl border-2 border-white/30 object-cover ${PIP} ${camOn ? '' : 'hidden'}`} />
       {!camOn && <div className={`absolute right-4 top-16 flex items-center justify-center rounded-2xl border-2 border-white/30 bg-[#1c2433] text-[11px] text-white/60 ${PIP}`}>Камер хаалттай</div>}
 
       <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-4 p-8">

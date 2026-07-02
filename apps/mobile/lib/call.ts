@@ -1,4 +1,4 @@
-import { Linking } from 'react-native'
+import { Alert, Linking } from 'react-native'
 import { WEB_BASE } from './config'
 import { createInvite } from './api'
 
@@ -18,10 +18,19 @@ const openRoom = (roomId: string, role: 'host' | 'guest', inviteId?: string): Pr
  * the room as host in the phone browser. The dentist, logged into the web board,
  * gets the incoming-call overlay, accepts, and joins the same room as guest.
  */
-export const callDentist = async (dentistUserId: string, fromName: string): Promise<void> => {
+export const callDentist = async (dentistId: string, fromName: string): Promise<void> => {
+  if (!dentistId) {
+    Alert.alert('Дуудлага', 'Энэ цагт эмч хуваарилагдаагүй байна.')
+    return
+  }
   const roomId = newRoomId()
-  // Ring the dentist first so the overlay is up by the time we're in the room.
-  // Best-effort: if the invite fails, still open the room.
-  const invite = await createInvite(roomId, dentistUserId, fromName).catch(() => null)
-  return openRoom(roomId, 'host', invite?.id)
+  // Ring the dentist FIRST — the invite is what makes the incoming-call overlay pop
+  // up on their board. If it fails there is nobody to answer, so surface the error
+  // instead of silently opening a room that will just time out.
+  const invite = await createInvite(roomId, dentistId, fromName).catch(() => null)
+  if (!invite?.id) {
+    Alert.alert('Дуудлага', 'Эмчид дуудлага илгээж чадсангүй. Интернэт холболтоо шалгаад дахин оролдоно уу.')
+    return
+  }
+  await openRoom(roomId, 'host', invite.id)
 }

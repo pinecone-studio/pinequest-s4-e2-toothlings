@@ -1,11 +1,18 @@
-import { Stack, useRouter, useSegments } from 'expo-router'
+import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
-import { Text, TextInput, View } from 'react-native'
+import { Text, TextInput } from 'react-native'
 import { useFonts } from 'expo-font'
-import { getToken } from '@/lib/auth'
+import * as SplashScreen from 'expo-splash-screen'
 import { ThemeProvider, useTheme } from '@/lib/ThemeContext'
 import { SessionProvider } from '@/lib/SessionContext'
+
+// Hold the native splash up while fonts load. The root layout must render the
+// navigator (RootStack) on its FIRST render — never an early-return placeholder —
+// or expo-router throws "Attempted to navigate before mounting the Root Layout".
+// The auth/cold-start gate lives INSIDE the navigator (app/(tabs)/_layout) via a
+// declarative <Redirect>, so no imperative navigation ever runs from here.
+void SplashScreen.preventAutoHideAsync()
 
 const applyInterDefaults = () => {
   const base = { fontFamily: 'Inter_400Regular' }
@@ -16,9 +23,6 @@ const applyInterDefaults = () => {
 }
 
 export default function RootLayout() {
-  const router = useRouter()
-  const segments = useSegments()
-
   const [fontsLoaded] = useFonts({
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     Inter_400Regular: require('../assets/fonts/Inter_400Regular.ttf'),
@@ -31,19 +35,14 @@ export default function RootLayout() {
   })
 
   useEffect(() => {
-    if (fontsLoaded) applyInterDefaults()
+    if (fontsLoaded) {
+      applyInterDefaults()
+      void SplashScreen.hideAsync()
+    }
   }, [fontsLoaded])
 
-  useEffect(() => {
-    if (!segments.length) return
-    getToken().then((t: string | null) => {
-      const inAuthScreen = segments[0] === 'login'
-      if (!t && !inAuthScreen) router.replace('/login')
-    })
-  }, [segments])
-
-  if (!fontsLoaded) return <View style={{ flex: 1 }} />
-
+  // Always render the navigator (RootStack) on the first render — do NOT gate it on
+  // fontsLoaded; the splash stays up until fonts are ready (hidden in the effect above).
   return (
     <ThemeProvider>
       <SessionProvider>

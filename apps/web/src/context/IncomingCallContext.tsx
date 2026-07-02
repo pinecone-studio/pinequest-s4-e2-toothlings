@@ -43,7 +43,10 @@ export const IncomingCallProvider = ({ children }: { children: ReactNode }) => {
     const poll = async () => {
       const list = await getPendingInvites(token).catch(() => [] as CallInvite[])
       if (!active) return
-      const fresh = list.find((i) => i.status === 'ringing' && i.expiresAt > Date.now() && !handled(i.id))
+      // expiresAt comes back from the API as an ISO string (D1 timestamp_ms → Date →
+      // JSON), so compare via Date, NOT a raw `>` which would coerce to NaN and drop
+      // every invite — that was why the incoming-call overlay never appeared.
+      const fresh = list.find((i) => i.status === 'ringing' && new Date(i.expiresAt).getTime() > Date.now() && !handled(i.id))
       setIncoming((cur) => {
         if (cur || !fresh) return cur
         stopRing.current = startRingtone()

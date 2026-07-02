@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { and, eq, gt } from 'drizzle-orm'
-import { callInvites } from '@pinequest/db/d1'
+import { callInvites, volunteerDentists } from '@pinequest/db/d1'
 import { authenticate } from '../middleware/auth.js'
 import type { AppEnv } from '../types.js'
 
@@ -13,11 +13,20 @@ const TTL_MS = 120_000 // invites ring for 120s
 callRoutes.post('/', authenticate, async (c) => {
   const db = c.get('db')
   const payload = c.get('jwtPayload')
-  const { roomId, toUserId, fromName } = await c.req.json<{ roomId: string; toUserId: string; fromName?: string }>()
-  if (!roomId || !toUserId) return c.json({ success: false, data: null, message: 'invalid_input' }, 400)
+  const { roomId, toUserId, dentistId, fromName } =
+    await c.req.json<{ roomId: string; toUserId?: string; dentistId?: string; fromName?: string }>()
+  // The callee is a USER id. The mobile passes the appointment's volunteer-dentist
+  // id (always present) and we resolve the user id here — more reliable than trusting
+  // the client to carry dentistUserId. The web caller passes toUserId directly.
+  let callee = toUserId
+  if (!callee && dentistId) {
+    const vol = await db.query.volunteerDentists.findFirst({ where: eq(volunteerDentists.id, dentistId) })
+    callee = vol?.userId
+  }
+  if (!roomId || !callee) return c.json({ success: false, data: null, message: 'invalid_input' }, 400)
   const [row] = await db.insert(callInvites).values({
     roomId,
-    toUserId,
+    toUserId: callee,
     fromUserId: payload.sub,
     fromName: fromName?.trim() || 'Дуудлага',
     status: 'ringing',

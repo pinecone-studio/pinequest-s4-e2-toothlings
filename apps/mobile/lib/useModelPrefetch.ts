@@ -1,5 +1,12 @@
-import { useEffect } from 'react'
-import { isModelCached, downloadModel } from './localInference'
+import { useEffect, useState } from 'react'
+import {
+  isModelCached,
+  downloadModel,
+  refreshModelStatus,
+  getModelStatus,
+  subscribeModelStatus,
+  type ModelStatus,
+} from './localInference'
 import { MODEL_URL } from './config'
 
 /**
@@ -15,6 +22,8 @@ import { MODEL_URL } from './config'
  */
 export const useModelPrefetch = () => {
   useEffect(() => {
+    // Surface "ready" immediately when the model is already on disk.
+    void refreshModelStatus()
     const url = MODEL_URL
     if (!url) return
     let cancelled = false
@@ -24,4 +33,11 @@ export const useModelPrefetch = () => {
     })
     return () => { cancelled = true }
   }, [])
+}
+
+/** Subscribe to the model download status for a UI indicator. */
+export const useModelStatus = (): ModelStatus => {
+  const [status, setStatus] = useState<ModelStatus>(getModelStatus())
+  useEffect(() => subscribeModelStatus(setStatus), [])
+  return status
 }

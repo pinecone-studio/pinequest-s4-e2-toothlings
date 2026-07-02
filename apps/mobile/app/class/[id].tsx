@@ -252,7 +252,7 @@ const ClassDetailScreen = () => {
                       </View>
                       <TouchableOpacity
                         style={[s.callBtn, { backgroundColor: canJoin ? colors.triageRedText : colors.surfaceRaised, borderColor: colors.border }]}
-                        onPress={() => canJoin && callDentist(appt.dentistUserId, shortChildName(callChild.lastName, callChild.firstName))}
+                        onPress={() => canJoin && callDentist(appt.dentistId, shortChildName(callChild.lastName, callChild.firstName))}
                         disabled={!canJoin}
                         activeOpacity={0.85}
                       >

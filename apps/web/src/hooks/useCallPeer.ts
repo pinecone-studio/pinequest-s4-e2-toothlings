@@ -69,17 +69,24 @@ export const useCallPeer = ({ roomId, role, onRemoteHangup, onError }: Args) => 
       streamRef.current = stream
       if (localVideoRef.current) localVideoRef.current.srcObject = stream
 
-      const { default: PeerCtor } = await import('peerjs')
+      let PeerModule: typeof import('peerjs')
+      try { PeerModule = await import('peerjs') }
+      catch { if (!cancelled) { setStatus('error'); cbRef.current.onError?.('peer_load_failed') } return }
       if (cancelled) return
+      const PeerCtor = PeerModule.default
 
       // Fetch fresh STUN+TURN servers before opening the peer so media can relay
       // through TURN when a direct path isn't available.
       const iceServers = await getIceServers().then((r) => r.iceServers).catch(() => FALLBACK_ICE)
       if (cancelled) return
       const peerOpts = { config: { iceServers } }
+      // The signaling broker can drop the socket; reconnect (unless we already have
+      // media or the component is tearing down) so the peer stays reachable.
+      const keepAlive = (peer: Peer) =>
+        peer.on('disconnected', () => { if (!cancelled && !connected) { try { peer.reconnect() } catch { /* destroyed */ } } })
 
       const asGuest = () => {
-        const peer = new PeerCtor(peerOpts); peerRef.current = peer
+        const peer = new PeerCtor(peerOpts); peerRef.current = peer; keepAlive(peer)
         peer.on('open', () => {
           let n = 0
           const dial = () => {
@@ -101,7 +108,7 @@ export const useCallPeer = ({ roomId, role, onRemoteHangup, onError }: Args) => 
         peer.on('error', () => { /* peer-unavailable during retry — ignored */ })
       }
       const asHost = () => {
-        const peer = new PeerCtor(hostId, peerOpts); peerRef.current = peer
+        const peer = new PeerCtor(hostId, peerOpts); peerRef.current = peer; keepAlive(peer)
         peer.on('call', (call: MediaConnection) => { call.answer(stream); wireCall(call) })
         peer.on('connection', wireData)
         peer.on('error', (err) => { if (err.type === 'unavailable-id') { peer.destroy(); asGuest() } })
