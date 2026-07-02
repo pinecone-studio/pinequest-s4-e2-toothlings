@@ -136,7 +136,7 @@ export default function ScreeningDetailScreen() {
       .then((appts) => {
         const noted = appts
           .filter((a) => a.childKey === childKey && a.note)
-          .sort((a, b) => b.scheduledAt.localeCompare(a.scheduledAt))[0]
+          .sort((a, b) => b.scheduledAt - a.scheduledAt)[0]
         setCallNote(noted ? { note: noted.note as string, dentistName: noted.dentistName } : null)
       })
       .catch(() => {})

@@ -20,6 +20,9 @@ export type AppEnv = {
     SEED_ENABLED?: string
     GEMINI_API_KEY?: string
     GEMINI_MODEL?: string
+    /** Cloudflare Realtime TURN key — mints short-lived ICE creds for video calls. */
+    TURN_KEY_ID?: string
+    TURN_KEY_API_TOKEN?: string
   }
   Variables: {
     jwtPayload: JwtPayload

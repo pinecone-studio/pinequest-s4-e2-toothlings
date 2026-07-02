@@ -20,9 +20,12 @@ binding = "IMAGES"
 bucket_name = "screener-images"
 
 # Secrets (set with `npx wrangler secret put <NAME>`) — NOT committed:
-#   JWT_SECRET       — auth signing key
-#   GEMINI_API_KEY   — enables Gemini parent-advice on /analyze (web-тэй ижил seam).
-#                      Тохируулаагүй бол triage түвшний deterministic зөвлөмж буцна.
+#   JWT_SECRET         — auth signing key
+#   GEMINI_API_KEY     — enables Gemini parent-advice on /analyze (web-тэй ижил seam).
+#                        Тохируулаагүй бол triage түвшний deterministic зөвлөмж буцна.
+#   TURN_KEY_ID        — Cloudflare Realtime TURN key id (video-call NAT traversal).
+#   TURN_KEY_API_TOKEN — matching API token; mints short-lived ICE creds at /api/calls/ice.
+#                        Хоёуланг тохируулаагүй бол STUN-only (ихэвчлэн нэг сүлжээнд л холбогдоно).
 [vars]
 CORS_ORIGIN = "*"
 # Optional — defaults to gemini-2.5-flash in code if unset.

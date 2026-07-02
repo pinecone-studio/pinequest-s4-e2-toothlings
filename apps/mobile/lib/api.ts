@@ -346,14 +346,37 @@ export type AppointmentListItem = {
   childName: string | null
   dentistId: string
   dentistName: string | null
+  /** The dentist's USER id — the target of a video-call invite (see createInvite). */
+  dentistUserId: string
   level: 'red' | 'yellow'
-  scheduledAt: string
+  /** ms epoch — the server returns a numeric timestamp (not an ISO string). */
+  scheduledAt: number
   status: 'scheduled' | 'completed' | 'cancelled'
   note: string | null
   roomUrl: string
 }
 
 export const getAppointments = () => apiFetch<AppointmentListItem[]>('/api/appointments')
+
+/** A PeerJS call signal (mirrors the web's lib/signaling.ts). Media is P2P; this
+ *  row only rings the callee so they can accept and join the same room. */
+export type CallInvite = {
+  id: string
+  roomId: string
+  fromUserId: string
+  fromName: string
+  toUserId: string
+  status: 'ringing' | 'answered' | 'declined'
+  createdAt: number
+  expiresAt: number
+}
+
+/** Ring a user (the dentist) for an incoming video call in `roomId`. */
+export const createInvite = (roomId: string, toUserId: string, fromName: string) =>
+  apiFetch<CallInvite>('/api/calls', {
+    method: 'POST',
+    body: JSON.stringify({ roomId, toUserId, fromName }),
+  })
 
 export type AnalyzeMeta = {
   childKey: string

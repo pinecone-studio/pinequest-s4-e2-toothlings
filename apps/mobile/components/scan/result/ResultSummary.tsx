@@ -1,4 +1,6 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { useState } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { guidanceLines } from '@pinequest/core'
 import { useTheme } from '@/lib/ThemeContext'
 import type { ChildScreeningSummary, ScreeningGuidance, TriageLevel } from '@pinequest/types'
@@ -40,6 +42,7 @@ type Props = {
  */
 const ResultSummary = ({ summary, level, advice, guidance }: Props) => {
   const { colors } = useTheme()
+  const [adviceOpen, setAdviceOpen] = useState(false)
   const lvl = summary?.effectiveLevel ?? level
   const rawConclusion = advice ? [advice] : (summary?.conclusion ?? [FALLBACK_LEAD[lvl]])
   // Урт үргэлжилсэн текстийг өгүүлбэр бүрээр салгаж тус тусдаа мөр болгоно.
@@ -70,25 +73,39 @@ const ResultSummary = ({ summary, level, advice, guidance }: Props) => {
           </View>
         ))}
       </View>
-      <Text style={[s.label, { color: colors.textMuted, marginTop: 6 }]}>ЦААШИД ХЭВШҮҮЛЭХ АРГА ХЭМЖЭЭ</Text>
-      {guidanceGroups.length
-        ? guidanceGroups.map((grp, i) => (
-            <View key={i} style={[s.group, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[s.groupLabel, { color: colors.textMuted }]}>{grp.label}</Text>
-              {grp.lines.map((line, j) => (
-                <View key={j} style={s.bulletRow}>
-                  <Text style={[s.check, { color: fg }]}>✓</Text>
-                  <Text style={[s.stepText, { color: colors.textBase }]}>{line}</Text>
-                </View>
-              ))}
-            </View>
-          ))
-        : fallbackSteps.map((step, i) => (
-            <View key={i} style={[s.step, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[s.check, { color: fg }]}>✓</Text>
-              <Text style={[s.stepText, { color: colors.textBase }]}>{step}</Text>
-            </View>
-          ))}
+      {/* "Цаашид хэвшүүлэх арга хэмжээ" нь "Зөвлөмж" товч дор эвхэгдсэн — дарж дэлгэнэ. */}
+      <TouchableOpacity
+        style={[s.adviceToggle, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        onPress={() => setAdviceOpen((o) => !o)}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="bulb-outline" size={18} color={fg} />
+        <Text style={[s.adviceToggleText, { color: colors.textBase }]}>Зөвлөмж</Text>
+        <Ionicons name={adviceOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+      </TouchableOpacity>
+      {adviceOpen ? (
+        <Text style={[s.label, { color: colors.textMuted, marginTop: 2 }]}>ЦААШИД ХЭВШҮҮЛЭХ АРГА ХЭМЖЭЭ</Text>
+      ) : null}
+      {adviceOpen
+        ? guidanceGroups.length
+          ? guidanceGroups.map((grp, i) => (
+              <View key={i} style={[s.group, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Text style={[s.groupLabel, { color: colors.textMuted }]}>{grp.label}</Text>
+                {grp.lines.map((line, j) => (
+                  <View key={j} style={s.bulletRow}>
+                    <Text style={[s.check, { color: fg }]}>✓</Text>
+                    <Text style={[s.stepText, { color: colors.textBase }]}>{line}</Text>
+                  </View>
+                ))}
+              </View>
+            ))
+          : fallbackSteps.map((step, i) => (
+              <View key={i} style={[s.step, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <Text style={[s.check, { color: fg }]}>✓</Text>
+                <Text style={[s.stepText, { color: colors.textBase }]}>{step}</Text>
+              </View>
+            ))
+        : null}
     </View>
   )
 }
@@ -102,6 +119,8 @@ const s = StyleSheet.create({
   bulletRow: { flexDirection: 'row', gap: 8 },
   bullet: { fontSize: 14, lineHeight: 20 },
   line: { flex: 1, fontSize: 14, fontFamily: 'Inter_400Regular', lineHeight: 20 },
+  adviceToggle: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 13, borderWidth: StyleSheet.hairlineWidth, marginTop: 6 },
+  adviceToggleText: { flex: 1, fontSize: 14, fontFamily: 'Inter_600SemiBold' },
   group: { borderRadius: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth, gap: 8 },
   groupLabel: { fontSize: 11, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.6, textTransform: 'uppercase' },
   step: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 14, padding: 14, borderWidth: StyleSheet.hairlineWidth },

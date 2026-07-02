@@ -25,7 +25,7 @@ const CallSession = ({ roomId }: { roomId: string }) => {
   const { status, hasRemoteStream, localVideoRef, remoteVideoRef, micOn, camOn, toggleMic, toggleCam, hangUp } = useCallPeer({
     roomId, role,
     onRemoteHangup: () => { setEnded('Дуудлага дууслаа'); setTimeout(leave, 1200) },
-    onError: () => setEnded('Камер/микрофоныг ашиглах боломжгүй'),
+    onError: (msg) => setEnded(msg === 'camera_denied' ? 'Камер/микрофоныг ашиглах боломжгүй' : 'Холбогдож чадсангүй'),
   })
 
   useEffect(() => { if (status === 'connected') return; return startRingback() }, [status])

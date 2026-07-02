@@ -13,6 +13,11 @@ export type CallInvite = {
   expiresAt: number
 }
 
+/** Short-lived STUN+TURN ICE servers minted server-side (see server calls.ts /ice).
+ *  Public endpoint — the mobile caller's browser tab has no session. */
+export const getIceServers = (token: string | null = null) =>
+  apiFetch<{ iceServers: RTCIceServer[] }>('/api/calls/ice', { token })
+
 export const sendInvite = (token: string | null, roomId: string, toUserId: string, fromName: string) =>
   apiFetch<CallInvite>('/api/calls', { token, method: 'POST', body: { roomId, toUserId, fromName } })
 

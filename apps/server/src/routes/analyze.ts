@@ -88,16 +88,21 @@ analyzeRoutes.post('/analyze', authenticate, async (c) => {
   // Run inference on each region, keeping its detections attributed to the
   // quadrant so the result UI can draw boxes per photo. All detections still feed
   // ONE screening — never split a multi-shot capture across separate records.
-  // Run all regions in parallel — they are independent, so sequential awaits just
-  // stacked their latencies. Promise.all preserves quadrant order in the result.
+  // Run SEQUENTIALLY: the inference backend (HF Space free tier) is single-worker,
+  // so firing all four in parallel doesn't cut latency — the backend serializes
+  // them anyway, but each request's per-image timeout then also counts the time it
+  // spends queued behind the others, so the 3rd/4th reliably blow INFERENCE_TIMEOUT_MS
+  // and abort with inference_failed. Sequential keeps each request's clock to its own
+  // ~5–8s of actual work, well under the mobile client's 60s deadline.
   let photos: { quadrant: Quadrant; detections: ReturnType<typeof normalizeInference>['detections'] }[]
   try {
-    photos = await Promise.all(
-      shots.map(async (shot) => ({
+    photos = []
+    for (const shot of shots) {
+      photos.push({
         quadrant: shot.quadrant,
         detections: normalizeInference(await runInference(inferenceUrl, shot.image), 'server').detections,
-      })),
-    )
+      })
+    }
   } catch {
     return c.json({ success: false, data: null, message: 'inference_failed' }, 502)
   }

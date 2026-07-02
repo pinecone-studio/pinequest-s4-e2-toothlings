@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useTheme } from '@/lib/ThemeContext'
-import { clearToken, clearUser } from '@/lib/auth'
+import { clearToken, clearUser, clearOfflineCredential } from '@/lib/auth'
 import SettingsRow from './SettingsRow'
 import ThemeToggleRow from './ThemeToggleRow'
 
@@ -12,6 +12,8 @@ const SettingsSection = () => {
   const logout = async () => {
     await clearToken()
     await clearUser()
+    // Drop the offline-login credentials too, so the next user can't re-enter.
+    await clearOfflineCredential()
     router.replace('/login')
   }
 

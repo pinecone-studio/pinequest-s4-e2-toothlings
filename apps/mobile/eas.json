@@ -9,7 +9,8 @@
       "ios": { "simulator": true },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://screener-api.ariunzul.workers.dev",
-        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx"
+        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx",
+        "EXPO_PUBLIC_WEB_URL": "https://toothlings.ariunzul.workers.dev"
       }
     },
     "development-device": {
@@ -17,20 +18,23 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://screener-api.ariunzul.workers.dev",
-        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx"
+        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx",
+        "EXPO_PUBLIC_WEB_URL": "https://toothlings.ariunzul.workers.dev"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://screener-api.ariunzul.workers.dev",
-        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx"
+        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx",
+        "EXPO_PUBLIC_WEB_URL": "https://toothlings.ariunzul.workers.dev"
       }
     },
     "production": {
       "env": {
         "EXPO_PUBLIC_API_URL": "https://screener-api.ariunzul.workers.dev",
-        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx"
+        "EXPO_PUBLIC_MODEL_URL": "https://nerunnee-toothlings-inference.hf.space/model.onnx",
+        "EXPO_PUBLIC_WEB_URL": "https://toothlings.ariunzul.workers.dev"
       }
     }
   },

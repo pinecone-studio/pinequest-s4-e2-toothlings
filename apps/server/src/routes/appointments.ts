@@ -34,6 +34,9 @@ appointmentRoutes.get('/', authenticate, async (c) => {
     birthYear: children.birthYear,
     dentistId: appointments.dentistId,
     dentistName: volunteerDentists.displayName,
+    // The dentist's USER id (not the volunteer-profile id) — a PeerJS call invite is
+    // addressed to a user, so the mobile caller needs this to ring the dentist.
+    dentistUserId: volunteerDentists.userId,
     createdById: appointments.createdById,
     level: appointments.level,
     scheduledAt: appointments.scheduledAt,

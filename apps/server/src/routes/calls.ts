@@ -37,6 +37,33 @@ callRoutes.get('/pending', authenticate, async (c) => {
   return c.json({ success: true, data: rows })
 })
 
+// ICE servers for the WebRTC call. Public (the mobile caller opens the call page
+// in a plain browser tab with no session). STUN alone can't traverse symmetric
+// NAT, so we mint SHORT-LIVED TURN credentials from the Cloudflare Realtime TURN
+// key server-side (the API token is a secret, never shipped to the client). Falls
+// back to STUN-only when TURN isn't configured — calls then work only when at
+// least one peer is directly reachable.
+type IceServer = { urls: string | string[]; username?: string; credential?: string }
+callRoutes.get('/ice', async (c) => {
+  const stunOnly: IceServer[] = [{ urls: ['stun:stun.cloudflare.com:3478', 'stun:stun.l.google.com:19302'] }]
+  const keyId = c.env.TURN_KEY_ID
+  const apiToken = c.env.TURN_KEY_API_TOKEN
+  if (!keyId || !apiToken) return c.json({ success: true, data: { iceServers: stunOnly } })
+  try {
+    const res = await fetch(`https://rtc.live.cloudflare.com/v1/turn/keys/${keyId}/credentials/generate`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${apiToken}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ ttl: 86400 }),
+    })
+    if (!res.ok) return c.json({ success: true, data: { iceServers: stunOnly } })
+    const body = (await res.json()) as { iceServers: IceServer | IceServer[] }
+    const turn = Array.isArray(body.iceServers) ? body.iceServers : [body.iceServers]
+    return c.json({ success: true, data: { iceServers: [...stunOnly, ...turn] } })
+  } catch {
+    return c.json({ success: true, data: { iceServers: stunOnly } })
+  }
+})
+
 // Caller polls a single invite to learn answered / declined.
 callRoutes.get('/:id', authenticate, async (c) => {
   const row = await c.get('db').query.callInvites.findFirst({ where: eq(callInvites.id, c.req.param('id')) })

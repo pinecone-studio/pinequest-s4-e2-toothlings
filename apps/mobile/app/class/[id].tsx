@@ -8,7 +8,6 @@ import {
   RefreshControl,
   Modal,
   KeyboardAvoidingView,
-  Linking,
   Platform,
   StyleSheet,
 } from 'react-native'
@@ -21,6 +20,7 @@ import { getClass, getRosterStatus, addStudents, getAppointments, type ClassMeta
 import { toMongolian } from '@/lib/errorMessages'
 import { shortChildName } from '@/lib/childName'
 import { slotLabel } from '@/lib/appointmentSlots'
+import { callDentist } from '@/lib/call'
 import ScreenHeader from '@/components/teacher/ScreenHeader'
 import CoverageBar from '@/components/teacher/CoverageBar'
 import TriageBadge from '@/components/teacher/TriageBadge'
@@ -86,7 +86,7 @@ const ClassDetailScreen = () => {
     (childKey: string): AppointmentListItem | null =>
       appts
         .filter((a) => a.childKey === childKey && a.status !== 'cancelled')
-        .sort((a, b) => b.scheduledAt.localeCompare(a.scheduledAt))[0] ?? null,
+        .sort((a, b) => b.scheduledAt - a.scheduledAt)[0] ?? null,
     [appts],
   )
 
@@ -252,7 +252,7 @@ const ClassDetailScreen = () => {
                       </View>
                       <TouchableOpacity
                         style={[s.callBtn, { backgroundColor: canJoin ? colors.triageRedText : colors.surfaceRaised, borderColor: colors.border }]}
-                        onPress={() => canJoin && Linking.openURL(appt.roomUrl)}
+                        onPress={() => canJoin && callDentist(appt.dentistUserId, shortChildName(callChild.lastName, callChild.firstName))}
                         disabled={!canJoin}
                         activeOpacity={0.85}
                       >
