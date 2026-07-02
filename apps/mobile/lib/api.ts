@@ -371,11 +371,12 @@ export type CallInvite = {
   expiresAt: number
 }
 
-/** Ring a user (the dentist) for an incoming video call in `roomId`. */
-export const createInvite = (roomId: string, toUserId: string, fromName: string) =>
+/** Ring the dentist for an incoming video call in `roomId`. Passes the appointment's
+ *  volunteer-dentist id; the server resolves the dentist's user id (the invite target). */
+export const createInvite = (roomId: string, dentistId: string, fromName: string) =>
   apiFetch<CallInvite>('/api/calls', {
     method: 'POST',
-    body: JSON.stringify({ roomId, toUserId, fromName }),
+    body: JSON.stringify({ roomId, dentistId, fromName }),
   })
 
 export type AnalyzeMeta = {

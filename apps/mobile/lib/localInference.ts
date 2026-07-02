@@ -37,22 +37,55 @@ const CLASS_NAMES = ['caries', 'cavity', 'crack', 'tooth']
 
 let _session: InferenceSession | null = null
 
+// Observable download status so the UI can show "downloading / ready offline"
+// instead of the model being fetched silently (the user otherwise has no way to
+// know when a fully-offline scan is possible). Simple pub/sub — no extra deps.
+// State-only (no % ): a byte-progress callback wires up expo-file-system's native
+// event emitter, which floods the log with "runtime is not available" (see below).
+export type ModelStatus = 'idle' | 'downloading' | 'ready' | 'error'
+
+let _status: ModelStatus = 'idle'
+const _listeners = new Set<(s: ModelStatus) => void>()
+
+export const getModelStatus = (): ModelStatus => _status
+export const subscribeModelStatus = (cb: (s: ModelStatus) => void): (() => void) => {
+  _listeners.add(cb)
+  return () => { _listeners.delete(cb) }
+}
+const setModelStatus = (s: ModelStatus) => {
+  _status = s
+  _listeners.forEach((cb) => cb(s))
+}
+
 export const isModelCached = async (): Promise<boolean> => {
   const info = await FileSystem.getInfoAsync(MODEL_PATH)
   return info.exists && (info as { size?: number }).size! > 1_000_000
 }
 
+/** Reflect the on-disk state into the status store (call on app start). */
+export const refreshModelStatus = async (): Promise<void> => {
+  if (!isOnnxAvailable) return
+  if (await isModelCached()) setModelStatus('ready')
+}
+
 export const downloadModel = async (modelUrl: string): Promise<void> => {
   // No native runtime to load the file into (e.g. Expo Go) — skip the download.
   if (!isOnnxAvailable) return
-  if (await isModelCached()) return
+  if (await isModelCached()) { setModelStatus('ready'); return }
+  setModelStatus('downloading')
   // Plain downloadAsync (no progress callback): passing a progress callback wires up
   // expo-file-system's native download-progress event emitter, which floods the log
   // with "Unable to send an event 'expo-file-system.downloadProgress' … runtime is
   // not available" for every chunk. No caller uses progress, so we skip it.
-  await FileSystem.downloadAsync(modelUrl, MODEL_PATH)
-  // Reset session so next run loads the new file
-  _session = null
+  try {
+    await FileSystem.downloadAsync(modelUrl, MODEL_PATH)
+    // Reset session so next run loads the new file
+    _session = null
+    setModelStatus('ready')
+  } catch (err) {
+    setModelStatus('error')
+    throw err
+  }
 }
 
 // Hardware-accelerated execution providers: NNAPI (GPU/NPU) on Android, CoreML on

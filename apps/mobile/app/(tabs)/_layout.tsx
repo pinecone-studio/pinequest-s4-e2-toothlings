@@ -1,10 +1,12 @@
-import { Tabs, useRouter } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { Tabs, useRouter, Redirect } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from '@/lib/ThemeContext'
 import { useSession } from '@/lib/SessionContext'
 import { useModelPrefetch } from '@/lib/useModelPrefetch'
 import { roleConfigFor } from '@/lib/roleConfig'
+import { getToken } from '@/lib/auth'
 import HeroIcon from '@/components/ui/HeroIcon'
 import CameraTabButton from '@/components/home/CameraTabButton'
 import GlassTabBarBackground from '@/components/home/GlassTabBarBackground'
@@ -16,6 +18,15 @@ const TabIcon = ({ name, color }: { name: IoniconsName; color: string }) => (
   <Ionicons name={name} size={22} color={color} />
 )
 
+// 'checking' until we've read the stored token; then either bounce to /login or
+// render the tabs. Auto-resume when a session token exists — this is what makes
+// offline-first work: a screener who logged in once (online) re-opens the app with
+// NO signal and lands straight in the tabs (the model is already cached), never
+// hitting the login screen. Only a truly signed-out phone (no token) sees /login.
+// The gate lives INSIDE the navigator so we can redirect declaratively with
+// <Redirect>, which avoids the "navigate before mounting the Root Layout" crash.
+type Gate = 'checking' | 'login' | 'ok'
+
 const TabLayout = () => {
   const { colors, dark } = useTheme()
   const router = useRouter()
@@ -23,9 +34,17 @@ const TabLayout = () => {
   const config = roleConfigFor(activeRole)
   const insets = useSafeAreaInsets()
 
+  const [gate, setGate] = useState<Gate>('checking')
+  useEffect(() => {
+    void getToken().then((t) => setGate(t ? 'ok' : 'login'))
+  }, [])
+
   // Warm the on-device model into cache the moment a signed-in user is in the app,
   // so a first scan can still run if they later lose signal (no-signal soum).
   useModelPrefetch()
+
+  if (gate === 'checking') return null
+  if (gate === 'login') return <Redirect href="/login" />
 
   const barFloat = (insets.bottom || 12) + 6 // gap between the bar and the screen bottom
 
